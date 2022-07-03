@@ -38,7 +38,7 @@ class Params(BaseDash):
     population: Param
     solar_panel_price: Param
 
-    params: list[tuple[str, Param]] | None = Field(exclude=True)
+    params: dict[str, Param] | None = Field(exclude=True)
 
     @validator(
         'population',
@@ -53,12 +53,12 @@ class Params(BaseDash):
         )
 
     @validator('params', always=True)
-    def gen_params(cls, v: None, values: dict):
-        return [
-            (name, attr)
+    def gen_params(cls, v: None, values: dict[str, PositiveInt | Param]):
+        return {
+            name: attr
             for name, attr in values.items()
             if isinstance(attr, Param)
-        ]
+        }
 
     def dash(self, app: 'Dash') -> 'Component':
         return dbc.Accordion(
@@ -68,6 +68,6 @@ class Params(BaseDash):
                 dbc.AccordionItem(
                     title=f'{to_title(name)} ({param.unit})',
                     children=param.dash(app)
-                ) for name, param in self.params
+                ) for name, param in self.params.items()
             ]
         )
