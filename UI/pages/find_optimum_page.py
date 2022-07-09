@@ -7,7 +7,7 @@ import pandas as pd
 from dash import dcc, html, Input, State, Output, callback
 
 from UI.UI_params import *
-from df_objects.df_objects import DemandDf, ProductionDf, SimulationResults
+from objects.df import DemandDf, ProductionDf, SimulationResults
 from hourly_simulation.parameters import Params, get_simulation_parameters, PARAMS_PATH
 from hourly_simulation.strategies import use_strategies
 from output_graphs import simulation_graph

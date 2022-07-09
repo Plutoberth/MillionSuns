@@ -4,7 +4,7 @@ from typing import Dict
 
 import pandas as pd
 
-from df_objects.df_objects import CostElectricityDf
+from objects.df import CostElectricityDf
 from hourly_simulation.shift_day_in_year import shift_day_of_year
 
 # Non changing Params
