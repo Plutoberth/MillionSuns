@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from objects.df import DemandDf, ProductionDf, SimulationResults
 from hourly_simulation.parameters import Params
-from hourly_simulation.predict_demand import predict_demand_in_year
+from hourly_simulation.predict import predict_demand
 from hourly_simulation.simulation import simulate_use
 
 
@@ -50,7 +50,7 @@ def run_scenarios(demand: DemandDf, normalised_production: ProductionDf, simulat
     Run the simulation of various solar panel and battery combinations
 
     :param demand: DemandDf of pd.DataFrame(columns=['HourOfYear', '$(Year)'])
-    :param normalised_production: ProductionDf of pd.DataFrame(columns=['HourOfYear', 'SolarProduction'])
+    :param normalised_production: SolarProductionDf of pd.DataFrame(columns=['HourOfYear', 'SolarProduction'])
         between 0 and 1
     :param simulated_year: int year to simulate
     :param solar_panel_power_it_kw: iterator for different solar panels in kw
@@ -69,7 +69,8 @@ def run_scenarios(demand: DemandDf, normalised_production: ProductionDf, simulat
         for num_batteries in num_batteries_it:
             total_cost = 0
             for year in range(int(params.YEARS_TO_SIMULATE)):
-                total_cost += simulate_use(demand=predict_demand_in_year(demand, params, demand.year + year),
+                # TODO: is it possible that demand is being extrapolated twice?
+                total_cost += simulate_use(demand=predict_demand(demand, params, demand.year + year),
                                            normalised_production=normalised_production,
                                            params=params,
                                            solar_panel_power_kw=solar_panel_power_kw,
