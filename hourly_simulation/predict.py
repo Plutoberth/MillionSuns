@@ -45,7 +45,7 @@ def predict_demand(
 
     expected_demand = copy.deepcopy(hourly_demand)
     expected_demand.df[expected_demand.Demand] *= params.GROWTH_PER_YEAR ** (
-        simulated_year - expected_demand.year + 0.01
+        simulated_year - expected_demand.year
     )
     expected_demand.year = simulated_year
     return expected_demand
