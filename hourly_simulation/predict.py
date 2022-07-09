@@ -41,7 +41,7 @@ def predict_demand(
     :return: DemandDf of new pd.DataFrame(columns=['HourOfYear', 'Demand']) of the wanted year with extrapolation
     and the year of demand
     """
-    assert simulated_year >= expected_demand.year
+    assert simulated_year >= hourly_demand.year
 
     expected_demand = copy.deepcopy(hourly_demand)
     expected_demand.df[expected_demand.Demand] *= params.GROWTH_PER_YEAR ** (
