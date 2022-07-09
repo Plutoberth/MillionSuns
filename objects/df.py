@@ -70,7 +70,7 @@ class DemandDf(InputDataFrameWrapper):
     def __init__(self, df: pd.DataFrame):
         super().__init__(self, df)
         try:
-            self.YearOfDemand = int(df.columns[1])
+            self.year = int(df.columns[1])
         except Exception:
             logging.error("Demand File given did not contain number (year of demand) as the title of the demand")
         self.df = self.df.rename(columns={df.columns[1]: DemandDf.Demand})

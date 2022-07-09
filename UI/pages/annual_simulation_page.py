@@ -141,7 +141,7 @@ def run_simulation(n_clicks, num_batteries, solar_panel_power_mw, simulated_year
     except AssertionError as e:
         logging.warning(traceback.format_exc())
     for_download = electricity_use.df.copy()
-    for_download["Demand"] = shift_day_of_year(demand.df[demand.Demand].to_numpy(), demand.YearOfDemand)
+    for_download["Demand"] = shift_day_of_year(demand.df[demand.Demand].to_numpy(), demand.year)
     for_download[normalised_production.SolarProduction] = get_solar_production_profile(
         normalised_production, solar_panel_power_kw, params).df[ProductionDf.SolarProduction]
     last_simulation_results = for_download
@@ -152,7 +152,7 @@ def run_simulation(n_clicks, num_batteries, solar_panel_power_mw, simulated_year
     return yearly_graph_fig(electricity_use.df,
                             params.BATTERY_CAPACITY * num_batteries * params.BATTERY_EFFECTIVE_SIZE, demand,
                             num_hours_to_sum=1,
-                            demand_year=demand.YearOfDemand), False, format_price_description(description)
+                            demand_year=demand.year), False, format_price_description(description)
 
 
 @callback(
