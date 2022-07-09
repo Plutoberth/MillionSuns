@@ -3,8 +3,7 @@ from typing import Callable
 
 import numpy_financial as npf
 
-from df_objects import ProductionDf
-from objects.df import ElectricityUseDf, DemandDf
+from objects.df import ElectricityUseDf, DemandDf, ProductionDf
 from hourly_simulation.parameters import Params, ELECTRICITY_COST, ELECTRICITY_SELLING_INCOME
 from hourly_simulation.predict_demand import predict_demand_in_year
 
