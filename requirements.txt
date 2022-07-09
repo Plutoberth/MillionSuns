@@ -10,3 +10,4 @@ tqdm==4.64.0
 cx_Freeze==6.10
 cx_Logging==3.0
 waitress==2.1.1
+pytest
