@@ -37,7 +37,7 @@ class Param(BaseModel, ABCInterpoRange):
     start_year: PositiveInt
     end_year: PositiveInt
 
-    def at(self, year: PositiveInt) -> float:
+    def at(self, year: int) -> float:
         return sum(
             ([r for _ in range(r.end_year - r.start_year)] for r in
              sorted(self.ranges, key=lambda r: r.start_year)

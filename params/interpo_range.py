@@ -43,7 +43,8 @@ class ABCInterpoRange(ABCDash):
     Allow an object to provide a value at given year.
     """
 
-    def at(self, year: PositiveInt) -> float:
+    @abstractmethod
+    def at(self, year: int) -> float:
         """ Get value at given year. """
         ...
 
@@ -66,7 +67,7 @@ class InterpoRange(BaseModel, ABCInterpoRange):
             values['interpo'].type: values['interpo'].copy()
         }
 
-    def at(self, year: PositiveInt) -> float:
+    def at(self, year: int) -> float:
         return self.interpo.at(self.start_year, self.end_year, year)
 
     def dash(self, app: 'Dash') -> 'Component':

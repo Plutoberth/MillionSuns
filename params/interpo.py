@@ -62,9 +62,9 @@ class ABCInterpo(ABCDash):
     @abstractmethod
     def at(
         self,
-        start_year: PositiveInt,
-        end_year: PositiveInt,
-        target_year: PositiveInt
+        start_year: int,
+        end_year: int,
+        target_year: int
     ) -> float:
         """ Get the value at a certain year. """
         ...
@@ -82,9 +82,9 @@ class Constant(BaseModel, ABCInterpo):
 
     def at(
         self,
-        start_year: PositiveInt,
-        end_year: PositiveInt,
-        target_year: PositiveInt
+        start_year: int,
+        end_year: int,
+        target_year: int
     ) -> float:
         return self.value
 
@@ -125,9 +125,9 @@ class Linear(BaseModel, ABCInterpo):
 
     def at(
         self,
-        start_year: PositiveInt,
-        end_year: PositiveInt,
-        target_year: PositiveInt
+        start_year: int,
+        end_year: int,
+        target_year: int
     ) -> float:
         return np.interp(
             x=target_year,
@@ -188,9 +188,9 @@ class Compound(BaseModel, ABCInterpo):
 
     def at(
         self,
-        start_year: PositiveInt,
-        end_year: PositiveInt,
-        target_year: PositiveInt
+        start_year: int,
+        end_year: int,
+        target_year: int
     ) -> float:
         # pv=-start_value because fv is for debt.
         # i.e. with (rate=0.5, nper=1, pmt=0): pv=-10 -> 15, pv=10 -> 5
