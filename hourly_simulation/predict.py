@@ -14,7 +14,7 @@ def predict_solar_production(
 
     :param normalised_production: ProductionDf normalised solar hourly production pd.DataFrame(columns=['HourOfYear',
         'SolarProduction'])
-    :param solar_panel_power_kw: float max power of solar panels built [KW]
+    :param solar_panel_generation_kw: float max power of solar panels built [KW]
     :param params: namedtuple simulation params
     :return: ProductionDf total production of solar panels pd.DataFrame(columns=['HourOfYear', 'SolarProduction'])
     """
