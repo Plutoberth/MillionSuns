@@ -1,6 +1,6 @@
 import copy
 
-from df_objects.df_objects import DemandDf
+from objects.df import DemandDf
 from hourly_simulation.parameters import Params
 
 

@@ -2,7 +2,7 @@ import logging
 
 import pandas as pd
 
-from df_objects.df_objects import ElectricityUseDf, DemandDf, ProductionDf
+from objects.df import ElectricityUseDf, DemandDf, ProductionDf
 from hourly_simulation.parameters import Params
 
 

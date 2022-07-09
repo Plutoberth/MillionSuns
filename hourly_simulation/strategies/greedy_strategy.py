@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import pandas as pd
 
-from df_objects.df_objects import DemandDf, ProductionDf, ElectricityUseDf
+from objects.df import DemandDf, ProductionDf, ElectricityUseDf
 from hourly_simulation.parameters import Params
 from hourly_simulation.shift_day_in_year import shift_day_of_year
 
