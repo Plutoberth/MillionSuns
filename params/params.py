@@ -20,9 +20,9 @@ in the sense that new parameters need to be added manually.
 import typing as t
 
 import dash_bootstrap_components as dbc
-from pydantic import Field, PositiveInt, validator
+from pydantic import BaseModel, Field, PositiveInt, validator
 
-from .base_dash import BaseDash
+from .abc_dash import ABCDash
 from .param import Param
 from .utils import to_title
 
@@ -31,7 +31,7 @@ if t.TYPE_CHECKING:
     from dash.development.base_component import Component
 
 
-class Params(BaseDash):
+class Params(BaseModel, ABCDash):
     start_year: PositiveInt
     end_year: PositiveInt
 

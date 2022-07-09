@@ -22,16 +22,16 @@ from secrets import token_hex
 
 import dash_bootstrap_components as dbc
 from dash import Dash
-from pydantic import PositiveInt, conlist
+from pydantic import BaseModel, PositiveInt, conlist
 
-from .interpo_range import BaseInterpoRange, InterpoRange
+from .interpo_range import ABCInterpoRange, InterpoRange
 
 if t.TYPE_CHECKING:
     from dash import Dash
     from dash.development.base_component import Component
 
 
-class Param(BaseInterpoRange):
+class Param(BaseModel, ABCInterpoRange):
     unit: str
     ranges: conlist(InterpoRange, min_items=5, max_items=5)
     start_year: PositiveInt

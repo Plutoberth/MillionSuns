@@ -4,7 +4,7 @@
 Interpolation Range
 ===================
 
-``BaseInterpolatedRange``
+``ABCInterpolatedRange``
 -------------------------
 
 Allow an object to provide a value at given year.
@@ -22,13 +22,14 @@ Represented by a ``dbc.AccordionItem``.
 ----
 """
 import typing as t
+from abc import abstractmethod
 from secrets import token_hex
 
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output
-from pydantic import Field, PositiveInt, validator
+from pydantic import BaseModel, Field, PositiveInt, validator
 
-from .base_dash import BaseDash
+from .abc_dash import ABCDash
 from .interpo import AnyInterpo, Compound, Constant, InterpoType, Linear
 from .utils import to_title
 
@@ -37,7 +38,7 @@ if t.TYPE_CHECKING:
     from dash.development.base_component import Component
 
 
-class BaseInterpoRange(BaseDash):
+class ABCInterpoRange(ABCDash):
     """
     Allow an object to provide a value at given year.
     """
@@ -47,7 +48,7 @@ class BaseInterpoRange(BaseDash):
         ...
 
 
-class InterpoRange(BaseInterpoRange):
+class InterpoRange(BaseModel, ABCInterpoRange):
     enabled: bool
     start_year: PositiveInt
     end_year: PositiveInt

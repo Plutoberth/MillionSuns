@@ -10,7 +10,7 @@ Interpolation
 String Enum of interpolation types.
 
 
-``BaseInterpo`` children
+``ABCInterpo`` children
 ------------------------
 
 Given value interpolated in a given year range.
@@ -28,6 +28,7 @@ to abstract additions and removals.
 """
 
 import typing as t
+from abc import abstractmethod
 from enum import Enum
 from secrets import token_hex
 
@@ -35,9 +36,9 @@ import dash_bootstrap_components as dbc
 import numpy as np
 import numpy_financial as npf
 from dash import Input, Output, html
-from pydantic import PositiveInt
+from pydantic import BaseModel
 
-from .base_dash import BaseDash
+from .abc_dash import ABCDash
 
 if t.TYPE_CHECKING:
     from dash import Dash
@@ -55,9 +56,10 @@ class InterpoType(str, Enum):
     compound = 'compound'
 
 
-class BaseInterpo(BaseDash):
+class ABCInterpo(ABCDash):
     type: InterpoType
 
+    @abstractmethod
     def at(
         self,
         start_year: PositiveInt,
@@ -71,7 +73,7 @@ class BaseInterpo(BaseDash):
         use_enum_values = True
 
 
-class Constant(BaseInterpo):
+class Constant(BaseModel, ABCInterpo):
     """
     The value is constant for the entire range.
     """
@@ -113,7 +115,7 @@ class Constant(BaseInterpo):
         )
 
 
-class Linear(BaseInterpo):
+class Linear(BaseModel, ABCInterpo):
     """
     The value is linearly interpolated between two given values.
     """
@@ -176,7 +178,7 @@ class Linear(BaseInterpo):
         )
 
 
-class Compound(BaseInterpo):
+class Compound(BaseModel, ABCInterpo):
     """
     The value is compounded from a given value at a given rate.
     """
