@@ -27,6 +27,7 @@ def process_simulation_params(lines: Iterable[Tuple[str, str, str]], with_units,
 
     for row in lines:
         if with_units:
+            # FIXME: change units when converting from mw to kw
             params[row[0].strip()] = (mw_to_kw(row[1], row[2], as_mw), row[2])
         else:
             params[row[0].strip()] = mw_to_kw(row[1], row[2], as_mw)
