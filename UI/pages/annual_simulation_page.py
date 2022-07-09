@@ -11,7 +11,7 @@ from objects.df import DemandDf, ProductionDf
 from hourly_simulation.parameters import Params, get_simulation_parameters, PARAMS_PATH
 from hourly_simulation.predict import predict_demand
 from hourly_simulation.shift_day_in_year import shift_day_of_year
-from hourly_simulation.simulation import get_usage_profile, predict_solar_production, calculate_cost
+from hourly_simulation.simulation import get_usage_profile_for_year, predict_solar_production, calculate_cost
 from hourly_simulation.strategies import use_strategies
 from output_graphs import yearly_graph_fig
 from tests.sanity_checks import test_simulation
@@ -127,7 +127,7 @@ def run_simulation(n_clicks, num_batteries, solar_panel_power_mw, simulated_year
         pd.read_csv(os.path.join(SIMULATION_PRODUCTION_PROFILE_PATH, production_profile), index_col=0))
     normalised_production.df[normalised_production.SolarProduction] /= normalised_production.df[
         normalised_production.SolarProduction].max()
-    electricity_use = get_usage_profile(demand=current_demand,
+    electricity_use = get_usage_profile_for_year(demand=current_demand,
                                         normalised_production=normalised_production,
                                         params=params,
                                         solar_panel_generation_kw=solar_panel_power_kw,
