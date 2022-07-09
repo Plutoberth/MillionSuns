@@ -9,9 +9,9 @@ from dash import dcc, html, Input, State, Output, callback
 from UI.UI_params import *
 from objects.df import DemandDf, ProductionDf
 from hourly_simulation.parameters import Params, get_simulation_parameters, PARAMS_PATH
-from hourly_simulation.predict_demand import predict_demand_in_year
+from hourly_simulation.predict import predict_demand
 from hourly_simulation.shift_day_in_year import shift_day_of_year
-from hourly_simulation.simulation import get_usage_profile, get_solar_production_profile, calculate_cost
+from hourly_simulation.simulation import get_usage_profile, predict_solar_production, calculate_cost
 from hourly_simulation.strategies import use_strategies
 from output_graphs import yearly_graph_fig
 from tests.sanity_checks import test_simulation
@@ -130,19 +130,19 @@ def run_simulation(n_clicks, num_batteries, solar_panel_power_mw, simulated_year
     electricity_use = get_usage_profile(demand=current_demand,
                                         normalised_production=normalised_production,
                                         params=params,
-                                        solar_panel_power_kw=solar_panel_power_kw,
+                                        solar_panel_generation_kw=solar_panel_power_kw,
                                         num_batteries=num_batteries,
                                         strategy=use_strategies[chosen_strategy],
                                         simulated_year=simulated_year)
-    demand = predict_demand_in_year(current_demand, params, simulated_year)
+    demand = predict_demand(current_demand, params, simulated_year)
     try:
-        test_simulation(electricity_use=electricity_use, demand=demand, production=get_solar_production_profile(
+        test_simulation(electricity_use=electricity_use, demand=demand, production=predict_solar_production(
             normalised_production, solar_panel_power_kw, params), params=params, num_batteries=num_batteries)
     except AssertionError as e:
         logging.warning(traceback.format_exc())
     for_download = electricity_use.df.copy()
     for_download["Demand"] = shift_day_of_year(demand.df[demand.Demand].to_numpy(), demand.year)
-    for_download[normalised_production.SolarProduction] = get_solar_production_profile(
+    for_download[normalised_production.SolarProduction] = predict_solar_production(
         normalised_production, solar_panel_power_kw, params).df[ProductionDf.SolarProduction]
     last_simulation_results = for_download
     scenario_price, description = calculate_cost(electricity_use=electricity_use,
