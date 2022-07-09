@@ -1,8 +1,8 @@
 import dataclasses
 from typing import TypeAlias
 
-# TODO: Improve types with pydantic
-# TODO: Add type aliases for stuff like Kw and KwH
+
+# TODO: Add type aliases for Kw and KwH
 
 @dataclasses.dataclass(frozen=True)
 class Scenario:
@@ -15,6 +15,7 @@ class Scenario:
     # the maximum discharge from storage. i.e., if this is 0.95, storage will always be at least 0.05 full.
     storage_depth_of_discharge: float
 
+
 @dataclasses.dataclass(frozen=True)
 class RoadmapParameter:
     start: int
@@ -26,7 +27,6 @@ class RoadmapParameter:
         assert self.start <= self.min_final
         assert self.min_final <= self.max_final
 
-# TODO: replace with types from itay raveh's work
 
 @dataclasses.dataclass(frozen=True)
 class Roadmap:
@@ -35,4 +35,3 @@ class Roadmap:
     storage_capacity_kwh: RoadmapParameter
     storage_efficiency: RoadmapParameter
     storage_depth_of_discharge: RoadmapParameter
-

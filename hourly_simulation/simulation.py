@@ -70,9 +70,9 @@ def calculate_cost(electricity_use: ElectricityUseDf, params: Params, battery_ca
 
 
 def get_usage_profile_for_year(demand: DemandDf, normalised_production: ProductionDf, params: Params,
-                      simulated_year: int,
-                      solar_panel_generation_kw: float,
-                      num_batteries: float, strategy: Callable):
+                               simulated_year: int,
+                               solar_panel_generation_kw: float,
+                               num_batteries: float, strategy: Callable):
     """
     Simulate Usage Profile
     :param demand: DemandDf of pd.DataFrame(columns=['HourOfYear', '$(Year)'])
@@ -80,7 +80,7 @@ def get_usage_profile_for_year(demand: DemandDf, normalised_production: Producti
         between 0 and 1
     :param params: namedtuple simulation params
     :param simulated_year: year to simulate
-    :param solar_panel_power_kw: int power of solar panels Kwh
+    :param solar_panel_generation_kw: int power of solar panels KW
     :param num_batteries: float number of batteries
     :param strategy: function responsible for handling the cost
     :return: ElectricityUseDf pd.DataFrame(columns=['HourOfYear', 'GasUsage', 'GasStored', 'SolarUsage', 'StoredUsage',
@@ -110,9 +110,9 @@ def simulate_use(demand: DemandDf, normalised_production: ProductionDf, params: 
     """
 
     electricity_use = get_usage_profile_for_year(demand=demand, normalised_production=normalised_production,
-                                        solar_panel_generation_kw=solar_panel_power_kw,
-                                        num_batteries=num_batteries, strategy=strategy, params=params,
-                                        simulated_year=simulated_year)
+                                                 solar_panel_generation_kw=solar_panel_power_kw,
+                                                 num_batteries=num_batteries, strategy=strategy, params=params,
+                                                 simulated_year=simulated_year)
     return calculate_cost(electricity_use=electricity_use,
                           params=params,
                           battery_capacity=params.BATTERY_CAPACITY * num_batteries,
