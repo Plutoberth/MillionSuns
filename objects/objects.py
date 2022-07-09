@@ -7,32 +7,32 @@ from typing import TypeAlias
 @dataclasses.dataclass(frozen=True)
 class Scenario:
     year: int
-    solarGenerationKw: int
-    windGenerationKw: int
-    storageCapacityKwH: int
+    solar_generation_kw: float
+    wind_generation_kw: float
+    storage_capacity_kwh: float
     # energyOutputKwH / energyInputKwH
-    storageEfficiency: float
+    storage_efficiency: float
     # the maximum discharge from storage. i.e., if this is 0.95, storage will always be at least 0.05 full.
-    storageDepthOfDischarge: float
+    storage_depth_of_discharge: float
 
 @dataclasses.dataclass(frozen=True)
 class RoadmapParameter:
     start: int
-    minFinal: int
-    maxFinal: int
+    min_final: int
+    max_final: int
     interval: int
 
     def __post_init__(self):
-        assert self.start <= self.minFinal
-        assert self.minFinal <= self.maxFinal
+        assert self.start <= self.min_final
+        assert self.min_final <= self.max_final
 
 # TODO: replace with types from itay raveh's work
 
 @dataclasses.dataclass(frozen=True)
 class Roadmap:
-    solarGenerationKw: RoadmapParameter
-    windGenerationKw: RoadmapParameter
-    storageEnergyKwH: RoadmapParameter
-    storageEfficiency: RoadmapParameter
-    storageDepthOfDischarge: RoadmapParameter
+    solar_generation_kw: RoadmapParameter
+    wind_generation_kw: RoadmapParameter
+    storage_capacity_kwh: RoadmapParameter
+    storage_efficiency: RoadmapParameter
+    storage_depth_of_discharge: RoadmapParameter
 
