@@ -109,7 +109,7 @@ def get_usage_profile(demand: DemandDf, normalised_production: ProductionDf, par
                                                                         solar_panel_power_kw=solar_panel_power_kw,
                                                                         params=params)
     electricity_use: ElectricityUseDf = strategy(future_demand, total_panel_production,
-                                                 params, num_batteries, future_demand.YearOfDemand)
+                                                 params, num_batteries, future_demand.year)
     return electricity_use
 
 

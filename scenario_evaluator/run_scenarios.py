@@ -69,7 +69,7 @@ def run_scenarios(demand: DemandDf, normalised_production: ProductionDf, simulat
         for num_batteries in num_batteries_it:
             total_cost = 0
             for year in range(int(params.YEARS_TO_SIMULATE)):
-                total_cost += simulate_use(demand=predict_demand_in_year(demand, params, demand.YearOfDemand + year),
+                total_cost += simulate_use(demand=predict_demand_in_year(demand, params, demand.year + year),
                                            normalised_production=normalised_production,
                                            params=params,
                                            solar_panel_power_kw=solar_panel_power_kw,
