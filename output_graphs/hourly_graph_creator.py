@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from df_objects.df_objects import SimulationResults, DemandDf
+from objects.df import SimulationResults, DemandDf
 from hourly_simulation.parameters import Params, get_simulation_parameters, PARAMS_PATH
 from hourly_simulation.shift_day_in_year import shift_day_of_year
 

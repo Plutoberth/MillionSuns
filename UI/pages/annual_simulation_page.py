@@ -7,7 +7,7 @@ import pandas as pd
 from dash import dcc, html, Input, State, Output, callback
 
 from UI.UI_params import *
-from df_objects.df_objects import DemandDf, ProductionDf
+from objects.df import DemandDf, ProductionDf
 from hourly_simulation.parameters import Params, get_simulation_parameters, PARAMS_PATH
 from hourly_simulation.predict_demand import predict_demand_in_year
 from hourly_simulation.shift_day_in_year import shift_day_of_year

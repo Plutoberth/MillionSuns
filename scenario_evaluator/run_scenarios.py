@@ -4,7 +4,7 @@ from typing import Iterator, Tuple, Callable, List
 import pandas as pd
 from tqdm import tqdm
 
-from df_objects.df_objects import DemandDf, ProductionDf, SimulationResults
+from objects.df import DemandDf, ProductionDf, SimulationResults
 from hourly_simulation.parameters import Params
 from hourly_simulation.predict_demand import predict_demand_in_year
 from hourly_simulation.simulation import simulate_use

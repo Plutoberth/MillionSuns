@@ -1,6 +1,6 @@
 import pandas as pd
 
-from df_objects.df_objects import DemandDf, ProductionDf, ElectricityUseDf, CostElectricityDf
+from objects.df import DemandDf, ProductionDf, ElectricityUseDf, CostElectricityDf
 from hourly_simulation.parameters import Params
 
 from hourly_simulation.strategies import greedy_strategy
