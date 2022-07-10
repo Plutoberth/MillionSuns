@@ -31,36 +31,12 @@ class Params(DashModel):
     population: InterpolatedParam
     # solar_panel_price: InterpolatedParam
 
-    params: dict[str, Param] | None = Field(exclude=True)
+    _params: dict[str, InterpolatedParam] = PrivateAttr()
 
-    @validator(
-        'population',
-        'solar_panel_price',
-        pre=True
-    )
-    def inject_years(cls, param: dict, values: dict) -> Param:
-        return Param(
-            **param,
-            start_year=values['start_year'],
-            end_year=values['end_year']
-        )
+    def __init__(self, **data):
+        super().__init__(**data)
 
-    @validator('params', always=True)
-    def gen_params(cls, v: None, values: dict[str, PositiveInt | Param]):
-        return {
-            name: attr
-            for name, attr in values.items()
-            if isinstance(attr, Param)
-        }
-
-    def dash(self, app: 'Dash') -> 'Component':
-        return dbc.Accordion(
-            always_open=True,
-            start_collapsed=True,
-            children=[
-                dbc.AccordionItem(
-                    title=f'{to_title(name)} ({param.unit})',
-                    children=param.dash(app)
-                ) for name, param in self.params.items()
-            ]
-        )
+        for name, attr in data.items():
+            if isinstance(attr, InterpolatedParam):
+                attr._start_year = self.start_year
+                self._params[name] = attr
