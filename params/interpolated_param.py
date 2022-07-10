@@ -29,28 +29,23 @@ from .interpo_range import ABCInterpoRange, InterpoRange
 class InterpolatedParam(DashModel, ABCInterpoRange):
     ranges: InterpoRange
 
+    _ranges: list[InterpoRange] = PrivateAttr()
+    _start_year: int = PrivateAttr(0)
 
-class Param(BaseModel, ABCInterpoRange):
-    unit: str
-    ranges: conlist(InterpoRange, min_items=5, max_items=5)
-    start_year: PositiveInt
-    end_year: PositiveInt
+    def __init__(self, **data):
+        super().__init__(**data)
+
+        self._ranges = [
+            member[1] for member in inspect.getmembers(
+                self,
+                predicate=lambda attr: isinstance(attr, InterpoRange)
+            )
+        ]
 
     def at(self, year: int) -> float:
         return sum(
             ([r for _ in range(r.end_year - r.start_year)] for r in
-             sorted(self.ranges, key=lambda r: r.start_year)
+             sorted(self._ranges, key=lambda r: r.start_year)
              if r.enabled),
             start=[]
-        )[year - self.start_year].at(year)
-
-    def dash(self, app: 'Dash') -> 'Component':
-        tok = token_hex(8)
-        ranges_acc_id = f'ranges_acc_{tok}'
-
-        return dbc.Accordion(
-            id=ranges_acc_id,
-            always_open=True,
-            start_collapsed=True,
-            children=[_range.dash(app) for _range in self.ranges]
-        )
+        )[year - self._start_year].at(year)
