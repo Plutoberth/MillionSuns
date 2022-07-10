@@ -276,7 +276,7 @@ class DashModel(BaseModel):
                             enableBasicAutocompletion=True,
                             enableLiveAutocompletion=True,
                             fontSize=18,
-                            style={'font-family': 'monospace, monospace'}
+                            style={'font-family': 'monospace, monospace', 'width': '100%'}
                         )
                     ]
                 )
