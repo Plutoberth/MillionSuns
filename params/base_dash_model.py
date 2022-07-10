@@ -1,16 +1,19 @@
 import base64
+import inspect
 import json
 import typing as t
 from secrets import token_hex
 
 import dash_ace
 import dash_bootstrap_components as dbc
-from dash import Input, Output, State, ctx, dcc
-from pydantic import BaseModel
+import typing_inspect as ti
+from dash import Input, MATCH, Output, State, ctx, dcc
+from pydantic import BaseModel as PydanticBaseModel, PrivateAttr
+from pydantic.fields import ModelField
+from pydantic.generics import GenericModel
 
 if t.TYPE_CHECKING:
     from dash import Dash
-    from pydantic.fields import ModelField
     from dash.development.base_component import Component
 
 
@@ -18,7 +21,7 @@ def comp_id(s: str) -> str:
     return f'bdm__{s}__{token_hex(8)}'
 
 
-def deep_model_update(model: 'BaseDashModel', update_dict: dict[str, t.Any]):
+def deep_model_update(model: 'BaseModel', update_dict: dict[str, t.Any]):
     for k, v in update_dict.items():
         setattr(
             model,
@@ -30,8 +33,15 @@ def deep_model_update(model: 'BaseDashModel', update_dict: dict[str, t.Any]):
     return model
 
 
-class BaseDashModel(BaseModel):
-    def __input(self, app: 'Dash', field: 'ModelField', update_btn_id: str, **kwargs):
+class BaseModel(PydanticBaseModel):
+    @staticmethod
+    def _label(title: str):
+        return dbc.Label(
+            class_name='mt-2',
+            children=title
+        )
+
+    def _input(self, app: 'Dash', field: 'ModelField', update_btn_id: str, **kwargs):
         inp_id = comp_id('input')
 
         @app.callback(
@@ -57,14 +67,11 @@ class BaseDashModel(BaseModel):
             **kwargs
         )
 
-    def __labeled_input(self, app: 'Dash', field: 'ModelField', update_btn_id: str, **kwargs):
+    def _labeled_input(self, app: 'Dash', field: 'ModelField', update_btn_id: str, **kwargs):
         return dbc.Container(
             [
-                dbc.Label(
-                    class_name='mt-2',
-                    children=field.field_info.title
-                ),
-                self.__input(
+                self._label(field.field_info.title or field.name.replace('_', ' ').title()),
+                self._input(
                     app,
                     field,
                     update_btn_id,
@@ -79,31 +86,71 @@ class BaseDashModel(BaseModel):
         field: 'ModelField',
         update_btn_id: str
     ) -> 'Component':
-        if issubclass(field.type_, BaseDashModel):
-            return getattr(self, field.name).dash(
-                app,
-                field.field_info.title or field.name.replace('_', ' ').title(),
-                field.field_info.description,
-                update_btn_id
-            )
-        elif issubclass(field.type_, int):
-            return self.__labeled_input(
-                app,
-                field,
-                update_btn_id,
-                type='number',
-                step=1
-            )
-        elif issubclass(field.type_, float):
-            return self.__labeled_input(
-                app,
-                field,
-                update_btn_id,
-                type='number',
-                step=0.005
-            )
+        attr = getattr(self, field.name)
 
-    def dash(self, app: 'Dash', title: str, desc: str, update_btn_id: str):
+        try:
+            if ti.is_literal_type(field.type_):
+                return dbc.Container()
+            elif issubclass(field.type_, int):
+                return self._labeled_input(
+                    app,
+                    field,
+                    update_btn_id,
+                    type='number',
+                    step=1
+                )
+            elif issubclass(field.type_, float):
+                return self._labeled_input(
+                    app,
+                    field,
+                    update_btn_id,
+                    type='number',
+                    step=0.005
+                )
+            elif issubclass(field.type_, BaseModel):
+                return attr.dash_collapse(
+                    app,
+                    field.field_info.title or field.name.replace('_', ' ').title(),
+                    field.field_info.description,
+                    update_btn_id
+                )
+            else:
+                raise NotImplementedError(f'The type {field.type_!r} is not yet supported')
+        except TypeError as e:
+            raise NotImplementedError(f'The type {field.type_!r} is not yet supported') from e
+
+    def dash_fields(
+        self,
+        app: 'Dash',
+        update_btn_id: str
+    ) -> 'Component':
+        return dbc.Container(
+            list(
+                map(
+                    lambda field: self._component(app, field, update_btn_id),
+                    self.__fields__.values()
+                )
+            )
+        )
+
+    def dash_collapse(
+        self,
+        app: 'Dash',
+        title: str,
+        desc: str,
+        update_btn_id: str
+    ) -> 'Component':
+        raise NotImplementedError()
+
+
+class DashModel(BaseModel):
+    def dash_collapse(
+        self,
+        app: 'Dash',
+        title: str,
+        desc: str,
+        update_btn_id: str
+    ) -> 'Component':
         btn_id = comp_id('collapse_btn')
         coll_id = comp_id('collapse')
 
@@ -126,14 +173,9 @@ class BaseDashModel(BaseModel):
                 dbc.Container(class_name='text-muted text-center', children=desc),
                 dbc.Collapse(
                     id=coll_id,
-                    children=list(
-                        map(
-                            lambda field: self._component(app, field, update_btn_id),
-                            self.__fields__.values()
-                        )
-                    )
+                    children=self.dash_fields(app, update_btn_id)
                 )
-            ],
+            ]
         )
 
     def dash_editor(
@@ -189,7 +231,7 @@ class BaseDashModel(BaseModel):
                     id=ui_tab,
                     label='UI Editor',
                     children=[
-                        self.dash(
+                        self.dash_collapse(
                             app,
                             title,
                             desc,
