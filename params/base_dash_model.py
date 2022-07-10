@@ -1,8 +1,11 @@
+import base64
+import json
 import typing as t
 from secrets import token_hex
 
+import dash_ace
 import dash_bootstrap_components as dbc
-from dash import Input, Output, State
+from dash import Input, Output, State, ctx, dcc
 from pydantic import BaseModel
 
 if t.TYPE_CHECKING:
@@ -13,6 +16,18 @@ if t.TYPE_CHECKING:
 
 def comp_id(s: str) -> str:
     return f'bdm__{s}__{token_hex(8)}'
+
+
+def deep_model_update(model: 'BaseDashModel', update_dict: dict[str, t.Any]):
+    for k, v in update_dict.items():
+        setattr(
+            model,
+            k,
+            deep_model_update(getattr(model, k), v)
+            if isinstance(v, dict)
+            else v
+        )
+    return model
 
 
 class BaseDashModel(BaseModel):
@@ -88,7 +103,7 @@ class BaseDashModel(BaseModel):
                 step=0.005
             )
 
-    def dash(self, app: 'Dash', title: str, desc: str, update_btn_id: str) -> 'Component':
+    def dash(self, app: 'Dash', title: str, desc: str, update_btn_id: str):
         btn_id = comp_id('collapse_btn')
         coll_id = comp_id('collapse')
 
@@ -119,4 +134,109 @@ class BaseDashModel(BaseModel):
                     )
                 )
             ],
+        )
+
+    def dash_editor(
+        self,
+        app: 'Dash',
+        title: str,
+        desc: str
+    ) -> 'Component':
+        ui_tab = comp_id('ui_tab')
+        json_sub = comp_id('json_sub')
+        json_up = comp_id('json_up')
+        json_down_btn = comp_id('json_down_btn')
+        json_down = comp_id('json_down')
+        json_ref = comp_id('json_ref')
+        json_ace = comp_id('json_ace')
+
+        @app.callback(
+            Output(json_sub, 'key'),  # just need some output
+            Input(json_sub, 'n_clicks'),
+            State(json_ace, 'value')
+        )
+        def update_from_json(n_clicks: int, value: str):
+            if value != self.json(indent=4):
+                deep_model_update(self, json.loads(value))
+            return self.json()
+
+        @app.callback(
+            Output(json_ace, 'value'),
+            Input(json_up, 'contents'),
+            Input(json_ref, 'n_clicks'),
+            prevent_initial_call=True
+        )
+        def upload_params_jsons(content: str, n_clicks: int):
+            if ctx.triggered_id == json_up and content:
+                _, content_encoded = content.split(',')
+                return base64.b64decode(content_encoded).decode('utf-8')
+
+            if ctx.triggered_id == json_ref:
+                return self.json(indent=4)
+
+        @app.callback(
+            Output(json_down, 'data'),
+            Input(json_down_btn, 'n_clicks'),
+            State(json_ace, 'value'),
+            prevent_initial_call=True
+        )
+        def download_params_jsons(n_clicks: int, value: str):
+            return dcc.send_string(value, f'{title}.json', 'text/json')
+
+        return dbc.Tabs(
+            children=[
+                dbc.Tab(
+                    id=ui_tab,
+                    label='UI Editor',
+                    children=[
+                        self.dash(
+                            app,
+                            title,
+                            desc,
+                            json_sub
+                        )
+                    ]
+                ),
+                dbc.Tab(
+                    label='JSON Editor',
+                    children=[
+                        dbc.Container(
+                            class_name='d-flex flex-row justify-content-center',
+                            children=[
+                                dbc.Button(
+                                    id=json_sub,
+                                    class_name='m-2',
+                                    children='Submit'
+                                ),
+                                dbc.Button(
+                                    id=json_ref,
+                                    class_name='m-2',
+                                    children='Refresh'
+                                ),
+                                dcc.Upload(
+                                    id=json_up,
+                                    className='btn btn-primary m-2',
+                                    children='Upload'
+                                ),
+                                dbc.Button(
+                                    id=json_down_btn,
+                                    class_name='m-2',
+                                    children='Download'
+                                ),
+                                dcc.Download(id=json_down)
+                            ]
+                        ),
+                        dash_ace.DashAceEditor(
+                            id=json_ace,
+                            value=self.json(indent=4),
+                            theme='monokai',
+                            mode='json',
+                            enableBasicAutocompletion=True,
+                            enableLiveAutocompletion=True,
+                            fontSize=18,
+                            style={'font-family': 'monospace, monospace'}
+                        )
+                    ]
+                )
+            ]
         )
