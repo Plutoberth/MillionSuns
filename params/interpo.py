@@ -36,7 +36,7 @@ from pydantic import PrivateAttr
 
 from .base_dash_model import DashModel, DashSelect
 
-__all__ = 'InterpoSelect'
+__all__ = 'InterpoSelect',
 
 
 class ABCInterpo(ABC):
@@ -128,7 +128,7 @@ class Compound(BaseInterpo):
         )
 
 
-class InterpoSelect(DashSelect[Constant | Linear | Compound]):
+class InterpoSelect(DashSelect[t.Union[Constant, Linear, Compound]]):
     _constant: Constant = PrivateAttr(Constant())
     _linear: Linear = PrivateAttr(Linear())
     _compound: Compound = PrivateAttr(Compound())
