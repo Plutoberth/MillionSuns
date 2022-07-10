@@ -9,34 +9,27 @@ Model parameters
 
 All parameters of the model.
 
-Each ``Param`` is a known attribute for editor completion,
-from which a ``params: list[Param]`` is generated for iteration.
+Each ``InterpolatedParam`` is a known attribute for editor completion,
+from which a ``params: list[InterpolatedParam]`` is generated for iteration.
 
 As such, this is not completely generalized,
 in the sense that new parameters need to be added manually.
 
 ----
 """
-import typing as t
 
-import dash_bootstrap_components as dbc
-from pydantic import BaseModel, Field, PositiveInt, validator
+from pydantic import PositiveInt, PrivateAttr
 
-from .abc_dash import ABCDash
-from .param import Param
-from .utils import to_title
-
-if t.TYPE_CHECKING:
-    from dash import Dash
-    from dash.development.base_component import Component
+from .base_dash_model import DashModel
+from .interpolated_param import InterpolatedParam
 
 
-class Params(BaseModel, ABCDash):
+class Params(DashModel):
     start_year: PositiveInt
     end_year: PositiveInt
 
-    population: Param
-    solar_panel_price: Param
+    population: InterpolatedParam
+    # solar_panel_price: InterpolatedParam
 
     params: dict[str, Param] | None = Field(exclude=True)
 
