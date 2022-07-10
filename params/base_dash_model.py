@@ -240,3 +240,76 @@ class BaseDashModel(BaseModel):
                 )
             ]
         )
+
+
+T = t.TypeVar('T', bound=BaseModel)
+
+
+class DashSelect(BaseModel, GenericModel, t.Generic[T]):
+    _options: dict[str, T] = PrivateAttr()
+    _selected_name: str = PrivateAttr()
+    selected: T
+
+    def __init__(self, **data):
+        super().__init__(**data)
+
+        self._options = {
+            k.strip('_').title(): getattr(self, k)
+            for k in dict(inspect.getmembers(self))['__annotations__']
+        }
+
+        if self.selected:
+            for name, opt in self._options.items():
+                if type(self.selected) == type(opt):
+                    self._selected_name = name
+                    self._options[name] = self.selected
+                    break
+            else:
+                raise ValueError(
+                    'Selected option does not seem to exists.\n'
+                    f'{self.selected=}\n{self._options=}'
+                )
+
+        else:
+            self._selected_name, self.selected = next(iter(self._options.items()))
+
+    def dash_collapse(self, app: 'Dash', title: str, desc: str, update_btn_id: str) -> 'Component':
+        select_id = comp_id('select')
+        col_id_type = comp_id('collapse')
+        coll_ids = {name: {'type': col_id_type, 'name': name} for name in self._options}
+
+        @app.callback(
+            Output({'type': col_id_type, 'name': MATCH}, 'is_open'),
+            Input(select_id, 'value'),
+            Input(update_btn_id, 'n_clicks'),
+            State({'type': col_id_type, 'name': MATCH}, 'id')
+        )
+        def select(value: str, n_clicks: int, col_id: dict[str, str]):
+            if ctx.triggered_id == select_id:
+                self.selected = self._options[value]
+            return col_id['name'] == value
+
+        return dbc.Container(
+            [
+                self._label(title),
+                dbc.Select(
+                    id=select_id,
+                    options=[{'label': opt} for opt in self._options],
+                    value=self._selected_name
+                ),
+                dbc.Card(
+                    class_name='m-2 p-2',
+                    children=[
+                        dbc.Collapse(
+                            id=coll_ids[name],
+                            is_open=False,
+                            children=opt.dash_fields(
+                                app,
+                                update_btn_id
+                            )
+                        )
+                        for name, opt in self._options.items()
+                    ]
+                )
+            ]
+        )
