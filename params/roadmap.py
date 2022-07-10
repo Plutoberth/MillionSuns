@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, validator
 
-from .base_dash_model import BaseDashModel
+from .base_dash_model import DashModel
 
 
 class Scenario(BaseModel):
@@ -14,7 +14,7 @@ class Scenario(BaseModel):
     storage_discharge_p: float
 
 
-class RoadmapParam(BaseDashModel):
+class RoadmapParam(DashModel):
     start: float = Field(..., title='Start Year Value', ge=0)
     end_min: float = Field(..., title='End Year Minimum Value', ge=0)
     end_max: float = Field(..., title='End Year Maximum Value', ge=0)
@@ -39,7 +39,7 @@ class RoadmapParam(BaseDashModel):
         return step
 
 
-class Roadmap(BaseDashModel):
+class Roadmap(DashModel):
     start_year: int = Field(2020, title='Start Year', ge=0)
     end_year: int = Field(2050, title='End Year', ge=0)
 
