@@ -28,37 +28,18 @@ to abstract additions and removals.
 """
 
 import typing as t
-from abc import abstractmethod
-from enum import Enum
-from secrets import token_hex
+from abc import ABC, abstractmethod
 
-import dash_bootstrap_components as dbc
 import numpy as np
 import numpy_financial as npf
-from dash import Input, Output, html
-from pydantic import BaseModel
+from pydantic import PrivateAttr
 
-from .abc_dash import ABCDash
+from .base_dash_model import DashModel, DashSelect
 
-if t.TYPE_CHECKING:
-    from dash import Dash
-    from dash.development.base_component import Component
-
-__all__ = 'InterpoType', 'Constant', 'Linear', 'Compound', 'AnyInterpo'
+__all__ = 'InterpoSelect'
 
 
-class InterpoType(str, Enum):
-    """
-    Enum of interpolation types.
-    """
-    constant = 'constant'
-    linear = 'linear'
-    compound = 'compound'
-
-
-class ABCInterpo(ABCDash):
-    type: InterpoType
-
+class ABCInterpo(ABC):
     @abstractmethod
     def at(
         self,
@@ -69,15 +50,26 @@ class ABCInterpo(ABCDash):
         """ Get the value at a certain year. """
         ...
 
-    class Config:
-        use_enum_values = True
+
+class BaseInterpo(DashModel, ABCInterpo):
+    type: t.Literal['constant', 'linear', 'compound']
+
+    def at(
+        self,
+        start_year: int,
+        end_year: int,
+        target_year: int
+    ) -> float:
+        """ Get the value at a certain year. """
+        ...
 
 
-class Constant(BaseModel, ABCInterpo):
+class Constant(BaseInterpo):
     """
     The value is constant for the entire range.
     """
-    type: InterpoType = InterpoType.constant
+    type: t.Literal['constant', 'linear', 'compound'] = 'constant'
+
     value: float = 0
 
     def at(
@@ -88,38 +80,13 @@ class Constant(BaseModel, ABCInterpo):
     ) -> float:
         return self.value
 
-    def dash(self, app: 'Dash') -> 'Component':
-        tok = token_hex(8)
-        input_id = f'input_{tok}'
 
-        @app.callback(
-            Output(input_id, 'name'),
-            Input(input_id, 'value'),
-        )
-        def update_value(value: float):
-            self.value = value
-            return value
-
-        return html.Div(
-            [
-                dbc.Label('Value'),
-                dbc.Input(
-                    id=input_id,
-                    type='number',
-                    inputmode='numeric',
-                    step=.01,
-                    size='sm',
-                    value=self.value
-                )
-            ]
-        )
-
-
-class Linear(BaseModel, ABCInterpo):
+class Linear(BaseInterpo):
     """
     The value is linearly interpolated between two given values.
     """
-    type: InterpoType = InterpoType.linear
+    type: t.Literal['constant', 'linear', 'compound'] = 'linear'
+
     start_value: float = 0
     end_value: float = 0
 
@@ -135,54 +102,13 @@ class Linear(BaseModel, ABCInterpo):
             fp=(self.start_value, self.end_value)
         )
 
-    def dash(self, app: 'Dash') -> 'Component':
-        tok = token_hex(8)
-        start_input_id = f'start_input_{tok}'
-        end_input_id = f'end_input_{tok}'
 
-        @app.callback(
-            Output(start_input_id, 'name'),
-            Input(start_input_id, 'value')
-        )
-        def update_start_value(value: float):
-            self.start_value = value
-            return value
-
-        @app.callback(
-            Output(end_input_id, 'name'),
-            Input(end_input_id, 'value')
-        )
-        def update_end_value(value: float):
-            self.end_value = value
-            return value
-
-        return html.Div(
-            [
-                dbc.Label('Start Value'),
-                dbc.Input(
-                    id=start_input_id,
-                    type='number',
-                    step=0.01,
-                    size='sm',
-                    value=self.start_value
-                ),
-                dbc.Label('End Value'),
-                dbc.Input(
-                    id=end_input_id,
-                    type='number',
-                    step=0.01,
-                    size='sm',
-                    value=self.end_value
-                )
-            ]
-        )
-
-
-class Compound(BaseModel, ABCInterpo):
+class Compound(BaseInterpo):
     """
     The value is compounded from a given value at a given rate.
     """
-    type: InterpoType = InterpoType.compound
+    type: t.Literal['constant', 'linear', 'compound'] = 'compound'
+
     start_value: float = 0
     rate: float = 0
 
@@ -201,49 +127,8 @@ class Compound(BaseModel, ABCInterpo):
             pv=-self.start_value
         )
 
-    def dash(self, app: 'Dash') -> 'Component':
-        tok = token_hex(8)
-        start_input_id = f'start_input_{tok}'
-        rate_input_id = f'rate_input_{tok}'
 
-        @app.callback(
-            Output(start_input_id, 'name'),
-            Input(start_input_id, 'value')
-        )
-        def update_start_value(value: float):
-            self.start_value = value
-            return value
-
-        @app.callback(
-            Output(rate_input_id, 'name'),
-            Input(rate_input_id, 'value')
-        )
-        def update_rate_value(value: float):
-            self.rate = value
-            return value
-
-        return html.Div(
-            [
-                dbc.Label('Start Value'),
-                dbc.Input(
-                    id=start_input_id,
-                    type='number',
-                    step=0.01,
-                    size='sm',
-                    value=self.start_value
-                ),
-                dbc.Label('Rate'),
-                dbc.Input(
-                    id=rate_input_id,
-                    type='number',
-                    step=0.01,
-                    min=0,
-                    max=1,
-                    size='sm',
-                    value=self.rate
-                )
-            ]
-        )
-
-
-AnyInterpo = Constant | Linear | Compound
+class InterpoSelect(DashSelect[Constant | Linear | Compound]):
+    _constant: Constant = PrivateAttr(Constant())
+    _linear: Linear = PrivateAttr(Linear())
+    _compound: Compound = PrivateAttr(Compound())
