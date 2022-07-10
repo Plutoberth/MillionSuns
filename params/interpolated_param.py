@@ -4,7 +4,7 @@
 Model parameter
 ===============
 
-``Param``
+``InterpolatedParam``
 ---------
 
 A parameter in the model which provides a value by year.
@@ -17,18 +17,17 @@ Inherits from ``BaseInterpoRange``.
 
 ----
 """
-import typing as t
-from secrets import token_hex
 
-import dash_bootstrap_components as dbc
-from dash import Dash
-from pydantic import BaseModel, PositiveInt, conlist
+import inspect
 
+from pydantic import PrivateAttr
+
+from .base_dash_model import DashModel
 from .interpo_range import ABCInterpoRange, InterpoRange
 
-if t.TYPE_CHECKING:
-    from dash import Dash
-    from dash.development.base_component import Component
+
+class InterpolatedParam(DashModel, ABCInterpoRange):
+    ranges: InterpoRange
 
 
 class Param(BaseModel, ABCInterpoRange):
