@@ -61,7 +61,7 @@ class Roadmap(DashModel):
     )
 
     @validator('end_year')
-    def v_end_max(cls, end_year: float, values: dict[str, int | RoadmapParam]):
+    def v_end_year(cls, end_year: float, values: dict[str, int | RoadmapParam]):
         assert end_year >= values['start_year'], \
             'end_year must be greater or equal to start_year'
         return end_year
