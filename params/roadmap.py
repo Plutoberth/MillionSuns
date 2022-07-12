@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, NonNegativeFloat, PositiveInt, validator
 
 from .base_dash_model import DashModel
 
@@ -15,10 +15,10 @@ class Scenario(BaseModel):
 
 
 class RoadmapParam(DashModel):
-    start: float = Field(..., title='Start Year Value', ge=0)
-    end_min: float = Field(..., title='End Year Minimum Value', ge=0)
-    end_max: float = Field(..., title='End Year Maximum Value', ge=0)
-    step: float = Field(..., title='Step', ge=0)
+    start: NonNegativeFloat = Field(..., title='Start Year Value')
+    end_min: NonNegativeFloat = Field(..., title='End Year Minimum Value')
+    end_max: NonNegativeFloat = Field(..., title='End Year Maximum Value')
+    step: NonNegativeFloat = Field(..., title='Step')
 
     @validator('end_min')
     def v_end_min(cls, end_min: float, values: dict[str, float]):
@@ -40,8 +40,8 @@ class RoadmapParam(DashModel):
 
 
 class Roadmap(DashModel):
-    start_year: int = Field(2020, title='Start Year', ge=0)
-    end_year: int = Field(2050, title='End Year', ge=0)
+    start_year: PositiveInt = Field(..., title='Start Year')
+    end_year: PositiveInt = Field(..., title='End Year')
 
     # clean energy sources
     solar_gen_kw: RoadmapParam = Field(..., title='Solar Generation Capacity (KW)')

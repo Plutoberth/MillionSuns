@@ -23,7 +23,7 @@ Represented by a ``dbc.AccordionItem``.
 """
 from abc import ABC, abstractmethod
 
-from pydantic import PositiveInt
+from pydantic import PositiveInt, StrictBool
 
 from .base_dash_model import DashModel
 from .interpo import InterpoSelect
@@ -41,7 +41,7 @@ class ABCInterpoRange(ABC):
 
 
 class InterpoRange(DashModel, ABCInterpoRange):
-    enabled: bool
+    enabled: StrictBool
     start_year: PositiveInt
     end_year: PositiveInt
     interpo: InterpoSelect

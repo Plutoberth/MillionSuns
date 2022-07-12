@@ -32,6 +32,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy_financial as npf
+from pydantic import StrictFloat
 
 from .base_dash_model import DashModel, DashSelect
 
@@ -69,7 +70,7 @@ class Constant(BaseInterpo):
     """
     type: t.Literal['constant', 'linear', 'compound'] = 'constant'
 
-    value: float = 0
+    value: StrictFloat = 0.
 
     def at(
         self,
@@ -86,8 +87,8 @@ class Linear(BaseInterpo):
     """
     type: t.Literal['constant', 'linear', 'compound'] = 'linear'
 
-    start_value: float = 0
-    end_value: float = 0
+    start_value: StrictFloat = 0.
+    end_value: StrictFloat = 0.
 
     def at(
         self,
@@ -108,8 +109,8 @@ class Compound(BaseInterpo):
     """
     type: t.Literal['constant', 'linear', 'compound'] = 'compound'
 
-    start_value: float = 0
-    rate: float = 0
+    start_value: StrictFloat = 0.
+    rate: StrictFloat = 0.
 
     def at(
         self,
