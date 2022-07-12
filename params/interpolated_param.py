@@ -20,8 +20,6 @@ Inherits from ``BaseInterpoRange``.
 
 import inspect
 
-from pydantic import PrivateAttr
-
 from .base_dash_model import DashModel
 from .interpo_range import ABCInterpoRange, InterpoRange
 
@@ -29,8 +27,8 @@ from .interpo_range import ABCInterpoRange, InterpoRange
 class InterpolatedParam(DashModel, ABCInterpoRange):
     ranges: InterpoRange
 
-    _ranges: list[InterpoRange] = PrivateAttr()
-    _start_year: int = PrivateAttr(0)
+    _ranges: list[InterpoRange]
+    _start_year: int = 0
 
     def __init__(self, **data):
         super().__init__(**data)

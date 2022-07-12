@@ -18,7 +18,7 @@ in the sense that new parameters need to be added manually.
 ----
 """
 
-from pydantic import PositiveInt, PrivateAttr
+from pydantic import PositiveInt
 
 from .base_dash_model import DashModel
 from .interpolated_param import InterpolatedParam
@@ -31,7 +31,7 @@ class Params(DashModel):
     population: InterpolatedParam
     # solar_panel_price: InterpolatedParam
 
-    _params: dict[str, InterpolatedParam] = PrivateAttr()
+    _params: dict[str, InterpolatedParam]
 
     def __init__(self, **data):
         super().__init__(**data)

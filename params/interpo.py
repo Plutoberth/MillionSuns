@@ -32,7 +32,6 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy_financial as npf
-from pydantic import PrivateAttr
 
 from .base_dash_model import DashModel, DashSelect
 
@@ -129,6 +128,6 @@ class Compound(BaseInterpo):
 
 
 class InterpoSelect(DashSelect[t.Union[Constant, Linear, Compound]]):
-    _constant: Constant = PrivateAttr(Constant())
-    _linear: Linear = PrivateAttr(Linear())
-    _compound: Compound = PrivateAttr(Compound())
+    _constant: Constant = Constant()
+    _linear: Linear = Linear()
+    _compound: Compound = Compound()
