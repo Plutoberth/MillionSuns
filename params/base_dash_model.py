@@ -8,13 +8,13 @@ import dash_ace
 import dash_bootstrap_components as dbc
 import typing_inspect as ti
 from dash import Input, MATCH, Output, State, ctx, dcc
-from pydantic import BaseModel, PrivateAttr
-from pydantic.fields import ModelField
+from pydantic import BaseModel
 from pydantic.generics import GenericModel
 
 if t.TYPE_CHECKING:
     from dash import Dash
     from dash.development.base_component import Component
+    from pydantic.fields import ModelField
 
 
 def comp_id(s: str) -> str:
@@ -141,6 +141,11 @@ class BaseDashModel(BaseModel):
         update_btn_id: str
     ) -> 'Component':
         raise NotImplementedError()
+
+    class Config:
+        validate_all = True
+        validate_assignment = True
+        underscore_attrs_are_private = True
 
 
 class DashModel(BaseDashModel):
@@ -288,8 +293,8 @@ T = t.TypeVar('T', bound=BaseDashModel)
 
 
 class DashSelect(BaseDashModel, GenericModel, t.Generic[T]):
-    _options: dict[str, T] = PrivateAttr()
-    _selected_name: str = PrivateAttr()
+    _options: dict[str, T]
+    _selected_name: str
     selected: T
 
     def __init__(self, **data):
