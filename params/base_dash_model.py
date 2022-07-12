@@ -8,7 +8,7 @@ import dash_ace
 import dash_bootstrap_components as dbc
 import typing_inspect as ti
 from dash import Input, MATCH, Output, State, ctx, dcc
-from pydantic import BaseModel as PydanticBaseModel, PrivateAttr
+from pydantic import BaseModel, PrivateAttr
 from pydantic.fields import ModelField
 from pydantic.generics import GenericModel
 
@@ -21,7 +21,7 @@ def comp_id(s: str) -> str:
     return f'bdm__{s}__{token_hex(8)}'
 
 
-def deep_model_update(model: 'BaseModel', update_dict: dict[str, t.Any]):
+def deep_model_update(model: 'BaseDashModel', update_dict: dict[str, t.Any]):
     for k, v in update_dict.items():
         setattr(
             model,
@@ -33,7 +33,7 @@ def deep_model_update(model: 'BaseModel', update_dict: dict[str, t.Any]):
     return model
 
 
-class BaseModel(PydanticBaseModel):
+class BaseDashModel(BaseModel):
     @staticmethod
     def _label(title: str):
         return dbc.Label(
@@ -107,7 +107,7 @@ class BaseModel(PydanticBaseModel):
                     type='number',
                     step=0.005
                 )
-            elif issubclass(field.type_, BaseModel):
+            elif issubclass(field.type_, BaseDashModel):
                 return attr.dash_collapse(
                     app,
                     field.field_info.title or field.name.replace('_', ' ').title(),
@@ -143,7 +143,7 @@ class BaseModel(PydanticBaseModel):
         raise NotImplementedError()
 
 
-class DashModel(BaseModel):
+class DashModel(BaseDashModel):
     def dash_collapse(
         self,
         app: 'Dash',
@@ -284,10 +284,10 @@ class DashModel(BaseModel):
         )
 
 
-T = t.TypeVar('T', bound=BaseModel)
+T = t.TypeVar('T', bound=BaseDashModel)
 
 
-class DashSelect(BaseModel, GenericModel, t.Generic[T]):
+class DashSelect(BaseDashModel, GenericModel, t.Generic[T]):
     _options: dict[str, T] = PrivateAttr()
     _selected_name: str = PrivateAttr()
     selected: T
