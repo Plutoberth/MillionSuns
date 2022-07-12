@@ -21,18 +21,6 @@ def comp_id(s: str) -> str:
     return f'bdm__{s}__{token_hex(8)}'
 
 
-def deep_model_update(model: 'BaseDashModel', update_dict: dict[str, t.Any]):
-    for k, v in update_dict.items():
-        setattr(
-            model,
-            k,
-            deep_model_update(getattr(model, k), v)
-            if isinstance(v, dict)
-            else v
-        )
-    return model
-
-
 class BaseDashModel(BaseModel):
     @staticmethod
     def _label(title: str):
@@ -119,6 +107,13 @@ class BaseDashModel(BaseModel):
         except TypeError as e:
             raise NotImplementedError(f'The type {field.type_!r} is not yet supported') from e
 
+    def update(self, data: dict[str, t.Any]):
+        for k, v in data.items():
+            if isinstance(attr := getattr(self, k), BaseDashModel):
+                attr.update(v)
+            else:
+                setattr(self, k, v)
+
     def dash_fields(
         self,
         app: 'Dash',
@@ -204,7 +199,7 @@ class DashModel(BaseDashModel):
         )
         def update_from_json(n_clicks: int, value: str):
             if value != self.json(indent=4):
-                deep_model_update(self, json.loads(value))
+                self.update(json.loads(value))
             return self.json()
 
         @app.callback(
