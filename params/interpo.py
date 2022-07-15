@@ -34,7 +34,7 @@ import numpy as np
 import numpy_financial as npf
 from pydantic import StrictFloat
 
-from .base_dash_model import DashModel, DashSelect
+from .base_dash_model import DashSelect, DashSelectable
 
 __all__ = 'InterpoSelect',
 
@@ -51,9 +51,7 @@ class ABCInterpo(ABC):
         ...
 
 
-class BaseInterpo(DashModel, ABCInterpo):
-    type: t.Literal['constant', 'linear', 'compound']
-
+class BaseInterpo(DashSelectable, ABCInterpo):
     def at(
         self,
         start_year: int,
@@ -68,7 +66,7 @@ class Constant(BaseInterpo):
     """
     The value is constant for the entire range.
     """
-    type: t.Literal['constant', 'linear', 'compound'] = 'constant'
+    type: t.Literal['constant'] = 'constant'
 
     value: StrictFloat = 0.
 
@@ -85,7 +83,7 @@ class Linear(BaseInterpo):
     """
     The value is linearly interpolated between two given values.
     """
-    type: t.Literal['constant', 'linear', 'compound'] = 'linear'
+    type: t.Literal['linear'] = 'linear'
 
     start_value: StrictFloat = 0.
     end_value: StrictFloat = 0.
@@ -107,7 +105,7 @@ class Compound(BaseInterpo):
     """
     The value is compounded from a given value at a given rate.
     """
-    type: t.Literal['constant', 'linear', 'compound'] = 'compound'
+    type: t.Literal['compound'] = 'compound'
 
     start_value: StrictFloat = 0.
     rate: StrictFloat = 0.
@@ -129,6 +127,6 @@ class Compound(BaseInterpo):
 
 
 class InterpoSelect(DashSelect[t.Union[Constant, Linear, Compound]]):
-    _constant: Constant = Constant()
-    _linear: Linear = Linear()
-    _compound: Compound = Compound()
+    _constant: Constant
+    _linear: Linear
+    _compound: Compound
