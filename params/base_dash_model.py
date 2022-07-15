@@ -1,6 +1,7 @@
 import base64
 import json
 import typing as t
+from abc import ABC
 from secrets import token_hex
 
 import dash_ace
@@ -277,7 +278,11 @@ class DashEditorPage(DashModel):
         )
 
 
-T = t.TypeVar('T', bound=BaseDashModel)
+class DashSelectable(DashModel, ABC):
+    type: str
+
+    class Config:
+        copy_on_model_validation = False
 
 
 class DashSelect(BaseDashModel, GenericModel, t.Generic[T]):
