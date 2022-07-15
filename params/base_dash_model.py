@@ -285,38 +285,52 @@ class DashSelectable(DashModel, ABC):
         copy_on_model_validation = False
 
 
-class DashSelect(BaseDashModel, GenericModel, t.Generic[T]):
-    _options: dict[str, T]
-    _selected_name: str
-    selected: T
+TSelectable = t.TypeVar('TSelectable', bound=DashSelectable)
+
+
+class DashSelect(DashModel, GenericModel, t.Generic[TSelectable]):
+    __root__: TSelectable
+    _options: dict[str, TSelectable]
+    _selected: str
 
     def __init__(self, **data):
         super().__init__(**data)
 
         self._options = {
-            k.strip('_').title(): getattr(self, k)
-            for k in dict(inspect.getmembers(self))['__annotations__']
+            name.strip('_'): type_()
+            for name, type_
+            in self.__annotations__.items()
         }
 
-        if self.selected:
-            for name, opt in self._options.items():
-                if type(self.selected) == type(opt):
-                    self._selected_name = name
-                    self._options[name] = self.selected
-                    break
-            else:
-                raise ValueError(
-                    'Selected option does not seem to exists.\n'
-                    f'{self.selected=}\n{self._options=}'
-                )
-
+        for name, opt in self._options.items():
+            if type(self.__root__) == type(opt):
+                self._selected = name
+                self._options[name] = self.__root__
+                break
         else:
-            self._selected_name, self.selected = next(iter(self._options.items()))
+            raise ValueError(
+                'Selected option does not seem to exists.\n'
+                f'{self.__root__}\n{self._options=}'
+            )
 
-    def dash_collapse(self, app: 'Dash', title: str, desc: str, update_btn_id: str) -> 'Component':
+    def update(self, data: dict[str, t.Any]):
+        self._selected = data['type']
+        self.__root__ = self._options[self._selected]
+        self.__root__.update(data)
+
+    def dash_collapse(
+        self,
+        app: 'Dash',
+        title: str,
+        desc: str,
+        update_btn_id: str
+    ) -> 'Component':
         select_id = comp_id('select')
         col_id_type = comp_id('collapse')
-        coll_ids = {name: {'type': col_id_type, 'name': name} for name in self._options}
+        coll_ids = {
+            name: {'type': col_id_type, 'name': name}
+            for name in self._options
+        }
 
         @app.callback(
             Output({'type': col_id_type, 'name': MATCH}, 'is_open'),
@@ -326,7 +340,8 @@ class DashSelect(BaseDashModel, GenericModel, t.Generic[T]):
         )
         def select(value: str, n_clicks: int, col_id: dict[str, str]):
             if ctx.triggered_id == select_id:
-                self.selected = self._options[value]
+                self._selected = value
+                self.__root__ = self._options[self._selected]
             return col_id['name'] == value
 
         return dbc.Container(
@@ -335,7 +350,7 @@ class DashSelect(BaseDashModel, GenericModel, t.Generic[T]):
                 dbc.Select(
                     id=select_id,
                     options=[{'label': opt} for opt in self._options],
-                    value=self._selected_name
+                    value=self._selected
                 ),
                 dbc.Card(
                     class_name='m-2 p-2',
