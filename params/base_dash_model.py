@@ -1,5 +1,4 @@
 import base64
-import inspect
 import json
 import typing as t
 from secrets import token_hex
@@ -21,7 +20,10 @@ def comp_id(s: str) -> str:
     return f'bdm__{s}__{token_hex(8)}'
 
 
-class BaseDashModel(BaseModel):
+JSON_DUMPS_KWARGS = dict(indent=2)
+
+
+class DashModel(BaseModel):
     @staticmethod
     def _label(title: str):
         return dbc.Label(
@@ -95,7 +97,7 @@ class BaseDashModel(BaseModel):
                     type='number',
                     step=0.005
                 )
-            elif issubclass(field.type_, BaseDashModel):
+            elif issubclass(field.type_, DashModel):
                 return attr.dash_collapse(
                     app,
                     field.field_info.title or field.name.replace('_', ' ').title(),
@@ -109,7 +111,7 @@ class BaseDashModel(BaseModel):
 
     def update(self, data: dict[str, t.Any]):
         for k, v in data.items():
-            if isinstance(attr := getattr(self, k), BaseDashModel):
+            if isinstance(attr := getattr(self, k), DashModel):
                 attr.update(v)
             else:
                 setattr(self, k, v)
@@ -128,22 +130,6 @@ class BaseDashModel(BaseModel):
             )
         )
 
-    def dash_collapse(
-        self,
-        app: 'Dash',
-        title: str,
-        desc: str,
-        update_btn_id: str
-    ) -> 'Component':
-        raise NotImplementedError()
-
-    class Config:
-        validate_all = True
-        validate_assignment = True
-        underscore_attrs_are_private = True
-
-
-class DashModel(BaseDashModel):
     def dash_collapse(
         self,
         app: 'Dash',
@@ -178,6 +164,13 @@ class DashModel(BaseDashModel):
             ]
         )
 
+    class Config:
+        validate_all = True
+        validate_assignment = True
+        underscore_attrs_are_private = True
+
+
+class DashEditorPage(DashModel):
     def dash_editor(
         self,
         app: 'Dash',
@@ -198,7 +191,7 @@ class DashModel(BaseDashModel):
             State(json_ace, 'value')
         )
         def update_from_json(n_clicks: int, value: str):
-            if value != self.json(indent=4):
+            if value != self.json(**JSON_DUMPS_KWARGS):
                 self.update(json.loads(value))
             return self.json()
 
@@ -214,7 +207,7 @@ class DashModel(BaseDashModel):
                 return base64.b64decode(content_encoded).decode('utf-8')
 
             if ctx.triggered_id == json_ref:
-                return self.json(indent=4)
+                return self.json(**JSON_DUMPS_KWARGS)
 
         @app.callback(
             Output(json_down, 'data'),
@@ -270,7 +263,7 @@ class DashModel(BaseDashModel):
                         ),
                         dash_ace.DashAceEditor(
                             id=json_ace,
-                            value=self.json(indent=4),
+                            value=self.json(**JSON_DUMPS_KWARGS),
                             theme='monokai',
                             mode='json',
                             enableBasicAutocompletion=True,

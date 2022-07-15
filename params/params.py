@@ -20,11 +20,11 @@ in the sense that new parameters need to be added manually.
 
 from pydantic import PositiveInt
 
-from .base_dash_model import DashModel
+from .base_dash_model import DashEditorPage
 from .interpolated_param import InterpolatedParam
 
 
-class Params(DashModel):
+class Params(DashEditorPage):
     start_year: PositiveInt
     end_year: PositiveInt
 
