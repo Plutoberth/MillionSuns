@@ -39,7 +39,7 @@ class DashModel(BaseModel):
             Input(inp_id, 'value')
         )
         def int_update(value: t.Any):
-            setattr(self, field.name, value)
+            setattr(self, field.name, field.type_(value))
             return inp_id
 
         @app.callback(
