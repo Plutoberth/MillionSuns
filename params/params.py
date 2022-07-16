@@ -18,17 +18,20 @@ in the sense that new parameters need to be added manually.
 ----
 """
 
-from pydantic import PositiveInt
+from pydantic import Field, PositiveInt
 
 from dash_models import DashEditorPage
 from .interpolated_param import InterpolatedParam
 
 
 class Params(DashEditorPage):
-    start_year: PositiveInt
-    end_year: PositiveInt
+    start_year: PositiveInt = 2020
+    end_year: PositiveInt = 2050
 
-    population: InterpolatedParam
+    population: InterpolatedParam = Field(
+        InterpolatedParam(),
+        title='Population (Mill)'
+    )
     # solar_panel_price: InterpolatedParam
 
     _params: dict[str, InterpolatedParam]
