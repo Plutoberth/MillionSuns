@@ -69,36 +69,37 @@ class DashModel(BaseModel):
     ) -> 'Component':
         attr = getattr(self, field.name)
 
-        try:
-            if ti.is_literal_type(field.type_):
-                return dbc.Container()
-            elif issubclass(field.type_, int):
-                return self._labeled_input(
-                    app,
-                    field,
-                    update_btn_id,
-                    type='number',
-                    step=1
-                )
-            elif issubclass(field.type_, float):
-                return self._labeled_input(
-                    app,
-                    field,
-                    update_btn_id,
-                    type='number',
-                    step=0.005
-                )
-            elif issubclass(field.type_, DashModel):
-                return attr.dash_collapse(
-                    app,
-                    field.field_info.title or field.name.replace('_', ' ').title(),
-                    field.field_info.description,
-                    update_btn_id
-                )
-            else:
-                raise NotImplementedError(f'The type {field.type_!r} is not yet supported')
-        except TypeError as e:
-            raise NotImplementedError(f'The type {field.type_!r} is not yet supported') from e
+        if ti.is_literal_type(field.type_):
+            return dbc.Container()
+        elif issubclass(field.type_, int):
+            return self._labeled_input(
+                app,
+                field,
+                update_btn_id,
+                type='number',
+                step=1
+            )
+        elif issubclass(field.type_, float):
+            return self._labeled_input(
+                app,
+                field,
+                update_btn_id,
+                type='number',
+                step=0.005
+            )
+        elif issubclass(field.type_, DashModel):
+            return attr.dash_collapse(
+                app,
+                field.field_info.title or field.name.replace('_', ' ').title(),
+                field.field_info.description,
+                update_btn_id
+            )
+        else:
+            raise NotImplementedError(
+                f'The field {field.name}'
+                f' has type {field.type_!r}'
+                f' which is not yet supported'
+            )
 
     def update(self, data: dict[str, t.Any]):
         for k, v in data.items():
