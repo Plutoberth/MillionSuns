@@ -45,7 +45,8 @@ class DashModel(BaseModel):
 
         @app.callback(
             Output(inp_id, 'value'),
-            Input(update_btn_id, 'n_clicks')
+            Input(update_btn_id, 'n_clicks'),
+            prevent_initial_call=True
         )
         def ext_update(n_clicks: int):
             return getattr(self, field.name)
@@ -189,7 +190,8 @@ class DashEditorPage(DashModel):
         @app.callback(
             Output(json_sub, 'key'),  # just need some output
             Input(json_sub, 'n_clicks'),
-            State(json_ace, 'value')
+            State(json_ace, 'value'),
+            prevent_initial_call=True
         )
         def update_from_json(n_clicks: int, value: str):
             if value != self.json(**JSON_DUMPS_KWARGS):
