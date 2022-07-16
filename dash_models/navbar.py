@@ -1,3 +1,26 @@
+"""
+----
+
+Navbar
+======
+
+``Page``
+--------
+
+Represents a page in the site.
+
+``Brand``
+---------
+
+Represents a brand for the navbar.
+
+``navbar_page``
+---------------
+
+Generate a full site layout with a Navbar and multiple pages.
+
+----
+"""
 import typing as t
 from dataclasses import dataclass
 
@@ -13,12 +36,18 @@ if t.TYPE_CHECKING:
 
 @dataclass
 class Page:
+    """
+    Represents a page in the site.
+    """
     title: str
     layout: Component
 
 
 @dataclass
 class Brand:
+    """
+    Represents a brand for the navbar.
+    """
     img: str
     href: str
 
@@ -34,6 +63,18 @@ def navbar_page(
     brands: t.Sequence[Brand],
     **kwargs
 ) -> 'Component':
+    """
+    Generate a full site layout with a Navbar and multiple pages.
+
+    :param app: `Dash` to add callbacks to.
+    :param home_page: Page at the '/' path.
+    :param pages: Other pages.
+     Links for these will populate the navbar.
+     Paths are generated from the titles.
+    :param brands: Brands to display on the navbar.
+    :param kwargs: Additional kwargs for the dbc.Navbar.
+    :return: Containing component.
+    """
     loc_id = comp_id('location')
     cont_id = comp_id('content_container')
 

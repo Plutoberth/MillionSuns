@@ -1,3 +1,22 @@
+"""
+----
+
+Select
+======
+
+``DashSelectable``
+------------------
+
+Base class for models that are intended as options in ``DashSelect``.
+
+``DashSelect``
+--------------
+
+Generic base class with a variable __root__,
+which renders the fields of one of multiple selectable options.
+
+----
+"""
 import typing as t
 from abc import ABC
 
@@ -14,6 +33,9 @@ if t.TYPE_CHECKING:
 
 
 class DashSelectable(DashModel, ABC):
+    """
+    Base class for models that are intended as options in ``DashSelect``.
+    """
     type: str
 
     class Config:
@@ -24,6 +46,13 @@ TSelectable = t.TypeVar('TSelectable', bound=DashSelectable)
 
 
 class DashSelect(DashModel, GenericModel, t.Generic[TSelectable]):
+    """
+    Generic base class with a variable __root__,
+    which renders the fields of one of multiple selectable options.
+
+    Add multiple private (starting with _) fields,
+     and they will be found and be used as options.
+    """
     __root__: TSelectable
     _options: dict[str, TSelectable]
     _selected: str
@@ -50,10 +79,11 @@ class DashSelect(DashModel, GenericModel, t.Generic[TSelectable]):
 
     @property
     def selected(self) -> str:
+        """Title of currently selected options"""
         return self._selected
 
     def update(self, data: dict[str, t.Any]):
-        self._selected = data['type']
+        self._selected = data['type']  # assuming valid data of DashSelectable
         self.__root__ = self._options[self._selected]
         self.__root__.update(data)
 

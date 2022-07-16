@@ -1,3 +1,24 @@
+"""
+----
+
+Base Model
+==========
+
+``DashModel``
+-------------
+
+A Pydantic ``BaseModel`` almost swap-in,
+which includes methods to auto-generate ``Dash`` layouts and callbacks.
+
+Since callbacks cannot be registered at runtime,
+these functions should be called once,
+before running your app.
+
+----
+"""
+
+__all__ = 'DashModel',
+
 import typing as t
 
 import dash_bootstrap_components as dbc
@@ -14,8 +35,24 @@ if t.TYPE_CHECKING:
 
 
 class DashModel(BaseModel):
+    """
+    A Pydantic ``BaseModel`` almost swap-in,
+    which includes methods to auto-generate ``Dash`` layouts and callbacks.
+
+    Since callbacks cannot be registered at runtime,
+    these functions should be called once,
+    before running your app.
+    """
+
     @staticmethod
-    def _label(title: str, desc: str | None = None):
+    def _label(title: str, desc: str | None = None) -> dbc.Label:
+        """
+        Create a simple label from field attributes.
+
+        :param title: The main Label text.
+        :param desc: A smaller, grey text under the title.
+        :return: Label component.
+        """
         return dbc.Label(
             class_name='mt-2',
             children=html.Div(
@@ -29,7 +66,24 @@ class DashModel(BaseModel):
             )
         )
 
-    def _input(self, app: 'Dash', field: 'ModelField', update_btn_id: str, **kwargs):
+    def _input(
+        self,
+        app: 'Dash',
+        field: 'ModelField',
+        update_btn_id: str,
+        **kwargs
+    ) -> dbc.Input:
+        """
+        Create an Input component from a ModelField.
+
+        Callbacks for internal and external updates will be added.
+
+        :param app: `Dash` to add callbacks to.
+        :param field: `ModelField` for which to create the input.
+        :param update_btn_id: ID of external update button.
+        :param kwargs: Additional kwargs for dbc.Input.
+        :return: Input component.
+        """
         inp_id = comp_id('input')
 
         @app.callback(
@@ -56,7 +110,24 @@ class DashModel(BaseModel):
             **kwargs
         )
 
-    def _labeled_input(self, app: 'Dash', field: 'ModelField', update_btn_id: str, **kwargs):
+    def _labeled_input(
+        self,
+        app: 'Dash',
+        field: 'ModelField',
+        update_btn_id: str,
+        **kwargs
+    ) -> dbc.Container:
+        """
+        Create a Label and Input from the same field.
+
+        Callbacks for internal and external updates will be added.
+
+        :param app: `Dash` to add callbacks to.
+        :param field: `ModelField` for which to create the input.
+        :param update_btn_id: ID of external update button.
+        :param kwargs: Additional kwargs for dbc.Input.
+        :return: Input component.
+        """
         return dbc.Container(
             [
                 self._label(
@@ -78,6 +149,16 @@ class DashModel(BaseModel):
         field: 'ModelField',
         update_btn_id: str
     ) -> 'Component':
+        """
+        Create the appropriate component for a `ModelField` based on its type.
+
+        Callbacks for internal and external updates will be added.
+
+        :param app: `Dash` to add callbacks to.
+        :param field: `ModelField` for which to create the input.
+        :param update_btn_id: ID of external update button.
+        :return: Component.
+        """
         attr = getattr(self, field.name)
 
         if ti.is_literal_type(field.type_):
@@ -113,6 +194,16 @@ class DashModel(BaseModel):
             )
 
     def update(self, data: dict[str, t.Any]):
+        """
+        Update the state of the model.
+
+        Will **not** update the layout.
+
+        This should be called inside the callback of
+        the update button passed to the layout generating functions.
+
+        :param data: Updated state.
+        """
         for k, v in data.items():
             if isinstance(attr := getattr(self, k), DashModel):
                 attr.update(v)
@@ -124,6 +215,13 @@ class DashModel(BaseModel):
         app: 'Dash',
         update_btn_id: str
     ) -> 'Component':
+        """
+        Create the bare input fields for the model.
+
+        :param app: `Dash` to add callbacks to.
+        :param update_btn_id: ID of external update button.
+        :return: Containing component.
+        """
         return dbc.Container(
             list(
                 map(
@@ -140,6 +238,15 @@ class DashModel(BaseModel):
         desc: str,
         update_btn_id: str
     ) -> 'Component':
+        """
+        Create a collapsable card for the model.
+
+        :param app: `Dash` to add callbacks to.
+        :param title: Text for collapse toggle button.
+        :param desc: Text under collapse toggle button.
+        :param update_btn_id: ID of external update button.
+        :return: Containing component.
+        """
         btn_id = comp_id('collapse_btn')
         coll_id = comp_id('collapse')
 

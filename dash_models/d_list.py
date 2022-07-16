@@ -1,3 +1,22 @@
+"""
+----
+
+List
+====
+
+``DashListable``
+----------------
+
+Base class for models that are intended as items in a `DashList`.
+
+``DashList``
+------------
+
+Generic base class with a list __root__,
+includes add and remove buttons to edit the list.
+
+----
+"""
 import typing as t
 from abc import ABC, abstractmethod
 
@@ -14,9 +33,14 @@ if t.TYPE_CHECKING:
 
 
 class DashListable(DashModel, ABC):
+    """
+    Base class for models that are intended as items in a `DashList`.
+    """
+
     @property
     @abstractmethod
     def title(self) -> str:
+        """ Create a title for the item """
         ...
 
     class Config:
@@ -27,14 +51,27 @@ TListable = t.TypeVar('TListable', bound=DashListable)
 
 
 class DashList(DashModel, GenericModel, t.Generic[TListable]):
+    """
+    Generic base class with a list __root__,
+    includes add and remove buttons to edit the list.
+    """
     __root__: list[TListable] = []
     __root_fields__: list['Component']
+
+    # all layouts must be generated in advance,
+    # so we will keep unused ones here
     __disabled__: list[TListable]
     __disabled_fields__: list['Component']
 
     _max_items: int = 5
+    """Intended to be overridden if needed"""
+
+    # ^ really PyCharm? You can't a comment above as the docs?
 
     def update(self, data: list[t.Any]):
+
+        # move items in or out if __disabled__ as needed
+
         while len(data) > len(self.__root__):
             self.__root__.append(self.__disabled__.pop())
             self.__root_fields__.append(self.__disabled_fields__.pop())
@@ -51,18 +88,23 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
         app: 'Dash',
         update_btn_id: str
     ) -> 'Component':
+
+        # initial generation of the fields and other stuff.
+        # possible because if this method is called again everything breaks anyway.
+
         self.__root_fields__ = [
             item.dash_fields(app, update_btn_id)
             for item in self.__root__
         ]
 
+        # find runtime value of TListable.
+        # this is quite janky, but python does not have a good type hint API.
         listable_type: t.Type[TListable] = t.get_args(t.get_type_hints(type(self))['__root__'])[0]
 
         self.__disabled__ = [
             listable_type()
             for _ in range(self._max_items - len(self.__root__))
         ]
-
         self.__disabled_fields__ = [
             item.dash_fields(app, update_btn_id)
             for item in self.__disabled__
@@ -93,7 +135,7 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
                         children=[
                             dbc.AccordionItem(
                                 id=id_,
-                                title=item.title(),
+                                title=item.title,
                                 children=fields
                             )
                             for id_, item, fields
@@ -108,7 +150,6 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
             Input(update_btn_id, 'n_clicks'),
             Input(add_id, 'n_clicks'),
             Input(sub_id, 'n_clicks'),
-            # State({'type': acc_item_id_type, 'index': ALL}, 'id'),
             prevent_initial_call=True
         )
         def update(update_n_clicks: int, add_n_clicks: int, sub_n_clicks: int):

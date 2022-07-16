@@ -1,3 +1,18 @@
+"""
+----
+
+Editor
+======
+
+``DashEditorPage``
+------------------
+
+Like ``DashModel`` but with an accompanying JSON editor for the model.
+Intended to be used with a top level model as a full page.
+
+----
+"""
+
 import base64
 import json
 import typing as t
@@ -17,12 +32,28 @@ JSON_DUMPS_KWARGS = dict(indent=2)
 
 
 class DashEditorPage(DashModel):
+    """
+    Like ``DashModel`` but with an accompanying JSON editor for the model.
+    Intended to be used with a top level model as a full page.
+    """
+
     def dash_editor(
         self,
         app: 'Dash',
         title: str,
         desc: str
     ) -> 'Component':
+        """
+        Create a collapse card and JSON editor fo the model.
+
+        The editors `Update` button will be propagated to all underlying models,
+        to allow propagation of edits.
+
+        :param app: `Dash` to add callbacks to.
+        :param title: Text for collapse toggle button.
+        :param desc: Text under collapse toggle button.
+        :return: Containing component.
+        """
         ui_tab = comp_id('ui_tab')
         json_sub = comp_id('json_sub')
         json_up = comp_id('json_up')

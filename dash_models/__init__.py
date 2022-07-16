@@ -1,3 +1,16 @@
+"""
+----
+
+Dash Models
+===========
+
+``Pydantic``-based base classes and functions for generating ``Dash`` layouts.
+
+See module docs for more details.
+
+----
+"""
+
 from .d_list import DashList, DashListable
 from .editor import DashEditorPage
 from .model import DashModel
