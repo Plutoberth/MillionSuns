@@ -17,6 +17,9 @@ includes add and remove buttons to edit the list.
 
 ----
 """
+
+__all__ = 'DashListable', 'DashList'
+
 import typing as t
 from abc import ABC, abstractmethod
 

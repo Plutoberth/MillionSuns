@@ -13,6 +13,8 @@ Intended to be used with a top level model as a full page.
 ----
 """
 
+__all__ = 'DashEditorPage',
+
 import base64
 import json
 import typing as t
