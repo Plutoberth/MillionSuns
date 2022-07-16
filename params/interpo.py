@@ -36,7 +36,7 @@ from pydantic import StrictFloat
 
 from .base_dash_model import DashSelect, DashSelectable
 
-__all__ = 'InterpoSelect',
+__all__ = 'InterpoSelect', 'Constant', 'Linear', 'Compound'
 
 
 class ABCInterpo(ABC):
