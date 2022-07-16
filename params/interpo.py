@@ -34,7 +34,7 @@ import numpy as np
 import numpy_financial as npf
 from pydantic import StrictFloat
 
-from .base_dash_model import DashSelect, DashSelectable
+from dash_models import DashSelect, DashSelectable
 
 __all__ = 'InterpoSelect', 'Constant', 'Linear', 'Compound'
 

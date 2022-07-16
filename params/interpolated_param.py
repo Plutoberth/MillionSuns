@@ -18,7 +18,7 @@ Inherits from ``BaseInterpoRange``.
 ----
 """
 
-from .base_dash_model import DashList
+from dash_models import DashList
 from .interpo_range import ABCInterpoRange, InterpoRange
 
 

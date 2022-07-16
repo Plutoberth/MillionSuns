@@ -20,7 +20,7 @@ in the sense that new parameters need to be added manually.
 
 from pydantic import PositiveInt
 
-from .base_dash_model import DashEditorPage
+from dash_models import DashEditorPage
 from .interpolated_param import InterpolatedParam
 
 

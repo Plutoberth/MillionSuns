@@ -25,7 +25,7 @@ from abc import ABC, abstractmethod
 
 from pydantic import PositiveInt
 
-from .base_dash_model import DashListable
+from dash_models import DashListable
 from .interpo import Constant, InterpoSelect
 
 

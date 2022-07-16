@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, NonNegativeFloat, PositiveInt, validator
 
-from .base_dash_model import DashModel
+from dash_models import DashModel
 
 
 class Scenario(BaseModel):
