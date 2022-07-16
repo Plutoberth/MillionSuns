@@ -18,32 +18,16 @@ Inherits from ``BaseInterpoRange``.
 ----
 """
 
-import inspect
-
-from .base_dash_model import DashModel
+from .base_dash_model import DashList
 from .interpo_range import ABCInterpoRange, InterpoRange
 
 
-class InterpolatedParam(DashModel, ABCInterpoRange):
-    ranges: InterpoRange
-
-    _ranges: list[InterpoRange]
+class InterpolatedParam(DashList[InterpoRange], ABCInterpoRange):
     _start_year: int = 0
-
-    def __init__(self, **data):
-        super().__init__(**data)
-
-        self._ranges = [
-            member[1] for member in inspect.getmembers(
-                self,
-                predicate=lambda attr: isinstance(attr, InterpoRange)
-            )
-        ]
 
     def at(self, year: int) -> float:
         return sum(
             ([r for _ in range(r.end_year - r.start_year)] for r in
-             sorted(self._ranges, key=lambda r: r.start_year)
-             if r.enabled),
+             sorted(self, key=lambda r: r.start_year)),
             start=[]
         )[year - self._start_year].at(year)
