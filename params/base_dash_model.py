@@ -315,6 +315,10 @@ class DashSelect(DashModel, GenericModel, t.Generic[TSelectable]):
                 f'{self.__root__}\n{self._options=}'
             )
 
+    @property
+    def selected(self) -> str:
+        return self._selected
+
     def update(self, data: dict[str, t.Any]):
         self._selected = data['type']
         self.__root__ = self._options[self._selected]
