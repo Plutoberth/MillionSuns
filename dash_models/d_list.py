@@ -27,7 +27,7 @@ TListable = t.TypeVar('TListable', bound=DashListable)
 
 
 class DashList(DashModel, GenericModel, t.Generic[TListable]):
-    __root__: list[TListable]
+    __root__: list[TListable] = []
     __root_fields__: list['Component']
     __disabled__: list[TListable]
     __disabled_fields__: list['Component']
