@@ -2,7 +2,7 @@ import typing as t
 
 import dash_bootstrap_components as dbc
 import typing_inspect as ti
-from dash import Input, Output, State
+from dash import Input, Output, State, html
 from pydantic import BaseModel
 
 from .utils import comp_id
@@ -15,10 +15,18 @@ if t.TYPE_CHECKING:
 
 class DashModel(BaseModel):
     @staticmethod
-    def _label(title: str):
+    def _label(title: str, desc: str | None = None):
         return dbc.Label(
             class_name='mt-2',
-            children=title
+            children=html.Div(
+                [
+                    title,
+                    html.Div(
+                        className='text-muted small',
+                        children=desc
+                    )
+                ]
+            )
         )
 
     def _input(self, app: 'Dash', field: 'ModelField', update_btn_id: str, **kwargs):
@@ -51,7 +59,10 @@ class DashModel(BaseModel):
     def _labeled_input(self, app: 'Dash', field: 'ModelField', update_btn_id: str, **kwargs):
         return dbc.Container(
             [
-                self._label(field.field_info.title or field.name.replace('_', ' ').title()),
+                self._label(
+                    field.field_info.title or field.name.replace('_', ' ').title(),
+                    field.field_info.description
+                ),
                 self._input(
                     app,
                     field,
