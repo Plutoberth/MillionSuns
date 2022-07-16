@@ -1,4 +1,4 @@
-from cx_Freeze import setup, Executable
+from cx_Freeze import Executable, setup
 from setuptools import find_packages
 
 options = {
@@ -14,9 +14,11 @@ options = {
 }
 
 executables = [
-    Executable('app.py',
-               base='console',
-               targetName='ThousandSunsServer.exe')
+    Executable(
+        'app.py',
+        base='console',
+        targetName='ThousandSunsServer.exe'
+    )
 ]
 
 setup(
