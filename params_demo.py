@@ -7,19 +7,16 @@ if __name__ == '__main__':
     params_json = {
         'start_year': 2020,
         'end_year': 2050,
-        'population': {
-            'ranges': {
-                'enabled': True,
+        'population': [
+            {
                 'start_year': 2020,
                 'end_year': 2050,
                 'interpo': {
-                    'selected': {
-                        'type': 'constant',
-                        'value': 10
-                    }
+                    'type': 'constant',
+                    'value': 10.
                 }
-            },
-        },
+            }
+        ],
     }
 
     params = Params(**params_json)
@@ -28,7 +25,7 @@ if __name__ == '__main__':
         __name__,
         external_stylesheets=[
             dbc.themes.BOOTSTRAP,
-            dbc.icons.BOOTSTRAP,
+            dbc.icons.FONT_AWESOME,
         ],
         external_scripts=[
             'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js',
