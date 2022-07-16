@@ -32,7 +32,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy_financial as npf
-from pydantic import StrictFloat
+from pydantic import Field, StrictFloat
 
 from dash_models import DashSelect, DashSelectable
 
@@ -108,7 +108,7 @@ class Compound(BaseInterpo):
     type: t.Literal['compound'] = 'compound'
 
     start_value: StrictFloat = 0.
-    rate: StrictFloat = 0.
+    rate: StrictFloat = Field(0., title='Rate (%)')
 
     def at(
         self,
@@ -119,7 +119,7 @@ class Compound(BaseInterpo):
         # pv=-start_value because fv is for debt.
         # i.e. with (rate=0.5, nper=1, pmt=0): pv=-10 -> 15, pv=10 -> 5
         return npf.fv(
-            rate=self.rate,
+            rate=self.rate / 100,
             nper=target_year - start_year,
             pmt=0,  # :)
             pv=-self.start_value
