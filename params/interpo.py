@@ -1,28 +1,27 @@
 """
 ----
 
-Interpolation
-=============
+Interpolations
+==============
 
-``InterpoType``
----------------
+Interpolate a value between two years.
 
-String Enum of interpolation types.
+Interface
+---------
 
+All interpolations implement ``.at(start_year, end_year, target_year)``,
+which will return the value at the target year according to the set attributes.
 
-``ABCInterpo`` children
-------------------------
+``InterpoSelect``
+-----------------
+A ``DashSelect`` for selecting and populating one of the provided interpolations.
 
-Given value interpolated in a given year range.
+Interpolations
+--------------
 
-- Access values using ``.at(year) -> float``.
-- Inherits from``BaseDash``.
-
-``AnyInterpo``
----------------
-
-Union of all interpolation types,
-to abstract additions and removals.
+- **Constant**: Always return ``value``.
+- **Linear**: Linear interpolation between ``start_value`` and ``end_value``.
+- **Compound**: Compound ``start_value`` by ``rate`` *percent* per year.
 
 ----
 """

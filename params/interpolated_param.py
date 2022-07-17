@@ -5,15 +5,11 @@ Model parameter
 ===============
 
 ``InterpolatedParam``
----------
+---------------------
 
-A parameter in the model which provides a value by year.
+Represents a list of ``InterpoRange``s.
 
-A list of ``InterpoRanges`` is used to allow complex interpolations.
-
-Represented by a ``dbc.Accordion`` of the ranges.
-
-Inherits from ``BaseInterpoRange``.
+Provides a `.at(year) method which will call the matching method on the appropriate ``InterpoRange``
 
 ----
 """

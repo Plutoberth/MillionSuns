@@ -4,20 +4,10 @@
 Interpolation Range
 ===================
 
-``ABCInterpolatedRange``
--------------------------
-
-Allow an object to provide a value at given year.
-
-- Get an interpolated value using ``.at(year) -> float``.
-- Inherits from ``BaseDash``.
-
-``InterpolatedRange``
----------------------
+``InterpoRange``
+----------------
 
 Provides interpolated values in a given year range.
-
-Represented by a ``dbc.AccordionItem``.
 
 ----
 """
