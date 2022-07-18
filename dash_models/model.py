@@ -253,8 +253,7 @@ class DashModel(BaseModel):
         @app.callback(
             Output(coll_id, 'is_open'),
             Input(btn_id, 'n_clicks'),
-            State(coll_id, 'is_open'),
-            prevent_initial_call=True
+            State(coll_id, 'is_open')
         )
         def update_collapse(n_clicks: int, is_open: bool):
             return not is_open
@@ -266,7 +265,10 @@ class DashModel(BaseModel):
                     id=btn_id,
                     children=title
                 ),
-                dbc.Container(class_name='text-muted text-center', children=desc),
+                dbc.Container(
+                    class_name='text-muted text-center',
+                    children=desc
+                ),
                 dbc.Collapse(
                     id=coll_id,
                     children=self.dash_fields(app, update_btn_id)
