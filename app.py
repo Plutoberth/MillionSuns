@@ -6,6 +6,7 @@ from params import Params
 
 app = Dash(
     __name__,
+    title='NZO - 95% by 2050',
     external_stylesheets=[
         dbc.themes.BOOTSTRAP,
         dbc.icons.FONT_AWESOME,
