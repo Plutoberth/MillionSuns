@@ -68,16 +68,12 @@ def nzo_strategy(demand: EnergySeries,
           instead of discharging 20MwH on the first hour and then using 20MwH of gas on the next hour.
     """
 
-    fixed_sources = fixed_production.columns
-
     df = pd.DataFrame()
     df["demand"] = demand
     df["fixed_gen"] = fixed_production.sum(axis=1)
     # TODO: this can be less ugly
     df["net_demand"] = (df["demand"] - df["fixed_gen"]).apply(lambda x: max(0, x))
     df["fixed_over_demand"] = (df["demand"] - df["fixed_gen"]).apply(lambda x: min(0, x) * -1)
-    df["day"] = df.apply(lambda row: row.name // 24, axis=1)
-    df["hour_in_day"] = df.apply(lambda row: row.name % 24, axis=1)
 
     # TODO: assuming charging starts at 50%, probably OK
     battery = Battery(storage_capacity_kwh, storage_capacity_kwh * 0.5, params.BATTERY_CHARGE_RATE,
@@ -89,41 +85,38 @@ def nzo_strategy(demand: EnergySeries,
     fixed_gen_actual = fixed_production.copy()
 
     # TODO: this can probably be replaced with more broadcasting operations
-    for _, day in df.groupby("day"):
-        assert len(day) == 24
+    # TODO: itertuples?
+    for hour_index, hour in df.iterrows():
+        # getting inputs
+        net_demand = hour["net_demand"]
+        gas_prod = 0
+        fixed_energy_curtailed = 0
+        fixed_used = hour["fixed_gen"]
+        storage_usage = 0
 
-        # TODO: eliminate this or use itertuples
-        for hour_index, hour in day.iterrows():
-            # getting inputs
-            net_demand = hour["net_demand"]
-            gas_prod = 0
-            fixed_energy_curtailed = 0
-            fixed_used = hour["fixed_gen"]
-            storage_usage = 0
+        if net_demand == 0:
+            fixed_over_demand = hour["fixed_over_demand"]
+            storage_fixed_charge = battery.calc_allowed_charge(fixed_over_demand)
 
-            if net_demand == 0:
-                fixed_over_demand = hour["fixed_over_demand"]
-                storage_fixed_charge = battery.calc_allowed_charge(fixed_over_demand)
+            fixed_energy_curtailed = fixed_over_demand - storage_fixed_charge
+            fixed_used -= fixed_energy_curtailed
 
-                fixed_energy_curtailed = fixed_over_demand - storage_fixed_charge
-                fixed_used -= fixed_energy_curtailed
+            battery.charge(storage_fixed_charge)
+        else:
+            storage_usage = battery.calc_allowed_discharge(net_demand)
+            battery.discharge(storage_usage)
 
-                battery.charge(storage_fixed_charge)
-            else:
-                storage_usage = battery.calc_allowed_discharge(net_demand)
-                battery.discharge(storage_usage)
+            if storage_usage != net_demand:
+                gas_prod += net_demand - storage_usage
 
-                if storage_usage != net_demand:
-                    gas_prod += net_demand - storage_usage
-
-            # to avoid div by zero
-            if hour["fixed_gen"]:
-                fixed_gen_actual.loc[hour_index] *= fixed_used / hour["fixed_gen"]
-            # setting outputs
-            variable_gen_profile[EnergySource.GAS][hour_index] = gas_prod
-            variable_gen_profile[EnergySource.STORAGE][hour_index] = storage_usage
-            other_output[FIXED_CURTAILED][hour_index] = fixed_energy_curtailed
-            other_output[BATTERY_STATE][hour_index] = battery.get_energy_kwh()
+        # to avoid div by zero
+        if hour["fixed_gen"]:
+            fixed_gen_actual.loc[hour_index] *= fixed_used / hour["fixed_gen"]
+        # setting outputs
+        variable_gen_profile[EnergySource.GAS][hour_index] = gas_prod
+        variable_gen_profile[EnergySource.STORAGE][hour_index] = storage_usage
+        other_output[FIXED_CURTAILED][hour_index] = fixed_energy_curtailed
+        other_output[BATTERY_STATE][hour_index] = battery.get_energy_kwh()
 
     gen_profile = variable_gen_profile.join(fixed_gen_actual)
 

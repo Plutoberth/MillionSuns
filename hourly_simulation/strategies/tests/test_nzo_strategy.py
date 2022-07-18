@@ -1,4 +1,4 @@
-from ..nzo_strategy import nzo_strategy, EnergySource
+from ..nzo_greedy_strategy import nzo_strategy, EnergySource
 from objects.objects import Params
 import pandas as pd
 
