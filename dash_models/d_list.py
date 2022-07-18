@@ -69,8 +69,6 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
     _max_items: int = 5
     """Intended to be overridden if needed"""
 
-    # ^ really PyCharm? You can't a comment above as the docs?
-
     def update(self, data: list[t.Any]):
 
         # move items in or out of __disabled__ as needed
