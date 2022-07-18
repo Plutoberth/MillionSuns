@@ -81,14 +81,14 @@ def navbar_page(
     loc_id = comp_id('location')
     cont_id = comp_id('content_container')
 
-    page_map = {title_to_path(page.title): page.layout for page in pages}
+    page_map: dict[str, Component] = {title_to_path(page.title): page.layout for page in pages}
     page_map['/'] = home_page.layout
 
     @app.callback(
         Output(cont_id, 'children'),
         Input(loc_id, 'pathname')
     )
-    def choose(pathname: str):
+    def choose(pathname: str) -> Component:
         try:
             return page_map[pathname]
         except KeyError:
