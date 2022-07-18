@@ -4,6 +4,7 @@ import pandas as pd
 
 EnergySeries = "pd.Series[float]"
 
+
 class DataFrameWrapper:
     """
     DataFrameWrapper Object that hold data frames, isn't used directly, but inherited.
