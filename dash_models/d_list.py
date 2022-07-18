@@ -73,13 +73,13 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
 
     def update(self, data: list[t.Any]):
 
-        # move items in or out if __disabled__ as needed
+        # move items in or out of __disabled__ as needed
 
         while len(data) > len(self.__root__):
             self.__root__.append(self.__disabled__.pop())
             self.__root_fields__.append(self.__disabled_fields__.pop())
 
-        while len(data) > len(self.__root__):
+        while len(data) < len(self.__root__):
             self.__disabled__.append(self.__root__.pop())
             self.__disabled_fields__.append(self.__root_fields__.pop())
 
