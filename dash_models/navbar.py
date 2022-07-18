@@ -139,7 +139,7 @@ def navbar_page(
             ),
             html.Div(
                 id=cont_id,
-                children=home_page.layout
+                children=[home_page.layout, *[page.layout for page in pages]]
             )
         ]
     )
