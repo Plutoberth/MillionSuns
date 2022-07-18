@@ -103,14 +103,12 @@ class DashEditorPage(DashModel):
                 dbc.Tab(
                     id=ui_tab,
                     label='UI Editor',
-                    children=[
-                        self.dash_collapse(
-                            app,
-                            title,
-                            desc,
-                            json_sub
-                        )
-                    ]
+                    children=self.dash_collapse(
+                        app,
+                        title,
+                        desc,
+                        json_sub
+                    )
                 ),
                 dbc.Tab(
                     label='JSON Editor',
