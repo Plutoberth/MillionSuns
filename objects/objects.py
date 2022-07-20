@@ -1,10 +1,20 @@
-import dataclasses
-from typing import TypeAlias
+from dataclasses import dataclass
+
 
 
 # TODO: Add type aliases for Kw and KwH
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
+class Params:
+    # The C-value of the battery. Max charge/discharge rate per hour.
+    BATTERY_CHARGE_RATE: float = 0.25
+    # (battery output energy) / (battery input energy)
+    BATTERY_EFFICIENCY: float = 0.87
+    # TODO: the fraction of the battery's capacity that can be used - probably unimportant
+    # and can be computed before sending to `nzo_strategy`.
+
+
+@dataclass(frozen=True)
 class Scenario:
     year: int
     solar_generation_kw: float
@@ -16,7 +26,7 @@ class Scenario:
     storage_depth_of_discharge: float
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class RoadmapParameter:
     start: int
     min_final: int
@@ -28,7 +38,7 @@ class RoadmapParameter:
         assert self.min_final <= self.max_final
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class Roadmap:
     solar_generation_kw: RoadmapParameter
     wind_generation_kw: RoadmapParameter

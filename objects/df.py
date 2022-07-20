@@ -2,6 +2,8 @@ import logging
 
 import pandas as pd
 
+EnergySeries = "pd.Series[float]"
+
 
 class DataFrameWrapper:
     """
