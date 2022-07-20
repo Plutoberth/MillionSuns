@@ -3,28 +3,9 @@ from typing import Callable
 
 import numpy_financial as npf
 
-from df_objects import ProductionDf
-from df_objects.df_objects import ElectricityUseDf, DemandDf
+from objects.df import ElectricityUseDf, DemandDf, ProductionDf
 from hourly_simulation.parameters import Params, ELECTRICITY_COST, ELECTRICITY_SELLING_INCOME
-from hourly_simulation.predict_demand import predict_demand_in_year
-
-
-def get_solar_production_profile(normalised_production: ProductionDf, solar_panel_power_kw: float,
-                                 params: Params) -> ProductionDf:
-    """
-    Get Solar Production Profile as pd.DataFrame.
-
-    :param normalised_production: ProductionDf normalised solar hourly production pd.DataFrame(columns=['HourOfYear',
-        'SolarProduction'])
-    :param solar_panel_power_kw: float max power of solar panels built [KW]
-    :param params: namedtuple simulation params
-    :return: ProductionDf total production of solar panels pd.DataFrame(columns=['HourOfYear', 'SolarProduction'])
-    """
-    total_production = copy.deepcopy(normalised_production)
-    average_effective_size = (1 + (1 - params.PV_DEGRADATION) ** params.FACILITY_LIFE_SPAN) / 2
-    total_production.df[
-        total_production.SolarProduction] *= average_effective_size * solar_panel_power_kw  # production in Kw
-    return total_production
+from hourly_simulation.predict import predict_demand, predict_solar_production
 
 
 def calculate_cost(electricity_use: ElectricityUseDf, params: Params, battery_capacity: float,
@@ -88,9 +69,10 @@ def calculate_cost(electricity_use: ElectricityUseDf, params: Params, battery_ca
     return total_cost
 
 
-def get_usage_profile(demand: DemandDf, normalised_production: ProductionDf, params: Params,
-                      solar_panel_power_kw: float,
-                      num_batteries: float, strategy: Callable, simulated_year: int):
+def get_usage_profile_for_year(demand: DemandDf, normalised_production: ProductionDf, params: Params,
+                               simulated_year: int,
+                               solar_panel_generation_kw: float,
+                               num_batteries: float, strategy: Callable):
     """
     Simulate Usage Profile
     :param demand: DemandDf of pd.DataFrame(columns=['HourOfYear', '$(Year)'])
@@ -98,19 +80,16 @@ def get_usage_profile(demand: DemandDf, normalised_production: ProductionDf, par
         between 0 and 1
     :param params: namedtuple simulation params
     :param simulated_year: year to simulate
-    :param solar_panel_power_kw: int power of solar panels Kwh
+    :param solar_panel_generation_kw: int power of solar panels KW
     :param num_batteries: float number of batteries
     :param strategy: function responsible for handling the cost
     :return: ElectricityUseDf pd.DataFrame(columns=['HourOfYear', 'GasUsage', 'GasStored', 'SolarUsage', 'StoredUsage',
                 'SolarStored', 'SolarLost', 'SolarSold' , 'StoredSold'])
     """
-    future_demand = predict_demand_in_year(hourly_demand=demand, params=params,
-                                           simulated_year=simulated_year)
-    total_panel_production: ProductionDf = get_solar_production_profile(normalised_production=normalised_production,
-                                                                        solar_panel_power_kw=solar_panel_power_kw,
-                                                                        params=params)
-    electricity_use: ElectricityUseDf = strategy(future_demand, total_panel_production,
-                                                 params, num_batteries, future_demand.YearOfDemand)
+    predicted_demand = predict_demand(demand, params, simulated_year)
+    solar_production = predict_solar_production(normalised_production, solar_panel_generation_kw, params)
+    electricity_use: ElectricityUseDf = strategy(predicted_demand, solar_production,
+                                                 params, num_batteries, simulated_year)
     return electricity_use
 
 
@@ -129,10 +108,11 @@ def simulate_use(demand: DemandDf, normalised_production: ProductionDf, params: 
     :param strategy: function responsible for handling the cost
     :return: float total_cost
     """
-    electricity_use = get_usage_profile(demand=demand, normalised_production=normalised_production,
-                                        solar_panel_power_kw=solar_panel_power_kw,
-                                        num_batteries=num_batteries, strategy=strategy, params=params,
-                                        simulated_year=simulated_year)
+
+    electricity_use = get_usage_profile_for_year(demand=demand, normalised_production=normalised_production,
+                                                 solar_panel_generation_kw=solar_panel_power_kw,
+                                                 num_batteries=num_batteries, strategy=strategy, params=params,
+                                                 simulated_year=simulated_year)
     return calculate_cost(electricity_use=electricity_use,
                           params=params,
                           battery_capacity=params.BATTERY_CAPACITY * num_batteries,
