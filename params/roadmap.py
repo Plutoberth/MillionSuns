@@ -142,9 +142,9 @@ class Roadmap(DashModel):
         super().__init__(**data)
 
         self._params = (
-            self.solar_gen_kw,
-            self.wind_gen_kw,
-            self.solar_gen_kw,
+            self.solar_capacity_kw,
+            self.wind_capacity_kw,
+            self.storage_capacity_kwh,
             self.storage_efficiency_p,
             self.storage_discharge_p,
         )
@@ -199,8 +199,8 @@ if __name__ == "__main__":
             start=4_000, end_min=50_000, end_max=150_000, step=20_000
         ),
         wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
-        storage_cap_kwh=RoadmapParam(
-            start=0, end_min=50_000, end_max=400_000, step=50_000
+        storage_capacity_kwh=(
+            RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
         ),
         storage_efficiency_p=RoadmapParam(
             start=85,
