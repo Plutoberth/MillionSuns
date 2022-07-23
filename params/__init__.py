@@ -1,1 +1,1 @@
-from .params import GeneralParams
+from .params import *

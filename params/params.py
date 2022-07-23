@@ -3,25 +3,32 @@
 
 Model parameters
 ================
-
-``Params``
-----------
-
-All parameters of the model.
-
-This is not completely generalized,
-in the sense that new parameters need to be added manually.
-
-----
+Defines classes for the user-facing parameters of the model.
 """
 
-from pydantic import Field, PositiveInt
+from pydantic import Field, PositiveInt, PositiveFloat, confloat
 
 from dash_models import DashEditorPage
 from .interpolated_param import InterpolatedParam
 
 
+class EmissionsPricing(DashEditorPage):
+    """
+    Pricing for an emissions tax, aka a carbon tax
+    """
+    CO2: InterpolatedParam = Field(InterpolatedParam(), title="CO2 Pricing (ILS/ton)")
+    SOX: InterpolatedParam = Field(InterpolatedParam(), title="SOX Pricing (ILS/ton)")
+    NOX: InterpolatedParam = Field(InterpolatedParam(), title="NOX Pricing (ILS/ton)")
+    PMx: InterpolatedParam = Field(InterpolatedParam(), title="PMx Pricing (ILS/ton)")
+
+    def __init__(self, **data):
+        super().__init__(**data)
+
+
 class EnergySourceEmissions(DashEditorPage):
+    """
+    The emissions created by an energy sources. Relevant to coal and gas.
+    """
     CO2: PositiveInt = Field(title="CO2 emissions (g/KW)")
     SOX: PositiveInt = Field(title="SOX emissions (g/KW)")
     NOX: PositiveInt = Field(title="NOX emissions (g/KW)")
@@ -32,19 +39,48 @@ class EnergySourceEmissions(DashEditorPage):
 
 
 class EnergySourceCosts(DashEditorPage):
+    """
+    The costs associated with an energy source
+    """
     capex: InterpolatedParam = Field(
         InterpolatedParam(),
-        title='Capex (ILS/kw)'
+        title='Capex (ILS/kw)',
+        description="Initial construction expense"
     )
 
     opex: InterpolatedParam = Field(
         InterpolatedParam(),
-        title='Opex (ILS/kw/year)'
+        title='Opex (ILS/kw/year)',
+        description="Electricity generation expenses"
     )
 
     lifetime: InterpolatedParam = Field(
         InterpolatedParam(),
-        title="Lifetime (years)"
+        title="Lifetime (years)",
+        description="The lifetime of the facility"
+    )
+
+    def __init__(self, **data):
+        super().__init__(**data)
+
+
+class StorageParams(DashEditorPage):
+    charge_rate: PositiveFloat = Field(
+        0.25,
+        title="Battery Charge Rate (Proportion)",
+        description="The maximum proportion of the battery that can be charged or discharged every hour"
+    )
+
+    minimum_charge: PositiveFloat = Field(
+        0.05,
+        title="Minimum Charge (Proportion)",
+        description="The minimum charge that must be kept in the battery at all times, as a margin"
+    )
+
+    efficiency: PositiveFloat = Field(
+        0.87,
+        title="Efficiency (Proportion)",
+        description="The proportion of energy that is kept in the battery, from the input energy"
     )
 
     def __init__(self, **data):
@@ -66,14 +102,19 @@ class GeneralParams(DashEditorPage):
         title="Average Yearly Wind Production Hours"
     )
 
-    interest: PositiveInt = Field(
+    interest_pct: PositiveInt = Field(
         3,
         title="Interest (%)"
     )
 
-    population: InterpolatedParam = Field(
+    population_mill: InterpolatedParam = Field(
         InterpolatedParam(),
         title='Population (Mill)'
+    )
+
+    coal_must_run: InterpolatedParam = Field(
+        InterpolatedParam,
+        title='Coal Must-Run (KW)'
     )
 
     def __init__(self, **data):
