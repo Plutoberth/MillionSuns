@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import Dash, html
 
 from dash_models import Brand, Page, navbar_page
-from params import Params
+from params import GeneralParams
 
 app = Dash(
     __name__,
@@ -29,7 +29,7 @@ params_json = {
     ],
 }
 
-params = Params(**params_json)
+params = GeneralParams(**params_json)
 
 p_params = Page(
     title='Parameters',
