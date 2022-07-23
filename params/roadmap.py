@@ -39,7 +39,7 @@ class Scenario:
     wind_capacity_kw: np.ndarray
 
     # energy storage
-    storage_cap_kwh: np.ndarray
+    storage_capacity_kwh: np.ndarray
     storage_efficiency_p: np.ndarray
     storage_discharge_p: np.ndarray
 
@@ -52,9 +52,9 @@ class Scenario:
         return "-".join(
             str(int(param[~0]))
             for param in (
-                self.solar_gen_kw,
-                self.wind_gen_kw,
-                self.solar_gen_kw,
+                self.solar_capacity_kw,
+                self.wind_capacity_kw,
+                self.storage_capacity_kwh,
                 self.storage_efficiency_p,
                 self.storage_discharge_p,
             )
@@ -113,11 +113,11 @@ class Roadmap(DashModel):
     end_year: PositiveInt = Field(..., title="End Year")
 
     # clean energy sources
-    solar_gen_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
-    wind_gen_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
+    solar_capacity_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
+    wind_capacity_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
 
     # energy storage
-    storage_cap_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
+    storage_capacity_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
     storage_efficiency_p: RoadmapParam = Field(
         ...,
         title="Storage Efficiency (%)",
