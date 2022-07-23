@@ -25,6 +25,15 @@ def remove_duplicates(it: t.Iterable[T]) -> t.Iterator[T]:
 
 @dataclass
 class Scenario:
+    """
+    Values for a possible futures.
+
+    Each attribute is an array of values from some start year to some end year.
+
+    The years are not included, and it is assumed the arrays are correct.
+     This is strictly a typed container.
+    """
+
     # clean energy sources
     solar_gen_kw: np.ndarray
     wind_gen_kw: np.ndarray
@@ -36,6 +45,10 @@ class Scenario:
 
     @property
     def title(self) -> str:
+        """
+        Scenario title, for printing and graph labeling.
+        :return: Concatenated last values of each attribute.
+        """
         return "-".join(
             str(int(param[~0]))
             for param in (
@@ -58,6 +71,11 @@ class Scenario:
 
 
 class RoadmapParam(DashModel):
+    """
+    Roadmap parameter, which has a start values
+    and range-like attributes for the end value.
+    """
+
     start: NonNegativeInt = Field(..., title="Start Year Value")
     end_min: NonNegativeInt = Field(..., title="End Year Minimum Value")
     end_max: NonNegativeInt = Field(..., title="End Year Maximum Value")
@@ -84,6 +102,13 @@ class RoadmapParam(DashModel):
 
 
 class Roadmap(DashModel):
+    """
+    Represents a variety of future scenarios.
+    Each parameter is a `RoadmapParameter`, a range of ranges of values.
+
+    A cartesian product of these generates all possible `Scenario`s.
+    """
+
     start_year: PositiveInt = Field(..., title="Start Year")
     end_year: PositiveInt = Field(..., title="End Year")
 
@@ -145,6 +170,9 @@ class Roadmap(DashModel):
 
     @property
     def scenarios(self) -> t.Iterator[Scenario]:
+        """
+        All possible `Scenario` that can be generated form this `Roadmap`.
+        """
         # a range of end values for each parameter
         end_value_ranges = (
             range(param.end_min, param.end_max, param.step) for param in self._params
