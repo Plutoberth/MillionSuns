@@ -35,8 +35,8 @@ class Scenario:
     """
 
     # clean energy sources
-    solar_gen_kw: np.ndarray
-    wind_gen_kw: np.ndarray
+    solar_capacity_kw: np.ndarray
+    wind_capacity_kw: np.ndarray
 
     # energy storage
     storage_cap_kwh: np.ndarray
@@ -125,7 +125,7 @@ class Roadmap(DashModel):
     )
     storage_discharge_p: RoadmapParam = Field(
         ...,
-        title="Solar Discharge Depth (%)",
+        title="Battery Discharge Depth (%)",
         description="How much of the battery's capacity can be drawn out at once.",
     )
 
@@ -171,7 +171,7 @@ class Roadmap(DashModel):
     @property
     def scenarios(self) -> t.Iterator[Scenario]:
         """
-        All possible `Scenario` that can be generated form this `Roadmap`.
+        All possible `Scenario` that can be generated from this `Roadmap`.
         """
         # a range of end values for each parameter
         end_value_ranges = (
@@ -195,10 +195,10 @@ if __name__ == "__main__":
     r = Roadmap(
         start_year=2020,
         end_year=2050,
-        solar_gen_kw=RoadmapParam(
+        solar_capacity_kw=RoadmapParam(
             start=4_000, end_min=50_000, end_max=150_000, step=20_000
         ),
-        wind_gen_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
+        wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
         storage_cap_kwh=RoadmapParam(
             start=0, end_min=50_000, end_max=400_000, step=50_000
         ),
