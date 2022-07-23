@@ -107,10 +107,9 @@ class GeneralParams(DashEditorPage):
         title="Interest (%)"
     )
 
-    population_mill: InterpolatedParam = Field(
-        InterpolatedParam(),
-        title='Population (Mill)'
-    )
+    usage_growth_rate: float = Field(1.028,
+                                     title="Electricity Demand Growth Rate YoY",
+                                     description="The rate of electricity demand growth from the previous year")
 
     coal_must_run: InterpolatedParam = Field(
         InterpolatedParam,
