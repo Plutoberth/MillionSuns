@@ -21,9 +21,6 @@ class EmissionsPricing(DashEditorPage):
     NOX: InterpolatedParam = Field(InterpolatedParam(), title="NOX Pricing (ILS/ton)")
     PMx: InterpolatedParam = Field(InterpolatedParam(), title="PMx Pricing (ILS/ton)")
 
-    def __init__(self, **data):
-        super().__init__(**data)
-
 
 class EnergySourceEmissions(DashEditorPage):
     """
@@ -33,9 +30,6 @@ class EnergySourceEmissions(DashEditorPage):
     SOX: PositiveInt = Field(title="SOX emissions (g/KW)")
     NOX: PositiveInt = Field(title="NOX emissions (g/KW)")
     PMx: PositiveInt = Field(title="PMx emissions (g/KW)")
-
-    def __init__(self, **data):
-        super().__init__(**data)
 
 
 class EnergySourceCosts(DashEditorPage):
@@ -60,9 +54,6 @@ class EnergySourceCosts(DashEditorPage):
         description="The lifetime of the facility"
     )
 
-    def __init__(self, **data):
-        super().__init__(**data)
-
 
 class StorageParams(DashEditorPage):
     charge_rate: PositiveFloat = Field(
@@ -82,9 +73,6 @@ class StorageParams(DashEditorPage):
         title="Efficiency (Proportion)",
         description="The proportion of energy that is kept in the battery, from the input energy"
     )
-
-    def __init__(self, **data):
-        super().__init__(**data)
 
 
 class GeneralParams(DashEditorPage):
