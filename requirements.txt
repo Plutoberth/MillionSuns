@@ -23,4 +23,4 @@ six==1.16.0
 tenacity==8.0.1
 typing-inspect==0.7.1
 typing_extensions==4.3.0
-Werkzeug==2.1.2
+Werkzeug==2.2.0

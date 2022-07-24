@@ -12,15 +12,15 @@ See module docs for more details.
 """
 
 __all__ = (
-    'DashList',
-    'DashListable',
-    'DashEditorPage',
-    'DashModel',
-    'Brand',
-    'Page',
-    'navbar_page',
-    'DashSelect',
-    'DashSelectable'
+    "DashList",
+    "DashListable",
+    "DashEditorPage",
+    "DashModel",
+    "Brand",
+    "Page",
+    "navbar_page",
+    "DashSelect",
+    "DashSelectable",
 )
 
 from .d_list import DashList, DashListable

@@ -17,7 +17,7 @@ before running your app.
 ----
 """
 
-__all__ = 'DashModel',
+__all__ = ("DashModel",)
 
 import typing as t
 
@@ -54,24 +54,14 @@ class DashModel(BaseModel):
         :return: Label component.
         """
         return dbc.Label(
-            class_name='mt-2',
+            class_name="mt-2",
             children=html.Div(
-                [
-                    title,
-                    html.Div(
-                        className='text-muted small',
-                        children=desc
-                    )
-                ]
-            )
+                [title, html.Div(className="text-muted small", children=desc)]
+            ),
         )
 
     def _input(
-        self,
-        app: 'Dash',
-        field: 'ModelField',
-        update_btn_id: str,
-        **kwargs
+        self, app: "Dash", field: "ModelField", update_btn_id: str, **kwargs
     ) -> dbc.Input:
         """
         Create an Input component from a ModelField.
@@ -84,22 +74,19 @@ class DashModel(BaseModel):
         :param kwargs: Additional kwargs for dbc.Input.
         :return: Input component.
         """
-        inp_id = comp_id('input')
+        inp_id = comp_id("input")
 
-        @app.callback(
-            Output(inp_id, 'key'),
-            Input(inp_id, 'value')
-        )
+        @app.callback(Output(inp_id, "key"), Input(inp_id, "value"))
         def int_update(value: t.Any):
             setattr(self, field.name, field.type_(value))
             return inp_id
 
         @app.callback(
-            Output(inp_id, 'value'),
-            Input(update_btn_id, 'n_clicks'),
-            prevent_initial_call=True
+            Output(inp_id, "value"),
+            Input(update_btn_id, "n_clicks"),
+            prevent_initial_call=True,
         )
-        def ext_update(n_clicks: int):
+        def ext_update(_n_clicks: int):
             return getattr(self, field.name)
 
         return dbc.Input(
@@ -107,15 +94,11 @@ class DashModel(BaseModel):
             min=field.field_info.le or field.field_info.lt,
             max=field.field_info.ge or field.field_info.gt,
             value=getattr(self, field.name),
-            **kwargs
+            **kwargs,
         )
 
     def _labeled_input(
-        self,
-        app: 'Dash',
-        field: 'ModelField',
-        update_btn_id: str,
-        **kwargs
+        self, app: "Dash", field: "ModelField", update_btn_id: str, **kwargs
     ) -> dbc.Container:
         """
         Create a Label and Input from the same field.
@@ -131,24 +114,17 @@ class DashModel(BaseModel):
         return dbc.Container(
             [
                 self._label(
-                    field.field_info.title or field.name.replace('_', ' ').title(),
-                    field.field_info.description
+                    field.field_info.title or field.name.replace("_", " ").title(),
+                    field.field_info.description,
                 ),
-                self._input(
-                    app,
-                    field,
-                    update_btn_id,
-                    **kwargs
-                )
+                self._input(app, field, update_btn_id, **kwargs),
             ]
         )
 
     def _component(
-        self,
-        app: 'Dash',
-        field: 'ModelField',
-        update_btn_id: str
-    ) -> 'Component':
+        self, app: "Dash", field: "ModelField", update_btn_id: str
+    ) -> "Component":
+
         """
         Create the appropriate component for a `ModelField` based on its type.
 
@@ -164,33 +140,24 @@ class DashModel(BaseModel):
         if ti.is_literal_type(field.type_):
             return dbc.Container()
         elif issubclass(field.type_, int):
-            return self._labeled_input(
-                app,
-                field,
-                update_btn_id,
-                type='number',
-                step=1
-            )
+            return self._labeled_input(app, field, update_btn_id, type="number", step=1)
         elif issubclass(field.type_, float):
             return self._labeled_input(
-                app,
-                field,
-                update_btn_id,
-                type='number',
-                step=0.005
+                app, field, update_btn_id, type="number", step=0.005
             )
         elif issubclass(field.type_, DashModel):
             return attr.dash_collapse(
                 app,
-                field.field_info.title or field.name.replace('_', ' ').title(),
+                field.field_info.title or field.name.replace("_", " ").title(),
                 field.field_info.description,
-                update_btn_id
+                update_btn_id,
             )
         else:
             raise NotImplementedError(
-                f'The field {field.name}'
-                f' has type {field.type_!r}'
-                f' which is not yet supported'
+                f"The field {field.name}"
+                f" has type {field.type_!r}"
+                f" which is "
+                f"not yet supported"
             )
 
     def update(self, data: dict[str, t.Any]):
@@ -210,11 +177,7 @@ class DashModel(BaseModel):
             else:
                 setattr(self, k, v)
 
-    def dash_fields(
-        self,
-        app: 'Dash',
-        update_btn_id: str
-    ) -> 'Component':
+    def dash_fields(self, app: "Dash", update_btn_id: str) -> "Component":
         """
         Create the bare input fields for the model.
 
@@ -226,18 +189,15 @@ class DashModel(BaseModel):
             list(
                 map(
                     lambda field: self._component(app, field, update_btn_id),
-                    self.__fields__.values()
+                    self.__fields__.values(),
                 )
             )
         )
 
     def dash_collapse(
-        self,
-        app: 'Dash',
-        title: str,
-        desc: str,
-        update_btn_id: str
-    ) -> 'Component':
+        self, app: "Dash", title: str, desc: str, update_btn_id: str
+    ) -> "Component":
+
         """
         Create a collapsable card for the model.
 
@@ -247,33 +207,25 @@ class DashModel(BaseModel):
         :param update_btn_id: ID of external update button.
         :return: Containing component.
         """
-        btn_id = comp_id('collapse_btn')
-        coll_id = comp_id('collapse')
+
+        btn_id = comp_id("collapse_btn")
+        coll_id = comp_id("collapse")
 
         @app.callback(
-            Output(coll_id, 'is_open'),
-            Input(btn_id, 'n_clicks'),
-            State(coll_id, 'is_open')
+            Output(coll_id, "is_open"),
+            Input(btn_id, "n_clicks"),
+            State(coll_id, "is_open"),
         )
-        def update_collapse(n_clicks: int, is_open: bool):
+        def update_collapse(_n_clicks: int, is_open: bool):
             return not is_open
 
         return dbc.Card(
-            class_name='p-3 m-3',
+            class_name="p-3 m-3",
             children=[
-                dbc.Button(
-                    id=btn_id,
-                    children=title
-                ),
-                dbc.Container(
-                    class_name='text-muted text-center',
-                    children=desc
-                ),
-                dbc.Collapse(
-                    id=coll_id,
-                    children=self.dash_fields(app, update_btn_id)
-                )
-            ]
+                dbc.Button(id=btn_id, children=title),
+                dbc.Container(class_name="text-muted text-center", children=desc),
+                dbc.Collapse(id=coll_id, children=self.dash_fields(app, update_btn_id)),
+            ],
         )
 
     class Config:
