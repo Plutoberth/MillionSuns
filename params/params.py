@@ -26,8 +26,7 @@ class Params(DashEditorPage):
     end_year: PositiveInt = 2050
 
     population: InterpolatedParam = Field(
-        InterpolatedParam(),
-        title='Population (Mill)'
+        InterpolatedParam(), title="Population (Mill)"
     )
 
     # solar_panel_price: InterpolatedParam

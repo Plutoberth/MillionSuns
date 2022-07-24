@@ -13,7 +13,7 @@ Intended to be used with a top level model as a full page.
 ----
 """
 
-__all__ = 'DashEditorPage',
+__all__ = ("DashEditorPage",)
 
 import base64
 import json
@@ -39,12 +39,8 @@ class DashEditorPage(DashModel):
     Intended to be used with a top level model as a full page.
     """
 
-    def dash_editor(
-        self,
-        app: 'Dash',
-        title: str,
-        desc: str
-    ) -> 'Component':
+    def dash_editor(self, app: "Dash", title: str, desc: str) -> "Component":
+
         """
         Create a collapse card and JSON editor fo the model.
 
@@ -56,100 +52,95 @@ class DashEditorPage(DashModel):
         :param desc: Text under collapse toggle button.
         :return: Containing component.
         """
-        ui_tab = comp_id('ui_tab')
-        json_sub = comp_id('json_sub')
-        json_up = comp_id('json_up')
-        json_down_btn = comp_id('json_down_btn')
-        json_down = comp_id('json_down')
-        json_ref = comp_id('json_ref')
-        json_ace = comp_id('json_ace')
+    ui_tab = comp_id("ui_tab")
+    json_sub = comp_id("json_sub")
+    json_up = comp_id("json_up")
+    json_down_btn = comp_id("json_down_btn")
+    json_down = comp_id("json_down")
+    json_ref = comp_id("json_ref")
+    json_ace = comp_id("json_ace")
 
-        @app.callback(
-            Output(json_sub, 'key'),  # just need some output
-            Input(json_sub, 'n_clicks'),
-            State(json_ace, 'value'),
-            prevent_initial_call=True
-        )
-        def update_from_json(n_clicks: int, value: str):
-            if value != self.json(**JSON_DUMPS_KWARGS):
-                self.update(json.loads(value))
+    @app.callback(
+        Output(json_sub, "key"),  # just need some output
+        Input(json_sub, "n_clicks"),
+        State(json_ace, "value"),
+        prevent_initial_call=True,
+    )
+    def update_from_json(n_clicks: int, value: str):
+        if value != self.json(**JSON_DUMPS_KWARGS):
+            self.update(json.loads(value))
             return self.json()
 
         @app.callback(
-            Output(json_ace, 'value'),
-            Input(json_up, 'contents'),
-            Input(json_ref, 'n_clicks'),
-            prevent_initial_call=True
+            Output(json_ace, "value"),
+            Input(json_up, "contents"),
+            Input(json_ref, "n_clicks"),
+            prevent_initial_call=True,
         )
         def upload_params_jsons(content: str, n_clicks: int):
             if ctx.triggered_id == json_up and content:
-                _, content_encoded = content.split(',')
-                return base64.b64decode(content_encoded).decode('utf-8')
 
-            if ctx.triggered_id == json_ref:
-                return self.json(**JSON_DUMPS_KWARGS)
+    _, content_encoded = content.split(",")
+    return base64.b64decode(content_encoded).decode("utf-8")
+
+    if ctx.triggered_id == json_ref:
+        return self.json(**JSON_DUMPS_KWARGS)
 
         @app.callback(
-            Output(json_down, 'data'),
-            Input(json_down_btn, 'n_clicks'),
-            State(json_ace, 'value'),
-            prevent_initial_call=True
+            Output(json_down, "data"),
+            Input(json_down_btn, "n_clicks"),
+            State(json_ace, "value"),
+            prevent_initial_call=True,
         )
         def download_params_jsons(n_clicks: int, value: str):
-            return dcc.send_string(value, f'{title}.json', 'text/json')
+            return dcc.send_string(value, f"{title}.json", "text/json")
 
         return dbc.Tabs(
             children=[
                 dbc.Tab(
                     id=ui_tab,
-                    label='UI Editor',
-                    children=self.dash_collapse(
-                        app,
-                        title,
-                        desc,
-                        json_sub
-                    )
+                    label="UI Editor",
+                    children=self.dash_collapse(app, title, desc, json_sub),
                 ),
                 dbc.Tab(
-                    label='JSON Editor',
+                    label="JSON Editor",
                     children=[
                         dbc.Container(
-                            class_name='d-flex flex-row justify-content-center',
+                            class_name="d-flex flex-row justify-content-center",
                             children=[
                                 dbc.Button(
-                                    id=json_sub,
-                                    class_name='m-2',
-                                    children='Submit'
+                                    id=json_sub, class_name="m-2", children="Submit"
                                 ),
                                 dbc.Button(
-                                    id=json_ref,
-                                    class_name='m-2',
-                                    children='Refresh'
+                                    id=json_ref, class_name="m-2", children="Refresh"
                                 ),
                                 dcc.Upload(
                                     id=json_up,
-                                    className='btn btn-primary m-2',
-                                    children='Upload'
+                                    className="btn btn-primary m-2",
+                                    children="Upload",
                                 ),
                                 dbc.Button(
                                     id=json_down_btn,
-                                    class_name='m-2',
-                                    children='Download'
+                                    class_name="m-2",
+                                    children="Download",
                                 ),
-                                dcc.Download(id=json_down)
-                            ]
+                                dcc.Download(id=json_down),
+                            ],
                         ),
                         dash_ace.DashAceEditor(
                             id=json_ace,
                             value=self.json(**JSON_DUMPS_KWARGS),
-                            theme='monokai',
-                            mode='json',
+                            theme="monokai",
+                            mode="json",
                             enableBasicAutocompletion=True,
                             enableLiveAutocompletion=True,
                             fontSize=18,
-                            style={'font-family': 'monospace, monospace', 'width': '100%'}
-                        )
-                    ]
-                )
+                            style={
+                                "font-family": "monospace, monospace",
+                                "width": "100%",
+                            },
+                        ),
+                    ],
+                ),
             ]
         )

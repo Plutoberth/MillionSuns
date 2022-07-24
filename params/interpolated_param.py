@@ -9,7 +9,8 @@ Model parameter
 
 Represents a list of ``InterpoRange``s.
 
-Provides a `.at(year) method which will call the matching method on the appropriate ``InterpoRange``
+Provides a `.at(year) method which will call the matching method on the appropriate
+``InterpoRange``
 
 ----
 """
@@ -23,7 +24,9 @@ class InterpolatedParam(DashList[InterpoRange], ABCInterpoRange):
 
     def at(self, year: int) -> float:
         return sum(
-            ([r for _ in range(r.end_year - r.start_year)] for r in
-             sorted(self, key=lambda r: r.start_year)),
-            start=[]
+            (
+                [r for _ in range(r.end_year - r.start_year)]
+                for r in sorted(self, key=lambda r: r.start_year)
+            ),
+            start=[],
         )[year - self._start_year].at(year)
