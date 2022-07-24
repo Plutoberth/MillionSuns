@@ -93,7 +93,6 @@ class GeneralParams(DashEditorPage):
 
     wind_prod_hours: PositiveInt = Field(
         3014, title="Average Yearly Wind Production Hours"
-    )
 
     interest_pct: PositiveInt = Field(3, title="Interest (%)")
 

@@ -22,7 +22,7 @@ Generate a full site layout with a Navbar and multiple pages.
 ----
 """
 
-__all__ = 'Page', 'Brand', 'navbar_page'
+__all__ = "Page", "Brand", "navbar_page"
 
 import typing as t
 from dataclasses import dataclass
@@ -42,6 +42,7 @@ class Page:
     """
     Represents a page in the site.
     """
+
     title: str
     layout: Component
 
@@ -51,21 +52,22 @@ class Brand:
     """
     Represents a brand for the navbar.
     """
+
     img: str
     href: str
 
 
 def title_to_path(s: str) -> str:
-    return '/' + s.casefold().lower().replace(' ', '_')
+    return "/" + s.casefold().lower().replace(" ", "_")
 
 
 def navbar_page(
-    app: 'Dash',
+    app: "Dash",
     home_page: Page,
     pages: t.Sequence[Page],
     brands: t.Sequence[Brand],
     **kwargs
-) -> 'Component':
+) -> "Component":
     """
     Generate a full site layout with a Navbar and multiple pages.
 
@@ -78,37 +80,33 @@ def navbar_page(
     :param kwargs: Additional kwargs for the dbc.Navbar.
     :return: Containing component.
     """
-    loc_id = comp_id('location')
-    cont_id = comp_id('content_container')
+    loc_id = comp_id("location")
+    cont_id = comp_id("content_container")
 
-    page_map: dict[str, Component] = {title_to_path(page.title): page.layout for page in pages}
-    page_map['/'] = home_page.layout
+    page_map: dict[str, Component] = {
+        title_to_path(page.title): page.layout for page in pages
+    }
+    page_map["/"] = home_page.layout
 
-    @app.callback(
-        Output(cont_id, 'children'),
-        Input(loc_id, 'pathname')
-    )
+    @app.callback(Output(cont_id, "children"), Input(loc_id, "pathname"))
     def choose(pathname: str) -> Component:
         try:
             return page_map[pathname]
         except KeyError:
             return dbc.Alert(
-                color='danger',
+                color="danger",
                 style={
-                    'position': 'absolute',
-                    'left': '50%',
-                    'top': '50%',
-                    'transform': 'translate(-50%, -50%)'
+                    "position": "absolute",
+                    "left": "50%",
+                    "top": "50%",
+                    "transform": "translate(-50%, -50%)",
                 },
-                children='404 Page not found'
+                children="404 Page not found",
             )
 
     return html.Div(
         [
-            dcc.Location(
-                id=loc_id,
-                refresh=False
-            ),
+            dcc.Location(id=loc_id, refresh=False),
             dbc.Navbar(
                 **kwargs,
                 children=[
@@ -117,29 +115,23 @@ def navbar_page(
                             href=brand.href,
                             external_link=True,
                             children=html.Img(
-                                className='m-1',
+                                className="m-1",
                                 height=40,
-                                src=app.get_asset_url(brand.img)
-                            )
+                                src=app.get_asset_url(brand.img),
+                            ),
                         )
                         for brand in brands
                     ],
-                    dbc.NavLink(
-                        href='/',
-                        children='Home'
-                    ),
+                    dbc.NavLink(href="/", children="Home"),
                     *[
-                        dbc.NavLink(
-                            href=title_to_path(page.title),
-                            children=page.title
-                        )
+                        dbc.NavLink(href=title_to_path(page.title), children=page.title)
                         for page in pages
-                    ]
+                    ],
                 ]
             ),
             html.Div(
                 id=cont_id,
-                children=[home_page.layout, *[page.layout for page in pages]]
-            )
+                children=[home_page.layout, *[page.layout for page in pages]],
+            ),
         ]
     )

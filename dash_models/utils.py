@@ -9,4 +9,4 @@ def comp_id(s: str) -> str:
     :param s: General id for the component, like 'download_button'.
     :return: A ~unique id.
     """
-    return f'dash_models__{s}__{token_hex(8)}'
+    return f"dash_models__{s}__{token_hex(8)}"
