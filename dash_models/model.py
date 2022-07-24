@@ -86,7 +86,7 @@ class DashModel(BaseModel):
             Input(update_btn_id, "n_clicks"),
             prevent_initial_call=True,
         )
-        def ext_update(n_clicks: int):
+        def ext_update(_n_clicks: int):
             return getattr(self, field.name)
 
         return dbc.Input(
@@ -135,7 +135,7 @@ class DashModel(BaseModel):
         :param update_btn_id: ID of external update button.
         :return: Component.
         """
-    attr = getattr(self, field.name)
+        attr = getattr(self, field.name)
 
         if ti.is_literal_type(field.type_):
             return dbc.Container()
@@ -147,17 +147,20 @@ class DashModel(BaseModel):
             )
         elif issubclass(field.type_, DashModel):
             return attr.dash_collapse(
-    app,
-    field.field_info.title or field.name.replace("_", " ").title(),
-    field.field_info.description,
-    update_btn_id,
-)
+                app,
+                field.field_info.title or field.name.replace("_", " ").title(),
+                field.field_info.description,
+                update_btn_id,
+            )
         else:
             raise NotImplementedError(
-                f"The field {field.name}" f" has type {field.type_!r}" f" which is not yet supported"
-                )
+                f"The field {field.name}"
+                f" has type {field.type_!r}"
+                f" which is "
+                f"not yet supported"
+            )
 
-            def update(self, data: dict[str, t.Any]):
+    def update(self, data: dict[str, t.Any]):
         """
         Update the state of the model.
 
@@ -174,64 +177,58 @@ class DashModel(BaseModel):
             else:
                 setattr(self, k, v)
 
+    def dash_fields(self, app: "Dash", update_btn_id: str) -> "Component":
+        """
+        Create the bare input fields for the model.
 
-def dash_fields(self, app: "Dash", update_btn_id: str) -> "Component":
-    """
-    Create the bare input fields for the model.
-
-    :param app: `Dash` to add callbacks to.
-    :param update_btn_id: ID of external update button.
-    :return: Containing component.
-    """
-    return dbc.Container(
-        list(
-            map(
-                lambda field: self._component(app, field, update_btn_id),
-                self.__fields__.values(),
+        :param app: `Dash` to add callbacks to.
+        :param update_btn_id: ID of external update button.
+        :return: Containing component.
+        """
+        return dbc.Container(
+            list(
+                map(
+                    lambda field: self._component(app, field, update_btn_id),
+                    self.__fields__.values(),
+                )
             )
         )
-    )
 
+    def dash_collapse(
+        self, app: "Dash", title: str, desc: str, update_btn_id: str
+    ) -> "Component":
 
-def dash_collapse(
-    self, app: "Dash", title: str, desc: str, update_btn_id: str
-) -> "Component":
+        """
+        Create a collapsable card for the model.
 
-    """
-    Create a collapsable card for the model.
+        :param app: `Dash` to add callbacks to.
+        :param title: Text for collapse toggle button.
+        :param desc: Text under collapse toggle button.
+        :param update_btn_id: ID of external update button.
+        :return: Containing component.
+        """
 
-    :param app: `Dash` to add callbacks to.
-    :param title: Text for collapse toggle button.
-    :param desc: Text under collapse toggle button.
-    :param update_btn_id: ID of external update button.
-    :return: Containing component.
-    """
+        btn_id = comp_id("collapse_btn")
+        coll_id = comp_id("collapse")
 
+        @app.callback(
+            Output(coll_id, "is_open"),
+            Input(btn_id, "n_clicks"),
+            State(coll_id, "is_open"),
+        )
+        def update_collapse(_n_clicks: int, is_open: bool):
+            return not is_open
 
-btn_id = comp_id("collapse_btn")
-coll_id = comp_id("collapse")
+        return dbc.Card(
+            class_name="p-3 m-3",
+            children=[
+                dbc.Button(id=btn_id, children=title),
+                dbc.Container(class_name="text-muted text-center", children=desc),
+                dbc.Collapse(id=coll_id, children=self.dash_fields(app, update_btn_id)),
+            ],
+        )
 
-
-@app.callback(
-    Output(coll_id, "is_open"),
-    Input(btn_id, "n_clicks"),
-    State(coll_id, "is_open"),
-)
-def update_collapse(n_clicks: int, is_open: bool):
-    return not is_open
-
-
-return dbc.Card(
-    class_name="p-3 m-3",
-    children=[
-        dbc.Button(id=btn_id, children=title),
-        dbc.Container(class_name="text-muted text-center", children=desc),
-        dbc.Collapse(id=coll_id, children=self.dash_fields(app, update_btn_id)),
-    ],
-)
-
-
-class Config:
-    validate_all = True
-    validate_assignment = True
-    underscore_attrs_are_private = True
+    class Config:
+        validate_all = True
+        validate_assignment = True
+        underscore_attrs_are_private = True

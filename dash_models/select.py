@@ -103,7 +103,7 @@ class DashSelect(DashModel, GenericModel, t.Generic[TSelectable]):
             Input(update_btn_id, "n_clicks"),
             State({"type": col_id_type, "name": MATCH}, "id"),
         )
-        def select(value: str, n_clicks: int, col_id: dict[str, str]):
+        def select(value: str, _n_clicks: int, col_id: dict[str, str]):
             if ctx.triggered_id == select_id:
                 self._selected = value
                 self.__root__ = self._options[self._selected]

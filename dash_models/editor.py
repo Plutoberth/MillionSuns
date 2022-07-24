@@ -40,7 +40,6 @@ class DashEditorPage(DashModel):
     """
 
     def dash_editor(self, app: "Dash", title: str, desc: str) -> "Component":
-
         """
         Create a collapse card and JSON editor fo the model.
 
@@ -52,24 +51,24 @@ class DashEditorPage(DashModel):
         :param desc: Text under collapse toggle button.
         :return: Containing component.
         """
-    ui_tab = comp_id("ui_tab")
-    json_sub = comp_id("json_sub")
-    json_up = comp_id("json_up")
-    json_down_btn = comp_id("json_down_btn")
-    json_down = comp_id("json_down")
-    json_ref = comp_id("json_ref")
-    json_ace = comp_id("json_ace")
+        ui_tab = comp_id("ui_tab")
+        json_sub = comp_id("json_sub")
+        json_up = comp_id("json_up")
+        json_down_btn = comp_id("json_down_btn")
+        json_down = comp_id("json_down")
+        json_ref = comp_id("json_ref")
+        json_ace = comp_id("json_ace")
 
-    @app.callback(
-        Output(json_sub, "key"),  # just need some output
-        Input(json_sub, "n_clicks"),
-        State(json_ace, "value"),
-        prevent_initial_call=True,
-    )
-    def update_from_json(n_clicks: int, value: str):
-        if value != self.json(**JSON_DUMPS_KWARGS):
-            self.update(json.loads(value))
-            return self.json()
+        @app.callback(
+            Output(json_sub, "key"),  # just need some output
+            Input(json_sub, "n_clicks"),
+            State(json_ace, "value"),
+            prevent_initial_call=True,
+        )
+        def update_from_json(_n_clicks: int, value: str):
+            if value != self.json(**JSON_DUMPS_KWARGS):
+                self.update(json.loads(value))
+                return self.json()
 
         @app.callback(
             Output(json_ace, "value"),
@@ -77,14 +76,13 @@ class DashEditorPage(DashModel):
             Input(json_ref, "n_clicks"),
             prevent_initial_call=True,
         )
-        def upload_params_jsons(content: str, n_clicks: int):
+        def upload_params_jsons(content: str, _n_clicks: int):
             if ctx.triggered_id == json_up and content:
+                _, content_encoded = content.split(",")
+                return base64.b64decode(content_encoded).decode("utf-8")
 
-    _, content_encoded = content.split(",")
-    return base64.b64decode(content_encoded).decode("utf-8")
-
-    if ctx.triggered_id == json_ref:
-        return self.json(**JSON_DUMPS_KWARGS)
+            if ctx.triggered_id == json_ref:
+                return self.json(**JSON_DUMPS_KWARGS)
 
         @app.callback(
             Output(json_down, "data"),
@@ -92,7 +90,7 @@ class DashEditorPage(DashModel):
             State(json_ace, "value"),
             prevent_initial_call=True,
         )
-        def download_params_jsons(n_clicks: int, value: str):
+        def download_params_jsons(_n_clicks: int, value: str):
             return dcc.send_string(value, f"{title}.json", "text/json")
 
         return dbc.Tabs(

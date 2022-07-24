@@ -142,7 +142,7 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
             Input(sub_id, "n_clicks"),
             prevent_initial_call=True,
         )
-        def update(update_n_clicks: int, add_n_clicks: int, sub_n_clicks: int):
+        def update(_update_n_clicks: int, _add_n_clicks: int, _sub_n_clicks: int):
             if ctx.triggered_id == add_id:
                 self.__root__.append(self.__disabled__.pop())
                 self.__root_fields__.append(self.__disabled_fields__.pop())
