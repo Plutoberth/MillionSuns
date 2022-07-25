@@ -20,8 +20,8 @@ class EmissionsPricing(DashEditorPage):
     """
 
     CO2: InterpolatedParam = Field(InterpolatedParam(), title="CO2 Pricing (ILS/ton)")
-    SOX: InterpolatedParam = Field(InterpolatedParam(), title="SOX Pricing (ILS/ton)")
-    NOX: InterpolatedParam = Field(InterpolatedParam(), title="NOX Pricing (ILS/ton)")
+    SOx: InterpolatedParam = Field(InterpolatedParam(), title="SOx Pricing (ILS/ton)")
+    NOx: InterpolatedParam = Field(InterpolatedParam(), title="NOx Pricing (ILS/ton)")
     PMx: InterpolatedParam = Field(InterpolatedParam(), title="PMx Pricing (ILS/ton)")
 
 
