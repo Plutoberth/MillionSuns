@@ -31,8 +31,8 @@ class EnergySourceEmissions(DashEditorPage):
     """
 
     CO2: PositiveInt = Field(title="CO2 emissions (g/KW)")
-    SOX: PositiveInt = Field(title="SOX emissions (g/KW)")
-    NOX: PositiveInt = Field(title="NOX emissions (g/KW)")
+    SOx: PositiveInt = Field(title="SOx emissions (g/KW)")
+    NOx: PositiveInt = Field(title="NOx emissions (g/KW)")
     PMx: PositiveInt = Field(title="PMx emissions (g/KW)")
 
 
