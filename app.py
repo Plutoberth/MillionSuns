@@ -2,6 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import Dash, html
 
 from dash_models import Brand, Page, navbar_page
+from pages import make_pages
 from params import Params
 
 app = Dash(
@@ -11,31 +12,6 @@ app = Dash(
         dbc.themes.BOOTSTRAP,
         dbc.icons.FONT_AWESOME,
     ],
-)
-
-params_json = {
-    "start_year": 2020,
-    "end_year": 2050,
-    "population": [
-        {
-            "start_year": 2020,
-            "end_year": 2050,
-            "interpo": {"type": "compound", "start_value": 10.0, "rate": 2.8},
-        }
-    ],
-}
-
-params = Params(**params_json)
-
-p_params = Page(
-    title="Parameters",
-    layout=params.dash_editor(
-        app,
-        "Params",
-        "Enter ranges of interpolated predictions,"
-        " which will be combined with 2018 data,"
-        " to simulate energy production and usage in the future.",
-    ),
 )
 
 p_home = Page(
@@ -60,8 +36,22 @@ b_nzo = Brand(img="nzo.png", href="https://www.nzo.org.il/")
 
 b_aman = Brand(img="aman.png", href="https://youtu.be/5a15k3_6PAo")
 
+params_json = {
+    "start_year": 2020,
+    "end_year": 2050,
+    "population": [
+        {
+            "start_year": 2020,
+            "end_year": 2050,
+            "interpo": {"type": "compound", "start_value": 10.0, "rate": 2.8},
+        }
+    ],
+}
+
+params = Params(**params_json)
+
 app.layout = navbar_page(
-    app, p_home, (p_params,), (b_nzo, b_aman), color="dark", dark=True
+    app, p_home, make_pages(app, params), (b_nzo, b_aman), color="dark", dark=True
 )
 
 if __name__ == "__main__":
