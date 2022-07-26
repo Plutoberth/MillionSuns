@@ -8,35 +8,36 @@ Defines classes for the user-facing parameters of the model.
 ----
 """
 
-from pydantic import Field, PositiveFloat, PositiveInt
+from pydantic import Field, PositiveFloat, NonNegativeInt, PositiveInt
 
 from dash_models import DashEditorPage
+from dash_models.model import DashModel
 from .interpolated_param import InterpolatedParam
 
 
-class EmissionsPricing(DashEditorPage):
+class EmissionsPricing(DashModel):
     """
     Pricing for an emissions tax, aka a carbon tax
     """
 
     CO2: InterpolatedParam = Field(InterpolatedParam(), title="CO2 Pricing (ILS/ton)")
-    SOx: InterpolatedParam = Field(InterpolatedParam(), title="SOx Pricing (ILS/ton)")
-    NOx: InterpolatedParam = Field(InterpolatedParam(), title="NOx Pricing (ILS/ton)")
-    PMx: InterpolatedParam = Field(InterpolatedParam(), title="PMx Pricing (ILS/ton)")
+    SOx: InterpolatedParam = Field(InterpolatedParam(), title="SOx Pricing (ILS/ton)", description="Sulfur Oxides")
+    NOx: InterpolatedParam = Field(InterpolatedParam(), title="NOx Pricing (ILS/ton)", description="Nitrogen Oxides")
+    PMx: InterpolatedParam = Field(InterpolatedParam(), title="PMx Pricing (ILS/ton)", description="Particulate Matter")
 
 
-class EnergySourceEmissions(DashEditorPage):
+class EnergySourceEmissions(DashModel):
     """
     The emissions created by an energy sources. Relevant to coal and gas.
     """
 
-    CO2: PositiveInt = Field(title="CO2 emissions (g/KW)")
-    SOx: PositiveInt = Field(title="SOx emissions (g/KW)")
-    NOx: PositiveInt = Field(title="NOx emissions (g/KW)")
-    PMx: PositiveInt = Field(title="PMx emissions (g/KW)")
+    CO2: NonNegativeInt = Field(0, title="CO2 emissions (g/KW)")
+    SOx: NonNegativeInt = Field(0, title="SOx emissions (g/KW)", description="Sulfur Oxides")
+    NOx: NonNegativeInt = Field(0, title="NOx emissions (g/KW)", description="Nitrogen Oxides")
+    PMx: NonNegativeInt = Field(0, title="PMx emissions (g/KW)", description="Particulate Matter")
 
 
-class EnergySourceCosts(DashEditorPage):
+class EnergySourceCosts(DashModel):
     """
     The costs associated with an energy source
     """
@@ -60,7 +61,19 @@ class EnergySourceCosts(DashEditorPage):
     )
 
 
-class StorageParams(DashEditorPage):
+class AllSourceCosts(DashModel):
+    # TODO: make this generic over a list of energy sources
+    solar: EnergySourceCosts = Field(EnergySourceCosts(), title="Solar")
+    wind: EnergySourceCosts = Field(EnergySourceCosts(), title="Wind")
+    gas: EnergySourceCosts = Field(EnergySourceCosts(), title="Gas")
+    coal: EnergySourceCosts = Field(EnergySourceCosts(), title="Coal")
+    storage: EnergySourceCosts = Field(EnergySourceCosts(), title="Storage")
+
+class AllEmissions(DashModel):
+    gas: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Gas")
+    coal: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Coal")
+
+class StorageParams(DashModel):
     charge_rate: PositiveFloat = Field(
         0.25,
         title="Battery Charge Rate (Proportion)",
@@ -83,7 +96,7 @@ class StorageParams(DashEditorPage):
     )
 
 
-class GeneralParams(DashEditorPage):
+class GeneralParams(DashModel):
     start_year: PositiveInt = 2020
     end_year: PositiveInt = 2050
 
@@ -104,7 +117,7 @@ class GeneralParams(DashEditorPage):
     )
 
     coal_must_run: InterpolatedParam = Field(
-        InterpolatedParam, title="Coal Must-Run (KW)"
+        InterpolatedParam(), title="Coal Must-Run (KW)"
     )
 
     def __init__(self, **data):
@@ -113,3 +126,11 @@ class GeneralParams(DashEditorPage):
         for name, attr in data.items():
             if isinstance(attr, InterpolatedParam):
                 attr._start_year = self.start_year
+
+class AllParams(DashEditorPage):
+    general: GeneralParams = Field(GeneralParams(), title="General Parameters")
+    costs: AllSourceCosts = Field(AllSourceCosts(), title="Energy Source Costs")
+    emissions_costs = Field(EmissionsPricing(), title="Emissions Costs (Carbon Tax)")
+    emissions: AllEmissions = Field(AllEmissions(), title="Energy Source Emissions")
+    storage_params: StorageParams = Field(StorageParams(), title="Storage Parameters")
+
