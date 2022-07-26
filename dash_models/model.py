@@ -23,7 +23,7 @@ import typing as t
 
 import dash_bootstrap_components as dbc
 import typing_inspect as ti
-from dash import Input, Output, State, html
+from dash import Input, Output, html
 from pydantic import BaseModel
 
 from .utils import comp_id
@@ -146,7 +146,7 @@ class DashModel(BaseModel):
                 app, field, update_btn_id, type="number", step=0.0005
             )
         elif issubclass(field.type_, DashModel):
-            return attr.dash_collapse(
+            return attr.dash(
                 app,
                 field.field_info.title or field.name.replace("_", " ").title(),
                 field.field_info.description,
@@ -185,7 +185,7 @@ class DashModel(BaseModel):
         :param update_btn_id: ID of external update button.
         :return: Containing component.
         """
-        return dbc.Container(
+        return html.Div(
             list(
                 map(
                     lambda field: self._component(app, field, update_btn_id),
@@ -194,12 +194,12 @@ class DashModel(BaseModel):
             )
         )
 
-    def dash_collapse(
+    def dash(
         self, app: "Dash", title: str, desc: str, update_btn_id: str
     ) -> "Component":
 
         """
-        Create a collapsable card for the model.
+        Create a card for the model.
 
         :param app: `Dash` to add callbacks to.
         :param title: Text for collapse toggle button.
@@ -207,24 +207,12 @@ class DashModel(BaseModel):
         :param update_btn_id: ID of external update button.
         :return: Containing component.
         """
-
-        btn_id = comp_id("collapse_btn")
-        coll_id = comp_id("collapse")
-
-        @app.callback(
-            Output(coll_id, "is_open"),
-            Input(btn_id, "n_clicks"),
-            State(coll_id, "is_open"),
-        )
-        def update_collapse(_n_clicks: int, is_open: bool):
-            return not is_open
-
-        return dbc.Card(
-            class_name="p-3 m-3",
+        return dbc.Container(
+            class_name="p-3 m-3 border-start",
             children=[
-                dbc.Button(id=btn_id, children=title),
+                dbc.Container(class_name="display-6 mb-2", children=title),
                 dbc.Container(class_name="text-muted text-center", children=desc),
-                dbc.Collapse(id=coll_id, children=self.dash_fields(app, update_btn_id)),
+                self.dash_fields(app, update_btn_id),
             ],
         )
 
