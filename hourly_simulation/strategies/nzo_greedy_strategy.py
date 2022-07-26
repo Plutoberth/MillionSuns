@@ -1,6 +1,7 @@
 from enum import Enum
 
 import pandas as pd
+import numpy as np
 from pandas import DataFrame
 
 from .battery import Battery
@@ -61,23 +62,24 @@ def nzo_strategy(demand: pd.Series,
     battery = Battery(storage_capacity_kwh, storage_capacity_kwh * 0.5, storage_charge_rate,
                       storage_efficiency)
 
-    other_output = pd.DataFrame(0.0, columns=[FIXED_CURTAILED, BATTERY_STATE], index=demand.index)
-
-    variable_gen_profile = pd.DataFrame(0.0, columns=VARIABLE_ENERGY_SOURCES, index=demand.index)
     fixed_gen_actual = fixed_production.copy()
 
+    empty_ndarray = np.empty(len(df), dtype="float")
+    variable_gen_profile_np = {k: empty_ndarray.copy() for k in VARIABLE_ENERGY_SOURCES}
+    other_output_np = {k: empty_ndarray.copy() for k in [FIXED_CURTAILED, BATTERY_STATE]}
+
     # TODO: this can probably be replaced with more broadcasting operations
-    # TODO: itertuples?
-    for hour_index, hour in df.iterrows():
+    for hour in df.itertuples():
+        hour_index = hour.Index
         # getting inputs
-        net_demand = hour["net_demand"]
+        net_demand = hour.net_demand
         gas_prod = 0
         fixed_energy_curtailed = 0
-        fixed_used = hour["fixed_gen"]
+        fixed_used = hour.fixed_gen
         storage_usage = 0
 
         if net_demand == 0:
-            fixed_over_demand = hour["fixed_over_demand"]
+            fixed_over_demand = hour.fixed_over_demand
             storage_fixed_charge = battery.calc_allowed_charge(fixed_over_demand)
 
             fixed_energy_curtailed = fixed_over_demand - storage_fixed_charge
@@ -92,14 +94,16 @@ def nzo_strategy(demand: pd.Series,
                 gas_prod += net_demand - storage_usage
 
         # to avoid div by zero
-        if hour["fixed_gen"]:
-            fixed_gen_actual.loc[hour_index] *= fixed_used / hour["fixed_gen"]
+        if hour.fixed_gen:
+            fixed_gen_actual.loc[hour_index] *= fixed_used / hour.fixed_gen
         # setting outputs
-        variable_gen_profile[EnergySource.GAS][hour_index] = gas_prod
-        variable_gen_profile[EnergySource.STORAGE][hour_index] = storage_usage
-        other_output[FIXED_CURTAILED][hour_index] = fixed_energy_curtailed
-        other_output[BATTERY_STATE][hour_index] = battery.get_energy_kwh()
+        variable_gen_profile_np[EnergySource.GAS][hour_index] = gas_prod
+        variable_gen_profile_np[EnergySource.STORAGE][hour_index] = storage_usage
+        other_output_np[FIXED_CURTAILED][hour_index] = fixed_energy_curtailed
+        other_output_np[BATTERY_STATE][hour_index] = battery.get_energy_kwh()
 
+    variable_gen_profile = pd.DataFrame(variable_gen_profile_np)
     gen_profile = variable_gen_profile.join(fixed_gen_actual)
 
+    other_output = pd.DataFrame(other_output_np)
     return gen_profile, other_output
