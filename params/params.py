@@ -99,6 +99,15 @@ class AllSourceCosts(DashModel):
     coal: EnergySourceCosts = Field(EnergySourceCosts(), title="Coal")
     storage: EnergySourceCosts = Field(EnergySourceCosts(), title="Storage")
 
+    def get(self, source_type: EnergySource) -> EnergySourceCosts:
+        return {
+            EnergySource.SOLAR: self.solar,
+            EnergySource.WIND: self.wind,
+            EnergySource.GAS: self.gas,
+            EnergySource.COAL: self.coal,
+            EnergySource.STORAGE: self.storage
+        }[source_type]
+
 
 class AllEmissions(DashModel):
     gas: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Gas")
