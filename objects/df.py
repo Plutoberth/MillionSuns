@@ -1,9 +1,7 @@
+from dataclasses import dataclass
 import logging
 
 import pandas as pd
-
-EnergySeries = "pd.Series[float]"
-
 
 class DataFrameWrapper:
     """
@@ -22,19 +20,6 @@ class InputDataFrameWrapper(DataFrameWrapper):
 
     def __init__(self, df: pd.DataFrame):
         super().__init__(df)
-
-
-class SimulationResults(DataFrameWrapper):
-    """
-    SimulationResults object that hold pd.DataFrame of 'Find Optimum' simulation results
-    """
-    PowerSolar = 'PowerSolar'
-    NumBatteries = 'NumBatteries'
-    Cost = 'Cost'
-
-    def __init__(self, df: pd.DataFrame):
-        super().__init__(df)
-
 
 class ElectricityUseDf(InputDataFrameWrapper):
     """
@@ -63,30 +48,10 @@ class ElectricityUseDf(InputDataFrameWrapper):
         super().__init__(df)
 
 
-class DemandDf(InputDataFrameWrapper):
-    """
-    DemandDf object that hold pd.DataFrame of the electricity comsumption demand
-    """
-    Demand = 'Demand'
-
-    def __init__(self, df: pd.DataFrame):
-        super().__init__(df)
-        try:
-            self.year = int(df.columns[1])
-        except ValueError:
-            raise Exception("Demand File given did not contain number (year of demand) as the title of the demand")
-        self.df = self.df.rename(columns={df.columns[1]: DemandDf.Demand})
-        self.Demand = DemandDf.Demand
-
-
-class ProductionDf(InputDataFrameWrapper):
-    """
-    ProductionDf object that hold pd.DataFrame of the PV solar production
-    """
-    SolarProduction = 'SolarProduction'
-
-    def __init__(self, df: pd.DataFrame):
-        super().__init__(df)
+@dataclass
+class DemandSeries:
+    year: int
+    series: pd.Series
 
 
 class CostElectricityDf(InputDataFrameWrapper):

@@ -5,7 +5,7 @@ from itertools import product
 from pprint import pprint
 
 import numpy as np
-from pydantic import Field, NonNegativeInt, PositiveInt, validator
+from pydantic import Field, NonNegativeFloat, PositiveInt, validator
 
 from dash_models import DashModel
 
@@ -24,6 +24,14 @@ def remove_duplicates(it: t.Iterable[T]) -> t.Iterator[T]:
 
 
 @dataclass
+class YearlyScenario:
+    solar_capacity_kw: float
+    wind_capacity_kw: float
+    storage_capacity_kwh: float
+    storage_efficiency: float
+    storage_discharge: float
+
+@dataclass
 class Scenario:
     """
     Values for a possible futures.
@@ -39,9 +47,15 @@ class Scenario:
     wind_capacity_kw: np.ndarray
 
     # energy storage
-    storage_cap_kwh: np.ndarray
-    storage_efficiency_p: np.ndarray
-    storage_discharge_p: np.ndarray
+    storage_capacity_kwh: np.ndarray
+    storage_efficiency: np.ndarray
+    storage_discharge: np.ndarray
+
+    def __iter__(self) -> t.Iterator[YearlyScenario]:
+        zipped = np.dstack((self.solar_capacity_kw, self.wind_capacity_kw, self.storage_capacity_kwh, self.storage_efficiency, self.storage_discharge))
+        zipped = zipped[0]
+        print(zipped)
+        return map(lambda x: YearlyScenario(*x), zipped)
 
     @property
     def title(self) -> str:
@@ -52,11 +66,11 @@ class Scenario:
         return "-".join(
             str(int(param[~0]))
             for param in (
-                self.solar_gen_kw,
-                self.wind_gen_kw,
-                self.solar_gen_kw,
-                self.storage_efficiency_p,
-                self.storage_discharge_p,
+                self.solar_capacity_kw,
+                self.wind_capacity_kw,
+                self.storage_capacity_kwh,
+                self.storage_efficiency,
+                self.storage_discharge,
             )
         )
 
@@ -69,17 +83,16 @@ class Scenario:
     def __eq__(self, other: "Scenario"):
         return self.title == other.title
 
-
 class RoadmapParam(DashModel):
     """
     Roadmap parameter, which has a start values
     and range-like attributes for the end value.
     """
 
-    start: NonNegativeInt = Field(..., title="Start Year Value")
-    end_min: NonNegativeInt = Field(..., title="End Year Minimum Value")
-    end_max: NonNegativeInt = Field(..., title="End Year Maximum Value")
-    step: NonNegativeInt = Field(..., title="Step")
+    start: NonNegativeFloat = Field(..., title="Start Year Value")
+    end_min: NonNegativeFloat = Field(..., title="End Year Minimum Value")
+    end_max: NonNegativeFloat = Field(..., title="End Year Maximum Value")
+    step: NonNegativeFloat = Field(..., title="Step")
 
     @validator("end_min")
     def v_end_min(cls, end_min: float, values: dict[str, float]):
@@ -113,20 +126,23 @@ class Roadmap(DashModel):
     end_year: PositiveInt = Field(..., title="End Year")
 
     # clean energy sources
-    solar_gen_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
-    wind_gen_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
+    solar_capacity_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
+    wind_capacity_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
 
     # energy storage
-    storage_cap_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
-    storage_efficiency_p: RoadmapParam = Field(
+    storage_capacity_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
+
+    # TODO: add constraints for rates.
+    storage_efficiency: RoadmapParam = Field(
         ...,
-        title="Storage Efficiency (%)",
-        description="For every KWH entered, how mush is able to be drawn out.",
+        title="Storage Efficiency (Rate)",
+        description="The rate of energy that can be drawn out, from the "
+        "input energy",
     )
-    storage_discharge_p: RoadmapParam = Field(
+    storage_discharge: RoadmapParam = Field(
         ...,
-        title="Battery Discharge Depth (%)",
-        description="How much of the battery's capacity can be drawn out at once.",
+        title="Battery Discharge Depth (Rate)",
+        description="The minimum rate of energy in the battery",
     )
 
     _params: tuple[RoadmapParam, ...]
@@ -142,11 +158,11 @@ class Roadmap(DashModel):
         super().__init__(**data)
 
         self._params = (
-            self.solar_gen_kw,
-            self.wind_gen_kw,
-            self.solar_gen_kw,
-            self.storage_efficiency_p,
-            self.storage_discharge_p,
+            self.solar_capacity_kw,
+            self.wind_capacity_kw,
+            self.storage_capacity_kwh,
+            self.storage_efficiency,
+            self.storage_discharge,
         )
 
     def _scenario_from_ends(self, end_values: t.Sequence[int]) -> Scenario:
@@ -175,7 +191,7 @@ class Roadmap(DashModel):
         """
         # a range of end values for each parameter
         end_value_ranges = (
-            range(param.end_min, param.end_max, param.step) for param in self._params
+            np.arange(param.end_min, param.end_max, param.step) for param in self._params
         )
 
         # all combinations of end values
@@ -199,16 +215,14 @@ if __name__ == "__main__":
             start=4_000, end_min=50_000, end_max=150_000, step=20_000
         ),
         wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
-        storage_cap_kwh=RoadmapParam(
-            start=0, end_min=50_000, end_max=400_000, step=50_000
-        ),
-        storage_efficiency_p=RoadmapParam(
+        storage_capacity_kwh=RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
+        storage_efficiency=RoadmapParam(
             start=85,
             end_min=90,
             end_max=95,
             step=5,
         ),
-        storage_discharge_p=RoadmapParam(start=80, end_min=90, end_max=95, step=5),
+        storage_discharge=RoadmapParam(start=80, end_min=90, end_max=95, step=5),
     )
 
     pprint(list(r.scenarios))
