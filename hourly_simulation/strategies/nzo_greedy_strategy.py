@@ -71,8 +71,6 @@ def nzo_strategy(demand: pd.Series,
         hour_index = hour.Index
         # getting inputs
         net_demand = hour.net_demand
-        gas_prod = 0
-        fixed_energy_curtailed = 0
         storage_usage = 0
 
         if net_demand == 0:
@@ -89,17 +87,15 @@ def nzo_strategy(demand: pd.Series,
             # to avoid div by zero
             if fixed_gen and fixed_used != fixed_gen:
                 fixed_energy_usage_ratio[hour_index] = fixed_used / fixed_gen
+                other_output_np[FIXED_CURTAILED][hour_index] = fixed_energy_curtailed
         else:
             storage_usage = battery.try_discharge(net_demand)
 
             if storage_usage != net_demand:
-                gas_prod += net_demand - storage_usage
-
+                variable_gen_profile_np[EnergySource.GAS][hour_index] = net_demand - storage_usage
 
         # setting outputs
-        variable_gen_profile_np[EnergySource.GAS][hour_index] = gas_prod
         variable_gen_profile_np[EnergySource.STORAGE][hour_index] = storage_usage
-        other_output_np[FIXED_CURTAILED][hour_index] = fixed_energy_curtailed
         other_output_np[BATTERY_STATE][hour_index] = battery.get_energy_kwh()
 
 
