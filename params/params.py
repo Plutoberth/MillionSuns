@@ -143,4 +143,3 @@ class AllParams(DashEditorPage):
     #     EmissionsPricing(), title="EmissionsCosts (Carbon Tax)"
     # )
     emissions: AllEmissions = Field(AllEmissions(), title="Energy Source Emissions")
-    storage_params: StorageParams = Field(StorageParams(), title="Storage Parameters")
