@@ -16,17 +16,15 @@ def calculate_source_emissions(
 
 
 def calculate_emissions(
-    usage_profile: pd.DataFrame, all_emissions: AllEmissions
+    source_production: pd.Series, all_emissions: AllEmissions
 ) -> pd.DataFrame:
     """
-    :param usage_profile: the usage profile for the year. Columns are energy sources, rows are
-                          every hour in the year, and the values are the generation for that source in that hour.
+    :param source_production: a series where the index is an EnergySource and the value is the generation.
     """
     values = []
-    for column in usage_profile:
-        if column in POLLUTING_ENERGY_SOURCES:
-            total_usage = usage_profile[column].sum()
-            coeffs = all_emissions.get(column)
-            result_emissions = calculate_source_emissions(total_usage, coeffs)
-            values.append((column, result_emissions))
+    for source, gen in source_production.iteritems():
+        if source in POLLUTING_ENERGY_SOURCES:
+            coeffs = all_emissions.get(source)
+            result_emissions = calculate_source_emissions(gen, coeffs)
+            values.append((source, result_emissions))
     return pd.DataFrame(values)
