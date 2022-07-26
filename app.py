@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import Dash, html
 
 from dash_models import Brand, Page, navbar_page
-from params import GeneralParams
+from params import AllParams
 
 app = Dash(
     __name__,
@@ -25,16 +25,14 @@ params_json = {
     ],
 }
 
-params = GeneralParams(**params_json)
+params = AllParams()
 
 p_params = Page(
     title="Parameters",
     layout=params.dash_editor(
         app,
-        "Params",
-        "Enter ranges of interpolated predictions,"
-        " which will be combined with 2018 data,"
-        " to simulate energy production and usage in the future.",
+        "Parameters",
+        "Simulation Parameters that will be used to simulate energy production profiles and costs"
     ),
 )
 
