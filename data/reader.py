@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import functools
 
 from objects.df import DemandSeries
 
@@ -12,10 +13,12 @@ def normalize(series):
     min_value = series.min()
     return (series - min_value) / (max_value - min_value)
 
+@functools.cache
 def get_normalized_solar_prod_ratio() -> pd.Series:
     solar_prod = pd.read_csv(SOLAR_CSV)["SolarProduction"]
     return normalize(solar_prod)
 
+@functools.cache
 def read_2018_demand() -> DemandSeries:
     demand = pd.read_json(DEMAND_JSON)[0]
     return DemandSeries(2018, demand)
