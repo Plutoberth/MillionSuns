@@ -97,29 +97,6 @@ class AllEmissions(DashModel):
     coal: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Coal")
 
 
-class StorageParams(DashModel):
-    charge_rate: PositiveFloat = Field(
-        0.25,
-        title="Battery Charge Rate (Proportion)",
-        description="The maximum proportion of the battery that can be charged or "
-        "discharged every hour",
-    )
-
-    minimum_charge: PositiveFloat = Field(
-        0.05,
-        title="Minimum Charge (Proportion)",
-        description="The minimum charge that must be kept in the battery at all "
-        "times, as a margin",
-    )
-
-    efficiency: PositiveFloat = Field(
-        0.87,
-        title="Efficiency (Proportion)",
-        description="The proportion of energy that is kept in the battery, from the "
-        "input energy",
-    )
-
-
 class GeneralParams(DashModel):
     start_year: PositiveInt = 2020
     end_year: PositiveInt = 2050
@@ -134,7 +111,7 @@ class GeneralParams(DashModel):
 
     interest_pct: PositiveInt = Field(3, title="Interest (%)")
 
-    usage_growth_rate: float = Field(
+    demand_growth_rate: float = Field(
         1.028,
         title="Electricity Demand Growth Rate YoY",
         description="The rate of electricity demand growth from the previous year",
@@ -142,6 +119,13 @@ class GeneralParams(DashModel):
 
     coal_must_run: InterpolatedParam = Field(
         InterpolatedParam(), title="Coal Must-Run (KW)"
+    )
+
+    charge_rate: PositiveFloat = Field(
+        0.25,
+        title="Battery Charge Rate (Proportion)",
+        description="The maximum proportion of the battery that can be charged or "
+        "discharged every hour",
     )
 
     def __init__(self, **data):

@@ -1,50 +1,48 @@
 import copy
+import pandas as pd
 
-from objects.df import DemandDf, ProductionDf
-from hourly_simulation.parameters import Params
+from objects.df import DemandSeries
 
 
 def predict_solar_production(
-    normalised_production: ProductionDf,
+    normalised_production: pd.Series,
     solar_panel_generation_kw: float,
-    params: Params,
-) -> ProductionDf:
+) -> pd.Series:
     """
     Get Solar Production Profile as pd.DataFrame.
 
-    :param normalised_production: ProductionDf normalised solar hourly production pd.DataFrame(columns=['HourOfYear',
-        'SolarProduction'])
+    :param normalised_production: normalised solar hourly production ratios (0<=n<=1)
     :param solar_panel_generation_kw: float max power of solar panels built [KW]
     :param params: namedtuple simulation params
-    :return: ProductionDf total production of solar panels pd.DataFrame(columns=['HourOfYear', 'SolarProduction'])
+    :return: pd.Series: yearly production of solar panels, in KwH
     """
-    total_production = copy.deepcopy(normalised_production)
+    assert normalised_production.max() <= 1 and normalised_production.min() >= 0, "normalized production values not in range"
     # TODO: improve this to track degradation over the years properly? Should make a big difference during the years when solar production is ramped up.
-    average_production_ratio = (
-        1 + (1 - params.PV_DEGRADATION) ** params.FACILITY_LIFE_SPAN
-    ) / 2
-    total_production.df[total_production.SolarProduction] *= (
-        average_production_ratio * solar_panel_generation_kw
-    )  # production in Kw
-    return total_production
+    # average_production_ratio = (
+    #     1 + (1 - params.PV_DEGRADATION) ** params.FACILITY_LIFE_SPAN
+    # ) / 2
+    average_production_ratio = 1
+    generation_with_ratio = solar_panel_generation_kw * average_production_ratio
+    adjusted_prod = normalised_production * generation_with_ratio
+    return adjusted_prod
 
 
 def predict_demand(
-    hourly_demand: DemandDf, params: Params, simulated_year: int
-) -> DemandDf:
+    hourly_demand: DemandSeries, yoy_growth_proportion: float, simulated_year: int
+) -> DemandSeries:
     """
     Predict the growth in demand in a given year with exponential growth with GROWTH_PER_YEAR
 
-    :param params: namedtuple Params: simulation params
-    :param hourly_demand: DemandDf of pd.DataFrame(columns=['HourOfYear', '$[Year]'])
+    :param yoy_growth_proportion: float: the Year-over-Year growth proportion. Like 1.03
+    :param hourly_demand: DemandSeries of pd.DataFrame(columns=['HourOfYear', '$[Year]'])
     :param simulated_year: int year of the wanted output
-    :return: DemandDf of new pd.DataFrame(columns=['HourOfYear', 'Demand']) of the wanted year with extrapolation
+    :return: DemandSeries of new pd.DataFrame(columns=['HourOfYear', 'Demand']) of the wanted year with extrapolation
     and the year of demand
     """
     assert simulated_year >= hourly_demand.year
 
     expected_demand = copy.deepcopy(hourly_demand)
-    expected_demand.df[expected_demand.Demand] *= params.GROWTH_PER_YEAR ** (
+    expected_demand.series *= yoy_growth_proportion ** (
         simulated_year - expected_demand.year
     )
     expected_demand.year = simulated_year
