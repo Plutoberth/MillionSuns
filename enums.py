@@ -1,5 +1,10 @@
 from enum import Enum
 
+class EmissionType(Enum):
+    CO2 = "CO2"
+    SOx = "SOx"
+    NOx = "NOx"
+    PMx = "PMx"
 
 class EnergySource(Enum):
     SOLAR = "SOLAR"

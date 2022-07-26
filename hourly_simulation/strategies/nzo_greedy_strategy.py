@@ -4,7 +4,7 @@ import pandas as pd
 from pandas import DataFrame
 
 from .battery import Battery
-from energy_sources import EnergySource, VARIABLE_ENERGY_SOURCES
+from enums import EnergySource, VARIABLE_ENERGY_SOURCES
 
 __all__ = [
     "BATTERY_STATE",

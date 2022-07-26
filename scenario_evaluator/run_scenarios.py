@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import pandas as pd
-from energy_sources import EnergySource
+from enums import EnergySource
 
 from params.roadmap import Scenario
 from params.params import AllParams
