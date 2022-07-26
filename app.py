@@ -13,17 +13,6 @@ app = Dash(
     ],
 )
 
-params_json = {
-    "start_year": 2020,
-    "end_year": 2050,
-    "population": [
-        {
-            "start_year": 2020,
-            "end_year": 2050,
-            "interpo": {"type": "compound", "start_value": 10.0, "rate": 2.8},
-        }
-    ],
-}
 
 params = AllParams()
 
@@ -32,7 +21,7 @@ p_params = Page(
     layout=params.dash_editor(
         app,
         "Parameters",
-        "Simulation Parameters that will be used to simulate energy production profiles and costs"
+        "Simulation Parameters that will be used to simulate energy production profiles and costs",
     ),
 )
 
