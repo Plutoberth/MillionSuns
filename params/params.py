@@ -120,6 +120,6 @@ class GeneralParams(DashModel):
 class AllParams(DashEditorPage):
     general: GeneralParams = Field(GeneralParams(), title="General Parameters")
     costs: AllSourceCosts = Field(AllSourceCosts(), title="Energy Source Costs")
-    emissions_costs = Field(EmissionsPricing(), title="Emissions Costs (Carbon Tax)")
+    emissions_costs: EmissionsPricing = Field(EmissionsPricing(), title="Emissions Costs (Carbon Tax)")
     emissions: AllEmissions = Field(AllEmissions(), title="Energy Source Emissions")
 
