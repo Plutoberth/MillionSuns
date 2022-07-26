@@ -39,7 +39,12 @@ b_nzo = Brand(img="nzo.png", href="https://www.nzo.org.il/")
 b_aman = Brand(img="aman.png", href="https://youtu.be/5a15k3_6PAo")
 
 app.layout = navbar_page(
-    app, p_home, make_pages(app, params), (b_nzo, b_aman), color="dark", dark=True
+    app,
+    p_home,
+    make_pages(app, params),
+    (b_nzo, b_aman),
+    color="dark",
+    dark=True,
 )
 
 if __name__ == "__main__":
