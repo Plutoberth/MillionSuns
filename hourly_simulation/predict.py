@@ -1,7 +1,7 @@
 import copy
 import pandas as pd
 
-from objects.df import DemandDf
+from objects.df import DemandSeries
 from hourly_simulation.parameters import Params
 
 
@@ -29,21 +29,21 @@ def predict_solar_production(
 
 
 def predict_demand(
-    hourly_demand: DemandDf, yoy_growth_proportion: float, simulated_year: int
-) -> DemandDf:
+    hourly_demand: DemandSeries, yoy_growth_proportion: float, simulated_year: int
+) -> DemandSeries:
     """
     Predict the growth in demand in a given year with exponential growth with GROWTH_PER_YEAR
 
     :param yoy_growth_proportion: float: the Year-over-Year growth proportion. Like 1.03
-    :param hourly_demand: DemandDf of pd.DataFrame(columns=['HourOfYear', '$[Year]'])
+    :param hourly_demand: DemandSeries of pd.DataFrame(columns=['HourOfYear', '$[Year]'])
     :param simulated_year: int year of the wanted output
-    :return: DemandDf of new pd.DataFrame(columns=['HourOfYear', 'Demand']) of the wanted year with extrapolation
+    :return: DemandSeries of new pd.DataFrame(columns=['HourOfYear', 'Demand']) of the wanted year with extrapolation
     and the year of demand
     """
     assert simulated_year >= hourly_demand.year
 
     expected_demand = copy.deepcopy(hourly_demand)
-    expected_demand.df[expected_demand.Demand] *= yoy_growth_proportion ** (
+    expected_demand.series *= yoy_growth_proportion ** (
         simulated_year - expected_demand.year
     )
     expected_demand.year = simulated_year

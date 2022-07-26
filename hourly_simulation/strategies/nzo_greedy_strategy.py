@@ -3,8 +3,6 @@ from enum import Enum
 import pandas as pd
 from pandas import DataFrame
 
-from objects.df import EnergySeries
-from params import StorageParams
 from .battery import Battery
 from energy_sources import EnergySource, VARIABLE_ENERGY_SOURCES
 
@@ -18,18 +16,19 @@ BATTERY_STATE = "battery_state"
 FIXED_CURTAILED = "fixed_curtailed"
 
 
-def nzo_strategy(demand: EnergySeries,
+def nzo_strategy(demand: pd.Series,
                  fixed_production: pd.DataFrame,
                  storage_capacity_kwh: float,
-                 params: StorageParams,
+                 storage_efficiency: float,
+                 storage_charge_rate: float,
                  ) -> tuple[DataFrame, DataFrame]:
     """
     :param demand: A series of demand values, in KwH, for every hour in the year.
-    :param fixed_production: A pd.DataFrame[EnergySourceType, EnergySeries]
+    :param fixed_production: A pd.DataFrame[EnergySourceType, float]
     :param storage_capacity_kwh: the battery capacity, in KwH.
     :param variable_source: the "free" variable in the equation.
 
-    :return: pd.DataFrame[EnergySourceType, EnergySeries] of energy sources throughout the day, and another dataframe
+    :return: pd.DataFrame[EnergySourceType, float] of energy sources throughout the day, and another dataframe
              of other values.
 
     net demand = demand after subtracting fixed sources
@@ -57,8 +56,8 @@ def nzo_strategy(demand: EnergySeries,
     df["fixed_over_demand"] = (df["demand"] - df["fixed_gen"]).apply(lambda x: min(0, x) * -1)
 
     # TODO: assuming charging starts at 50%, probably OK
-    battery = Battery(storage_capacity_kwh, storage_capacity_kwh * 0.5, params.charge_rate,
-                      params.efficiency)
+    battery = Battery(storage_capacity_kwh, storage_capacity_kwh * 0.5, storage_charge_rate,
+                      storage_efficiency)
 
     other_output = pd.DataFrame(0.0, columns=[FIXED_CURTAILED, BATTERY_STATE], index=demand.index)
 
