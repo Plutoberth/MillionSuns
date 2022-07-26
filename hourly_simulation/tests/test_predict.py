@@ -1,6 +1,5 @@
 import pandas as pd
 from ..predict import predict_demand, predict_solar_production
-from ..parameters import simulation_params
 from objects.df import DemandSeries
 
 growth_per_year = 1.03

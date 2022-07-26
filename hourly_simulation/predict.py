@@ -2,7 +2,6 @@ import copy
 import pandas as pd
 
 from objects.df import DemandSeries
-from hourly_simulation.parameters import Params
 
 
 def predict_solar_production(

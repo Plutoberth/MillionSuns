@@ -1,5 +1,6 @@
-from ..nzo_greedy_strategy import nzo_strategy, EnergySource
+from ..nzo_greedy_strategy import nzo_strategy
 import pandas as pd
+from energy_sources import EnergySource
 
 # Everything is in units of KW
 MEGA = 1000

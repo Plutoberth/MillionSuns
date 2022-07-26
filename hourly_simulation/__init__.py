@@ -1,2 +1,0 @@
-import hourly_simulation.strategies
-from hourly_simulation import parameters
