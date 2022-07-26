@@ -53,9 +53,8 @@ def nzo_strategy(demand: pd.Series,
     df = pd.DataFrame()
     df["demand"] = demand
     df["fixed_gen"] = fixed_production.sum(axis=1)
-    # TODO: this can be less ugly
-    df["net_demand"] = (df["demand"] - df["fixed_gen"]).apply(lambda x: max(0, x))
-    df["fixed_over_demand"] = (df["demand"] - df["fixed_gen"]).apply(lambda x: min(0, x) * -1)
+    df["net_demand"] = (df["demand"] - df["fixed_gen"]).clip(lower=0)
+    df["fixed_over_demand"] = (df["demand"] - df["fixed_gen"]).clip(upper=0) * -1
 
     # TODO: assuming charging starts at 50%, probably OK
 
