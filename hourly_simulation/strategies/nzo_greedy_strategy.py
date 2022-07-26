@@ -73,7 +73,6 @@ def nzo_strategy(demand: pd.Series,
         net_demand = hour.net_demand
         gas_prod = 0
         fixed_energy_curtailed = 0
-        fixed_used = hour.fixed_gen
         storage_usage = 0
 
         if net_demand == 0:
@@ -85,7 +84,7 @@ def nzo_strategy(demand: pd.Series,
             storage_usage = -storage_fixed_charge
 
             fixed_energy_curtailed = fixed_over_demand - storage_fixed_charge
-            fixed_used -= fixed_energy_curtailed
+            fixed_used = fixed_gen - fixed_energy_curtailed
 
             # to avoid div by zero
             if fixed_gen and fixed_used != fixed_gen:
