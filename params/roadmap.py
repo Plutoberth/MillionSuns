@@ -24,6 +24,14 @@ def remove_duplicates(it: t.Iterable[T]) -> t.Iterator[T]:
 
 
 @dataclass
+class YearlyScenario:
+    solar_capacity_kw: float
+    wind_capacity_kw: float
+    storage_capacity_kwh: float
+    storage_efficiency: float
+    storage_discharge: float
+
+@dataclass
 class Scenario:
     """
     Values for a possible futures.
@@ -40,8 +48,11 @@ class Scenario:
 
     # energy storage
     storage_capacity_kwh: np.ndarray
-    storage_efficiency_p: np.ndarray
-    storage_discharge_p: np.ndarray
+    storage_efficiency: np.ndarray
+    storage_discharge: np.ndarray
+
+    def __iter__(self) -> t.Iterator[YearlyScenario]:
+        return map(lambda x: YearlyScenario(*x), np.dstack((self.solar_capacity_kw, self.wind_capacity_kw, self.storage_capacity_kwh, self.storage_efficiency, self.storage_discharge)))
 
     @property
     def title(self) -> str:
@@ -55,8 +66,8 @@ class Scenario:
                 self.solar_capacity_kw,
                 self.wind_capacity_kw,
                 self.storage_capacity_kwh,
-                self.storage_efficiency_p,
-                self.storage_discharge_p,
+                self.storage_efficiency,
+                self.storage_discharge,
             )
         )
 
@@ -68,7 +79,6 @@ class Scenario:
 
     def __eq__(self, other: "Scenario"):
         return self.title == other.title
-
 
 class RoadmapParam(DashModel):
     """
@@ -118,15 +128,18 @@ class Roadmap(DashModel):
 
     # energy storage
     storage_capacity_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
-    storage_efficiency_p: RoadmapParam = Field(
+
+    # TODO: add constraints for rates.
+    storage_efficiency: RoadmapParam = Field(
         ...,
-        title="Storage Efficiency (%)",
-        description="For every KWH entered, how mush is able to be drawn out.",
+        title="Storage Efficiency (Rate)",
+        description="The rate of energy that can be drawn out, from the "
+        "input energy",
     )
-    storage_discharge_p: RoadmapParam = Field(
+    storage_discharge: RoadmapParam = Field(
         ...,
-        title="Battery Discharge Depth (%)",
-        description="How much of the battery's capacity can be drawn out at once.",
+        title="Battery Discharge Depth (Rate)",
+        description="The minimum rate of energy in the battery",
     )
 
     _params: tuple[RoadmapParam, ...]
@@ -145,8 +158,8 @@ class Roadmap(DashModel):
             self.solar_capacity_kw,
             self.wind_capacity_kw,
             self.storage_capacity_kwh,
-            self.storage_efficiency_p,
-            self.storage_discharge_p,
+            self.storage_efficiency,
+            self.storage_discharge,
         )
 
     def _scenario_from_ends(self, end_values: t.Sequence[int]) -> Scenario:
