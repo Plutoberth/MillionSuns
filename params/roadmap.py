@@ -39,7 +39,7 @@ class Scenario:
     wind_capacity_kw: np.ndarray
 
     # energy storage
-    storage_cap_kwh: np.ndarray
+    storage_capacity_kwh: np.ndarray
     storage_efficiency_p: np.ndarray
     storage_discharge_p: np.ndarray
 
@@ -52,9 +52,9 @@ class Scenario:
         return "-".join(
             str(int(param[~0]))
             for param in (
-                self.solar_gen_kw,
-                self.wind_gen_kw,
-                self.solar_gen_kw,
+                self.solar_capacity_kw,
+                self.wind_capacity_kw,
+                self.storage_capacity_kwh,
                 self.storage_efficiency_p,
                 self.storage_discharge_p,
             )
@@ -113,11 +113,11 @@ class Roadmap(DashModel):
     end_year: PositiveInt = Field(..., title="End Year")
 
     # clean energy sources
-    solar_gen_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
-    wind_gen_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
+    solar_capacity_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
+    wind_capacity_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
 
     # energy storage
-    storage_cap_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
+    storage_capacity_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
     storage_efficiency_p: RoadmapParam = Field(
         ...,
         title="Storage Efficiency (%)",
@@ -142,9 +142,9 @@ class Roadmap(DashModel):
         super().__init__(**data)
 
         self._params = (
-            self.solar_gen_kw,
-            self.wind_gen_kw,
-            self.solar_gen_kw,
+            self.solar_capacity_kw,
+            self.wind_capacity_kw,
+            self.storage_capacity_kwh,
             self.storage_efficiency_p,
             self.storage_discharge_p,
         )
@@ -199,8 +199,8 @@ if __name__ == "__main__":
             start=4_000, end_min=50_000, end_max=150_000, step=20_000
         ),
         wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
-        storage_cap_kwh=RoadmapParam(
-            start=0, end_min=50_000, end_max=400_000, step=50_000
+        storage_capacity_kwh=(
+            RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
         ),
         storage_efficiency_p=RoadmapParam(
             start=85,
