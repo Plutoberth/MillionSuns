@@ -13,6 +13,7 @@ from pydantic import Field, NonNegativeInt, PositiveFloat, PositiveInt
 from dash_models import DashEditorPage
 from dash_models.model import DashModel
 from .interpolated_param import InterpolatedParam
+from enums import EmissionType, EnergySource
 
 
 class EmissionsPricing(DashModel):
@@ -52,6 +53,13 @@ class EnergySourceEmissions(DashModel):
         0, title="PMx emissions (g/KW)", description="Particulate Matter"
     )
 
+    def get(self, emission: EmissionType) -> NonNegativeInt:
+        return {
+            EmissionType.CO2: self.CO2,
+            EmissionType.SOx: self.SOx,
+            EmissionType.NOx: self.NOx,
+            EmissionType.PMx: self.PMx
+        }[emission]
 
 class EnergySourceCosts(DashModel):
     """
@@ -95,6 +103,12 @@ class AllSourceCosts(DashModel):
 class AllEmissions(DashModel):
     gas: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Gas")
     coal: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Coal")
+
+    def get(self, source_type: EnergySource) -> EnergySourceEmissions:
+        return {
+            EnergySource.COAL: self.coal,
+            EnergySource.GAS: self.gas
+        }[source_type]
 
 
 class GeneralParams(DashModel):
