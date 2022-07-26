@@ -34,6 +34,9 @@ class Battery:
         )
 
     def try_charge(self, kwh):
+        if self._curr_energy == self._capacity:
+            return 0
+
         allowed_charge = self.calc_allowed_charge(kwh)
         self._curr_energy += allowed_charge
         return allowed_charge
