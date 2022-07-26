@@ -18,14 +18,6 @@ class SimulationResults:
     # battery_state: pd.Series
     #
 
-import random
-def get_normalized_solar_prod_ratio() -> pd.Series:
-    return pd.Series([random.randrange(100) / 100.0 for r in range(8640)])
-
-def read_2018_demand() -> DemandSeries:
-    series = pd.Series([random.randrange(1000) for r in range(8640)])
-    return DemandSeries(2018, series)
-
 def run_scenario(scenario: Scenario, params: AllParams) -> list[SimulationResults]:
     original_demand = data.read_2018_demand()
     solar_prod_ratio = data.get_normalized_solar_prod_ratio()
