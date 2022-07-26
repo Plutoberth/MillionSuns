@@ -4,11 +4,12 @@ import pandas as pd
 from tqdm import tqdm
 from energy_sources import EnergySource
 
-from params.roadmap import Scenario, YearlyScenario
+from params.roadmap import Scenario
 from params.params import AllParams
 from objects.df import DemandSeries
 from hourly_simulation.predict import predict_demand, predict_solar_production
 from hourly_simulation.strategies import nzo_greedy_strategy
+import data
 
 
 @dataclass
@@ -27,8 +28,8 @@ def read_2018_demand() -> DemandSeries:
     return DemandSeries(2018, series)
 
 def run_scenario(scenario: Scenario, params: AllParams) -> list[SimulationResults]:
-    original_demand = read_2018_demand()
-    solar_prod_ratio = get_normalized_solar_prod_ratio()
+    original_demand = data.read_2018_demand()
+    solar_prod_ratio = data.get_normalized_solar_prod_ratio()
     return run_scenario_ex(original_demand, solar_prod_ratio, scenario, params)
 
 
