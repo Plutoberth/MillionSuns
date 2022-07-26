@@ -61,10 +61,10 @@ def nzo_strategy(demand: pd.Series,
     battery = Battery(storage_capacity_kwh, storage_capacity_kwh * 0.5, storage_charge_rate,
                       storage_efficiency)
 
-    empty_ndarray = np.empty(len(df), dtype="float")
+    empty_ndarray = np.zeros(len(df), dtype="float")
     variable_gen_profile_np = {k: empty_ndarray.copy() for k in VARIABLE_ENERGY_SOURCES}
     other_output_np = {k: empty_ndarray.copy() for k in [FIXED_CURTAILED, BATTERY_STATE]}
-    fixed_energy_usage_ratio = empty_ndarray.copy()
+    fixed_energy_usage_ratio = np.ones(len(df), dtype="float")
 
     # TODO: this can probably be replaced with more broadcasting operations
     for hour in df.itertuples():
@@ -78,20 +78,25 @@ def nzo_strategy(demand: pd.Series,
 
         if net_demand == 0:
             fixed_over_demand = hour.fixed_over_demand
+            fixed_gen = hour.fixed_gen
+
             storage_fixed_charge = battery.try_charge(fixed_over_demand)
+            # because charging is negative production
+            storage_usage = -storage_fixed_charge
 
             fixed_energy_curtailed = fixed_over_demand - storage_fixed_charge
             fixed_used -= fixed_energy_curtailed
 
+            # to avoid div by zero
+            if fixed_gen and fixed_used != fixed_gen:
+                fixed_energy_usage_ratio[hour_index] = fixed_used / fixed_gen
         else:
             storage_usage = battery.try_discharge(net_demand)
 
             if storage_usage != net_demand:
                 gas_prod += net_demand - storage_usage
 
-        # to avoid div by zero
-        if hour.fixed_gen:
-            fixed_energy_usage_ratio[hour_index] = fixed_used / hour.fixed_gen
+
         # setting outputs
         variable_gen_profile_np[EnergySource.GAS][hour_index] = gas_prod
         variable_gen_profile_np[EnergySource.STORAGE][hour_index] = storage_usage
