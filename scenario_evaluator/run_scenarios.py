@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 import pandas as pd
-from tqdm import tqdm
 from energy_sources import EnergySource
 
 from params.roadmap import Scenario
