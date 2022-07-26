@@ -80,15 +80,13 @@ def nzo_strategy(demand: pd.Series,
 
         if net_demand == 0:
             fixed_over_demand = hour.fixed_over_demand
-            storage_fixed_charge = battery.calc_allowed_charge(fixed_over_demand)
+            storage_fixed_charge = battery.try_charge(fixed_over_demand)
 
             fixed_energy_curtailed = fixed_over_demand - storage_fixed_charge
             fixed_used -= fixed_energy_curtailed
 
-            battery.charge(storage_fixed_charge)
         else:
-            storage_usage = battery.calc_allowed_discharge(net_demand)
-            battery.discharge(storage_usage)
+            storage_usage = battery.try_discharge(net_demand)
 
             if storage_usage != net_demand:
                 gas_prod += net_demand - storage_usage

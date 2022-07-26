@@ -31,13 +31,15 @@ class Battery:
             self.get_max_discharge()
         )
 
-    def charge(self, kwh):
-        assert kwh <= self.get_max_charge()
-        self._curr_energy += kwh
+    def try_charge(self, kwh):
+        allowed_charge = self.calc_allowed_charge(kwh)
+        self._curr_energy += allowed_charge
+        return allowed_charge
 
-    def discharge(self, kwh):
-        assert kwh <= self.get_max_discharge()
-        self._curr_energy -= kwh
+    def try_discharge(self, kwh):
+        allowed_discharge = self.calc_allowed_discharge(kwh)
+        self._curr_energy -= allowed_discharge
+        return allowed_discharge
 
     def get_energy_kwh(self):
         return self._curr_energy
