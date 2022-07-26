@@ -88,14 +88,10 @@ def navbar_page(
     }
     page_map["/"] = home_page.layout
 
-    @app.callback(
-        Output(cont_id, "children"),
-        Output(cont_id, "is_open"),
-        Input(loc_id, "pathname")
-    )
-    def choose(pathname: str) -> tuple[Component, bool]:
+    @app.callback(Output(cont_id, "children"), Input(loc_id, "pathname"))
+    def choose(pathname: str) -> Component:
         try:
-            return page_map[pathname], True
+            return page_map[pathname]
         except KeyError:
             return dbc.Alert(
                 color="danger",
@@ -106,7 +102,7 @@ def navbar_page(
                     "transform": "translate(-50%, -50%)",
                 },
                 children="404 Page not found",
-            ), True
+            )
 
     return html.Div(
         [
@@ -133,10 +129,14 @@ def navbar_page(
                     ],
                 ]
             ),
-            dbc.Collapse(
+            html.Div(
                 id=cont_id,
-                is_open=False,
-                children=[home_page.layout, *[page.layout for page in pages]],
+                children=[
+                    home_page.layout,
+                    html.Div(
+                        className="invisible", children=[page.layout for page in pages]
+                    ),
+                ],
             ),
         ]
     )
