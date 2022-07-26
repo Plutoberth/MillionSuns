@@ -50,8 +50,14 @@ class EnergySourceCosts(DashModel):
 
     opex: InterpolatedParam = Field(
         InterpolatedParam(),
-        title="Opex (ILS/kw/year)",
-        description="Electricity generation expenses",
+        title="Constant Opex (ILS/kw/year)",
+        description="Maintenance expenses",
+    )
+
+    variable_opex: InterpolatedParam = Field(
+        InterpolatedParam(),
+        title="Variable Opex (ILS/kwh)",
+        descripton="Variable generation expenses"
     )
 
     lifetime: InterpolatedParam = Field(
