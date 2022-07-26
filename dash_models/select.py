@@ -90,7 +90,7 @@ class DashSelect(DashModel, GenericModel, t.Generic[TSelectable]):
         self.__root__ = self._options[self._selected]
         self.__root__.update(data)
 
-    def dash_collapse(
+    def dash(
         self, app: "Dash", title: str, desc: str, update_btn_id: str
     ) -> "Component":
         select_id = comp_id("select")
