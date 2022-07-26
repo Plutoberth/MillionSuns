@@ -52,7 +52,10 @@ class Scenario:
     storage_discharge: np.ndarray
 
     def __iter__(self) -> t.Iterator[YearlyScenario]:
-        return map(lambda x: YearlyScenario(*x), np.dstack((self.solar_capacity_kw, self.wind_capacity_kw, self.storage_capacity_kwh, self.storage_efficiency, self.storage_discharge)))
+        zipped = np.dstack((self.solar_capacity_kw, self.wind_capacity_kw, self.storage_capacity_kwh, self.storage_efficiency, self.storage_discharge))
+        zipped = zipped[0]
+        print(zipped)
+        return map(lambda x: YearlyScenario(*x), zipped)
 
     @property
     def title(self) -> str:
@@ -212,16 +215,14 @@ if __name__ == "__main__":
             start=4_000, end_min=50_000, end_max=150_000, step=20_000
         ),
         wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
-        storage_capacity_kwh=(
-            RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
-        ),
-        storage_efficiency_p=RoadmapParam(
+        storage_capacity_kwh=RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
+        storage_efficiency=RoadmapParam(
             start=85,
             end_min=90,
             end_max=95,
             step=5,
         ),
-        storage_discharge_p=RoadmapParam(start=80, end_min=90, end_max=95, step=5),
+        storage_discharge=RoadmapParam(start=80, end_min=90, end_max=95, step=5),
     )
 
     pprint(list(r.scenarios))
