@@ -4,13 +4,21 @@ import pandas as pd
 from pandas import DataFrame
 
 from .battery import Battery
-from energy_sources import EnergySource, VARIABLE_ENERGY_SOURCES
 
 __all__ = [
     "BATTERY_STATE",
     "FIXED_CURTAILED",
+    "EnergySource",
     "nzo_strategy"
 ]
+
+"""
+Plan:
+Receive a list
+
+It probably makes sense to have an object for 
+Have an object that specifies 
+"""
 
 BATTERY_STATE = "battery_state"
 FIXED_CURTAILED = "fixed_curtailed"
@@ -56,6 +64,7 @@ def nzo_strategy(demand: pd.Series,
     df["fixed_over_demand"] = (df["demand"] - df["fixed_gen"]).apply(lambda x: min(0, x) * -1)
 
     # TODO: assuming charging starts at 50%, probably OK
+
     battery = Battery(storage_capacity_kwh, storage_capacity_kwh * 0.5, storage_charge_rate,
                       storage_efficiency)
 

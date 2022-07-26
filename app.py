@@ -2,6 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import Dash, html
 
 from dash_models import Brand, Page, navbar_page
+from pages import make_pages
 from params import AllParams
 
 app = Dash(
@@ -13,17 +14,7 @@ app = Dash(
     ],
 )
 
-
 params = AllParams()
-
-p_params = Page(
-    title="Parameters",
-    layout=params.dash_editor(
-        app,
-        "Parameters",
-        "Simulation Parameters that will be used to simulate energy production profiles and costs",
-    ),
-)
 
 p_home = Page(
     title="Home",
@@ -48,7 +39,7 @@ b_nzo = Brand(img="nzo.png", href="https://www.nzo.org.il/")
 b_aman = Brand(img="aman.png", href="https://youtu.be/5a15k3_6PAo")
 
 app.layout = navbar_page(
-    app, p_home, (p_params,), (b_nzo, b_aman), color="dark", dark=True
+    app, p_home, make_pages(app, params), (b_nzo, b_aman), color="dark", dark=True
 )
 
 if __name__ == "__main__":

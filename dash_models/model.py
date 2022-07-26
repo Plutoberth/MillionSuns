@@ -143,7 +143,7 @@ class DashModel(BaseModel):
             return self._labeled_input(app, field, update_btn_id, type="number", step=1)
         elif issubclass(field.type_, float):
             return self._labeled_input(
-                app, field, update_btn_id, type="number", step=0.005
+                app, field, update_btn_id, type="number", step=0.0005
             )
         elif issubclass(field.type_, DashModel):
             return attr.dash_collapse(

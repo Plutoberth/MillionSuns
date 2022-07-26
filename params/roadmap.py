@@ -126,8 +126,8 @@ class Roadmap(DashModel):
     end_year: PositiveInt = Field(..., title="End Year")
 
     # clean energy sources
-    solar_capacity_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
-    wind_capacity_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
+    solar_gen_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
+    wind_gen_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
 
     # energy storage
     storage_capacity_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
