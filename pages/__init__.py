@@ -8,11 +8,11 @@ from .params import params_page
 from .scenarios import scenarios_page
 
 if t.TYPE_CHECKING:
-    from params import Params
+    from params import AllParams
     from dash import Dash
 
 
-def make_pages(app: "Dash", model_params: "Params") -> t.Sequence[Page]:
+def make_pages(app: "Dash", model_params: "AllParams") -> t.Sequence[Page]:
     """
     Get all pages in the module using the given app.
     """

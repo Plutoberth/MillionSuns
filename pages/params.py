@@ -3,11 +3,11 @@ import typing as t
 from dash_models import Page
 
 if t.TYPE_CHECKING:
-    from params import Params
+    from params import AllParams
     from dash import Dash
 
 
-def params_page(app: "Dash", params: "Params") -> Page:
+def params_page(app: "Dash", params: "AllParams") -> Page:
     return Page(
         title="Parameters",
         layout=params.dash_editor(

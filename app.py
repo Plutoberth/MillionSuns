@@ -3,7 +3,7 @@ from dash import Dash, html
 
 from dash_models import Brand, Page, navbar_page
 from pages import make_pages
-from params import Params
+from params import AllParams
 
 app = Dash(
     __name__,
@@ -13,6 +13,8 @@ app = Dash(
         dbc.icons.FONT_AWESOME,
     ],
 )
+
+params = AllParams()
 
 p_home = Page(
     title="Home",
@@ -35,20 +37,6 @@ p_home = Page(
 b_nzo = Brand(img="nzo.png", href="https://www.nzo.org.il/")
 
 b_aman = Brand(img="aman.png", href="https://youtu.be/5a15k3_6PAo")
-
-params_json = {
-    "start_year": 2020,
-    "end_year": 2050,
-    "population": [
-        {
-            "start_year": 2020,
-            "end_year": 2050,
-            "interpo": {"type": "compound", "start_value": 10.0, "rate": 2.8},
-        }
-    ],
-}
-
-params = Params(**params_json)
 
 app.layout = navbar_page(
     app, p_home, make_pages(app, params), (b_nzo, b_aman), color="dark", dark=True

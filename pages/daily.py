@@ -9,11 +9,11 @@ from dash_models.utils import comp_id
 
 if t.TYPE_CHECKING:
     from plotly.graph_objs import Figure
-    from params import Params
+    from params import AllParams
     from dash import Dash
 
 
-def daily_page(app: "Dash", params: "Params") -> Page:
+def daily_page(app: "Dash", params: "AllParams") -> Page:
     plot_div_id = comp_id("plot_div")
     update_btn = comp_id("update_btn")
 
