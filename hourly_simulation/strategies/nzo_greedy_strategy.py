@@ -4,21 +4,14 @@ import pandas as pd
 from pandas import DataFrame
 
 from .battery import Battery
+from energy_sources import EnergySource, VARIABLE_ENERGY_SOURCES
 
 __all__ = [
     "BATTERY_STATE",
     "FIXED_CURTAILED",
-    "EnergySource",
     "nzo_strategy"
 ]
 
-"""
-Plan:
-Receive a list
-
-It probably makes sense to have an object for 
-Have an object that specifies 
-"""
 
 BATTERY_STATE = "battery_state"
 FIXED_CURTAILED = "fixed_curtailed"

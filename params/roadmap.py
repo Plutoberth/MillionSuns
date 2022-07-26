@@ -5,7 +5,7 @@ from itertools import product
 from pprint import pprint
 
 import numpy as np
-from pydantic import Field, NonNegativeInt, PositiveInt, validator
+from pydantic import Field, NonNegativeFloat, PositiveInt, validator
 
 from dash_models import DashModel
 
@@ -89,10 +89,10 @@ class RoadmapParam(DashModel):
     and range-like attributes for the end value.
     """
 
-    start: NonNegativeInt = Field(..., title="Start Year Value")
-    end_min: NonNegativeInt = Field(..., title="End Year Minimum Value")
-    end_max: NonNegativeInt = Field(..., title="End Year Maximum Value")
-    step: NonNegativeInt = Field(..., title="Step")
+    start: NonNegativeFloat = Field(..., title="Start Year Value")
+    end_min: NonNegativeFloat = Field(..., title="End Year Minimum Value")
+    end_max: NonNegativeFloat = Field(..., title="End Year Maximum Value")
+    step: NonNegativeFloat = Field(..., title="Step")
 
     @validator("end_min")
     def v_end_min(cls, end_min: float, values: dict[str, float]):
@@ -126,8 +126,8 @@ class Roadmap(DashModel):
     end_year: PositiveInt = Field(..., title="End Year")
 
     # clean energy sources
-    solar_gen_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
-    wind_gen_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
+    solar_capacity_kw: RoadmapParam = Field(..., title="Solar Generation Capacity (KW)")
+    wind_capacity_kw: RoadmapParam = Field(..., title="Wind Generation Capacity (KW)")
 
     # energy storage
     storage_capacity_kwh: RoadmapParam = Field(..., title="Storage Capacity (KWH)")
@@ -191,7 +191,7 @@ class Roadmap(DashModel):
         """
         # a range of end values for each parameter
         end_value_ranges = (
-            range(param.end_min, param.end_max, param.step) for param in self._params
+            np.arange(param.end_min, param.end_max, param.step) for param in self._params
         )
 
         # all combinations of end values
