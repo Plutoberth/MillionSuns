@@ -1,30 +1,30 @@
-from enum import IntEnum
+from enum import Enum
 
-class EmissionType(IntEnum):
-    CO2 = 0
-    SOx = 1
-    NOx = 2
-    PMx = 3
+class EmissionType(Enum):
+    CO2 = "CO2"
+    SOx = "SOx"
+    NOx = "NOx"
+    PMx = "PMx"
 
-class EnergySource(IntEnum):
-    SOLAR = 0
-    WIND = 1
-    GAS = 2
-    COAL = 3
-    STORAGE = 4
+class EnergySource(Enum):
+    SOLAR = "Solar"
+    WIND = "Wind"
+    GAS = "Gas"
+    COAL = "Coal"
+    STORAGE = "Storage"
 
-class SimHourField(IntEnum):
-    BATTERY_STATE = 0
-    CURTAILED_ENERGY = 1
-    STORAGE_SOLAR_CHARGE = 2
-    STORAGE_GAS_CHARGE = 3
-    DEMAND = 4
-    NET_DEMAND = 5
+class SimHourField(Enum):
+    BATTERY_STATE = "BATTERY_STATE"
+    CURTAILED_ENERGY = "CURTAILED_ENERGY"
+    STORAGE_SOLAR_CHARGE = "STORAGE_SOLAR_CHARGE"
+    STORAGE_GAS_CHARGE = "STORAGE_GAS_CHARGE"
+    DEMAND = "DEMAND"
+    NET_DEMAND = "NET_DEMAND"
 
     # the actual energy that was used to fulfill demand.
     # all generation, including solar and demand supply, but not including curtailed energy
-    SOLAR_USAGE = 6
-    GAS_USAGE = 7
+    SOLAR_USAGE = "SOLAR_USAGE"
+    GAS_USAGE = "GAS_USAGE"
 
 
 
