@@ -11,14 +11,7 @@ from hourly_simulation.strategies import nzo_greedy_strategy
 import data
 
 
-@dataclass
-class SimulationResults:
-    usage_profile: pd.DataFrame
-    # TODO: how do we want to define the costs? A dict of many diff types of values?
-    # battery_state: pd.Series
-    #
-
-def run_scenario(scenario: Scenario, params: AllParams) -> list[SimulationResults]:
+def run_scenario(scenario: Scenario, params: AllParams) -> list[pd.DataFrame]:
     original_demand = data.read_2018_demand()
     solar_prod_ratio = data.get_normalized_solar_prod_ratio()
     return run_scenario_ex(original_demand, solar_prod_ratio, scenario, params)
@@ -33,13 +26,13 @@ def run_scenario_ex(
     solar_prod_ratio: pd.Series,
     scenario: Scenario,
     params: AllParams,
-) -> list[SimulationResults]:
+) -> list[pd.DataFrame]:
     scenario_iter = iter(scenario)
     year_and_scenario = zip(
         range(params.general.start_year, params.general.end_year), scenario_iter
     )
 
-    results: list[SimulationResults] = []
+    results: list[pd.DataFrame] = []
 
     for year, yearly_scenario in year_and_scenario:
         demand_scaled = predict_demand(
@@ -53,7 +46,7 @@ def run_scenario_ex(
         # TODO: this is unused, we should probably integrate it later
         # stroage_discharge = yearly_scenario.storage_discharge
 
-        gen_profile, other_vals = nzo_greedy_strategy.nzo_strategy(
+        result = nzo_greedy_strategy.nzo_strategy(
             demand_scaled.series,
             fixed_production,
             yearly_scenario.storage_capacity_kwh,
@@ -61,7 +54,7 @@ def run_scenario_ex(
             params.general.charge_rate,
         )
 
-        results.append(SimulationResults(gen_profile))
+        results.append(result)
 
     return results
 

@@ -10,6 +10,7 @@ class Battery:
 
     def get_max_charge(self):
         max_charge_at_efficiency = (self._capacity - self._curr_energy) / self._efficiency
+
         return min(
             max_charge_at_efficiency,
             self._capacity * self._charge_rate
@@ -38,7 +39,7 @@ class Battery:
             return 0
 
         allowed_charge = self.calc_allowed_charge(kwh)
-        self._curr_energy += allowed_charge
+        self._curr_energy += allowed_charge * self._efficiency
         return allowed_charge
 
     def try_discharge(self, kwh):
