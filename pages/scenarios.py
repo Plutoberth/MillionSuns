@@ -13,6 +13,9 @@ if t.TYPE_CHECKING:
     from params import AllParams
     from dash import Dash
 
+from enums import ScenariosCostHeader
+
+BAU = 55.365095440
 
 def fake_costs_calc(params: "AllParams") -> pd.DataFrame:
     return pd.read_csv("scenario_costs.csv")
@@ -27,14 +30,17 @@ def scenarios_page(app: "Dash", params: "AllParams") -> Page:
         Input(update_btn, "n_clicks"),
     )
     def calc(_n_clicks: int) -> "Figure":
+        df = fake_costs_calc()
+        bau = BAU
+
+        # Creates figure object and adds bar graph to it
         fig = px.bar(
-            data_frame=fake_costs_calc(params),
-            x="Renewable Energy Usage Percentage",
-            y="Cost",
-            color="Cost Source",
+            data_frame=df,
+            x=df.columns[ScenariosCostHeader.RENEWABLE_ENERGY_USAGE_PERCENTAGE],
+            y=df.columns[ScenariosCostHeader.COST],
+            color=df.columns[ScenariosCostHeader.COST_SOURCE],
             barmode="stack",
-            title="Scenarios Cost By Renewable Generation Percentage",
-            # TODO these colors dont seem to be working
+            title="Scenarios Cost Graph",
             color_discrete_map={
                 "Fossil": "Grey",
                 "Pollution": "LightGrey",
@@ -44,11 +50,35 @@ def scenarios_page(app: "Dash", params: "AllParams") -> Page:
             },
         )
 
-        # TODO add BAU for reference
-        fig.add_hline(80)
+        # add a horizontal "target" line
+        fig.add_shape(
+            type="line",
+            line_color="red",
+            line_width=4,
+            opacity=1,
+            line_dash="dash",
+            x0=0,
+            x1=1,
+            xref="paper",
+            y0=bau,
+            y1=bau,
+            yref="y",
+        )
 
+        # Add text to BAU line
+        fig.add_annotation(
+            xref="paper",
+            yref="y",
+            x=0.5,
+            y= 1.05 * bau,
+            showarrow=False,
+            text="Bussiness As Usual Cost: {} Billion NIS".format(bau),
+            font=dict(size=16, color="black"),
+        )
+
+        # Cosmetics
         fig.update_traces(marker_line_width=1.5, opacity=0.7)
-
+        
         return fig
 
     return Page(

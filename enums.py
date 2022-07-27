@@ -13,6 +13,10 @@ class EnergySource(IntEnum):
     COAL = 3
     STORAGE = 4
 
+class ScenariosCostHeader(IntEnum):
+    RENEWABLE_ENERGY_USAGE_PERCENTAGE = 0
+    COST_SOURCE = 1
+    COST = 2
 
 # the energy sources that pollute
 POLLUTING_ENERGY_SOURCES = [EnergySource.GAS, EnergySource.COAL]
