@@ -1,4 +1,6 @@
 class Battery:
+    __slots__ = ["_charge_rate", "_efficiency", "_capacity", "_curr_energy"]
+
     def __init__(self, capacity_kwh: float, energy_kwh: float, charge_rate: float, efficiency: float):
         self._charge_rate = charge_rate
         self._efficiency = efficiency
@@ -31,13 +33,21 @@ class Battery:
             self.get_max_discharge()
         )
 
-    def charge(self, kwh):
-        assert kwh <= self.get_max_charge()
-        self._curr_energy += kwh
+    def try_charge(self, kwh):
+        if self._curr_energy == self._capacity:
+            return 0
 
-    def discharge(self, kwh):
-        assert kwh <= self.get_max_discharge()
-        self._curr_energy -= kwh
+        allowed_charge = self.calc_allowed_charge(kwh)
+        self._curr_energy += allowed_charge
+        return allowed_charge
+
+    def try_discharge(self, kwh):
+        if not self._curr_energy:
+            return 0
+
+        allowed_discharge = self.calc_allowed_discharge(kwh)
+        self._curr_energy -= allowed_discharge
+        return allowed_discharge
 
     def get_energy_kwh(self):
         return self._curr_energy
