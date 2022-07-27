@@ -13,6 +13,20 @@ class EnergySource(IntEnum):
     COAL = 3
     STORAGE = 4
 
+class SimHourField(IntEnum):
+    BATTERY_STATE = 0
+    CURTAILED_ENERGY = 1
+    STORAGE_SOLAR_CHARGE = 2
+    STORAGE_GAS_CHARGE = 3
+    DEMAND = 4
+    NET_DEMAND = 5
+
+    # the actual energy that was used to fulfill demand.
+    # all generation, including solar and demand supply, but not including curtailed energy
+    SOLAR_USAGE = 6
+    GAS_USAGE = 7
+
+
 
 # the energy sources that pollute
 POLLUTING_ENERGY_SOURCES = [EnergySource.GAS, EnergySource.COAL]

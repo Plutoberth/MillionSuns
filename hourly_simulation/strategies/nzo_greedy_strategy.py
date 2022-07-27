@@ -5,17 +5,11 @@ import numpy as np
 from pandas import DataFrame
 
 from .battery import Battery
-from enums import EnergySource, VARIABLE_ENERGY_SOURCES
+from enums import EnergySource, VARIABLE_ENERGY_SOURCES, SimHourField
 
 __all__ = [
-    "BATTERY_STATE",
-    "FIXED_CURTAILED",
     "nzo_strategy"
 ]
-
-
-BATTERY_STATE = "battery_state"
-FIXED_CURTAILED = "fixed_curtailed"
 
 
 def nzo_strategy(demand: pd.Series,
@@ -61,9 +55,13 @@ def nzo_strategy(demand: pd.Series,
     battery = Battery(storage_capacity_kwh, storage_capacity_kwh * 0.5, storage_charge_rate,
                       storage_efficiency)
 
-    empty_ndarray = np.zeros(len(df), dtype="float")
-    variable_gen_profile_np = {k: empty_ndarray.copy() for k in VARIABLE_ENERGY_SOURCES}
-    other_output_np = {k: empty_ndarray.copy() for k in [FIXED_CURTAILED, BATTERY_STATE]}
+    zero_ndarray = np.zeros(len(df), dtype="float")
+    variable_gen_profile_np = {k: zero_ndarray.copy() for k in VARIABLE_ENERGY_SOURCES}
+
+    other_output_np = {k: zero_ndarray.copy() for k in SimHourField}
+    other_output_np[SimHourField.DEMAND] = demand.to_numpy()
+    other_output_np[SimHourField.NET_DEMAND] = df["net_demand"].to_numpy()
+
     fixed_energy_usage_ratio = np.ones(len(df), dtype="float")
 
     # TODO: this can probably be replaced with more broadcasting operations
@@ -71,35 +69,44 @@ def nzo_strategy(demand: pd.Series,
         hour_index = hour.Index
         # getting inputs
         net_demand = hour.net_demand
-        storage_usage = 0
+        fixed_gen = hour.fixed_gen
 
         if net_demand == 0:
             fixed_over_demand = hour.fixed_over_demand
-            fixed_gen = hour.fixed_gen
+            assert fixed_over_demand > 0
 
             storage_fixed_charge = battery.try_charge(fixed_over_demand)
-            # because charging is negative production
-            storage_usage = -storage_fixed_charge
+            assert storage_fixed_charge >= 0
 
             fixed_energy_curtailed = fixed_over_demand - storage_fixed_charge
             fixed_used = fixed_gen - fixed_energy_curtailed
 
+            # TODO: this needs to be split among fixed energy sources, for when we integrate wind
+            other_output_np[SimHourField.STORAGE_SOLAR_CHARGE][hour_index] = storage_fixed_charge
+
             # to avoid div by zero
             if fixed_gen and fixed_used != fixed_gen:
                 fixed_energy_usage_ratio[hour_index] = fixed_used / fixed_gen
-                other_output_np[FIXED_CURTAILED][hour_index] = fixed_energy_curtailed
+                other_output_np[SimHourField.CURTAILED_ENERGY][hour_index] = fixed_energy_curtailed
         else:
-            storage_usage = battery.try_discharge(net_demand)
+            storage_discharge = battery.try_discharge(net_demand)
+            variable_gen_profile_np[EnergySource.STORAGE][hour_index] = storage_discharge
 
-            if storage_usage != net_demand:
-                variable_gen_profile_np[EnergySource.GAS][hour_index] = net_demand - storage_usage
+            if storage_discharge != net_demand:
+                variable_gen_profile_np[EnergySource.GAS][hour_index] = net_demand - storage_discharge
 
         # setting outputs
-        variable_gen_profile_np[EnergySource.STORAGE][hour_index] = storage_usage
-        other_output_np[BATTERY_STATE][hour_index] = battery.get_energy_kwh()
+        other_output_np[SimHourField.BATTERY_STATE][hour_index] = battery.get_energy_kwh()
+        other_output_np[SimHourField.SOLAR_USAGE][hour_index] = min(
+            net_demand,
+            fixed_production[EnergySource.SOLAR][hour_index] * fixed_energy_usage_ratio[hour_index]
+        )
 
 
-    fixed_gen_actual = fixed_production.multiply(fixed_production, axis=0)
+    # TODO: this needs to be changed to reflect actual gas usage when we use gas for storage
+    other_output_np[SimHourField.GAS_USAGE] = variable_gen_profile_np[EnergySource.GAS].copy()
+
+    fixed_gen_actual = fixed_production.multiply(fixed_energy_usage_ratio, axis=0)
     variable_gen_profile = pd.DataFrame(variable_gen_profile_np)
 
     gen_profile = variable_gen_profile.join(fixed_gen_actual)
