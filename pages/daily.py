@@ -15,6 +15,8 @@ from params.roadmap import Roadmap, RoadmapParam
 from enums import EnergySource, SimHourField
 from scenario_evaluator.run_scenarios import run_scenario
 
+import numpy as np
+
 if t.TYPE_CHECKING:
     from plotly.graph_objs import Figure
     from params import AllParams
@@ -67,9 +69,10 @@ def polar_scatter(df, day, name, color, fill=True, dash=False):
 
 
 def date_str(df: pd.DataFrame, day_of_year: int):
-    # TODO: remove hardcoded 2020 so it's less ugly
-    date = datetime.datetime(2020, 1, 1) + datetime.timedelta(day_of_year - 1)
-    return date.strftime("%d %B")
+    # TODO: fix hack that fixes off by one
+    year = df["year"][0] + 1
+    date = datetime.datetime(year, 1, 1) + datetime.timedelta(day_of_year - 1)
+    return date.strftime("%d %B, %Y")
 
 def annotation(df: pd.DataFrame, day_of_year: int):
     df_by_date = df.groupby(["date"]).sum()
@@ -200,6 +203,8 @@ def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
     for i, df in enumerate(res):
         df["date"] = df.index / 24
         df["date"] = df["date"].apply(str)
+        # TODO: this hack causes off by one in display
+        df["year"] = np.full(len(df), r.start_year + i)
 
     return res
 
