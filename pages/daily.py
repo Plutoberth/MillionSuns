@@ -74,6 +74,7 @@ def date_str(df: pd.DataFrame, day_of_year: int):
     date = datetime.datetime(year, 1, 1) + datetime.timedelta(day_of_year - 1)
     return date.strftime("%d %B, %Y")
 
+
 def annotation(df: pd.DataFrame, day_of_year: int):
     df_by_date = df.groupby(["date"]).sum()
     return (
@@ -102,7 +103,9 @@ def barplot(df: pd.DataFrame, day_of_year: int):
     f.add_trace(polar_bar(df, day_of_year, SimHourField.STORAGE_SOLAR_CHARGE, "gold"))
     f.add_trace(polar_bar(df, day_of_year, SimHourField.CURTAILED_ENERGY, "yellow"))
     f.add_trace(polar_scatter(df, day_of_year, SimHourField.DEMAND, "red", False))
-    f.add_trace(polar_scatter(df, day_of_year, SimHourField.NET_DEMAND, "purple", False, True))
+    f.add_trace(
+        polar_scatter(df, day_of_year, SimHourField.NET_DEMAND, "purple", False, True)
+    )
     f.add_annotation(
         xref="paper",
         yref="paper",
@@ -116,7 +119,11 @@ def barplot(df: pd.DataFrame, day_of_year: int):
 
 
 def plot(df: pd.DataFrame, day_of_year: int):
-    df[ONLY_SOLAR] = df[SimHourField.SOLAR_USAGE] + df[SimHourField.CURTAILED_ENERGY] + df[EnergySource.STORAGE]
+    df[ONLY_SOLAR] = (
+        df[SimHourField.SOLAR_USAGE]
+        + df[SimHourField.CURTAILED_ENERGY]
+        + df[EnergySource.STORAGE]
+    )
     df["discharge"] = (
         df[EnergySource.COAL]
         + df[SimHourField.GAS_USAGE]
@@ -186,7 +193,9 @@ def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
             start=4_000, end_min=150_000, end_max=250_000, step=20_000
         ),
         wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
-        storage_capacity_kwh=RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
+        storage_capacity_kwh=RoadmapParam(
+            start=0, end_min=50_000, end_max=400_000, step=50_000
+        ),
         storage_efficiency=RoadmapParam(
             start=0.85,
             end_min=0.9,
@@ -207,6 +216,7 @@ def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
         df["year"] = np.full(len(df), r.start_year + i)
 
     return res
+
 
 df_list: list[pd.DataFrame] | None = None
 
