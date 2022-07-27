@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 class EmissionType(Enum):
     CO2 = "CO2"
@@ -26,6 +26,11 @@ class SimHourField(Enum):
     SOLAR_USAGE = "SOLAR_USAGE"
     GAS_USAGE = "GAS_USAGE"
 
+
+class ScenariosCostHeader(IntEnum):
+    RENEWABLE_ENERGY_USAGE_PERCENTAGE = 0
+    COST_SOURCE = 1
+    COST = 2
 
 
 # the energy sources that pollute
