@@ -27,7 +27,8 @@ class InterpolatedParam(DashList[InterpoRange], ABCInterpoRange):
 
         # get the lowest start year out of all InterpoRanges
         if self.__root__:
-            lowest = min(*[r.start_year for r in self.__root__])
+            list_years = [r.start_year for r in self.__root__]
+            lowest = min(list_years)
             self._start_year = lowest
 
 
