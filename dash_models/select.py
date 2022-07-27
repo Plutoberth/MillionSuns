@@ -25,6 +25,7 @@ from abc import ABC
 
 import dash_bootstrap_components as dbc
 from dash import Input, MATCH, Output, State, ctx
+from pydantic import Field, Extra
 from pydantic.generics import GenericModel
 
 from .model import DashModel
@@ -40,16 +41,19 @@ class DashSelectable(DashModel, ABC):
     Base class for models that are intended as options in ``DashSelect``.
     """
 
-    type: str
+    type: t.Literal["constant", "linear", "compound"]
 
     class Config:
+        extra = Extra.forbid
         copy_on_model_validation = False
 
 
-TSelectable = t.TypeVar("TSelectable", bound=DashSelectable)
+TSelectableA = t.TypeVar("TSelectableA", bound=DashSelectable)
+TSelectableB = t.TypeVar("TSelectableB", bound=DashSelectable)
+TSelectableC = t.TypeVar("TSelectableC", bound=DashSelectable)
 
 
-class DashSelect(DashModel, GenericModel, t.Generic[TSelectable]):
+class DashSelect(DashModel, GenericModel, t.Generic[TSelectableA, TSelectableB, TSelectableC]):
     """
     Generic base class with a variable __root__,
     which renders the fields of one of multiple selectable options.
@@ -58,8 +62,8 @@ class DashSelect(DashModel, GenericModel, t.Generic[TSelectable]):
      and they will be found and be used as options.
     """
 
-    __root__: TSelectable
-    _options: dict[str, TSelectable]
+    __root__: TSelectableA | TSelectableB | TSelectableC = Field([], discriminator="type")
+    _options: dict[str, TSelectableA | TSelectableB | TSelectableC]
     _selected: str
 
     def __init__(self, **data):
