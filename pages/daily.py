@@ -1,6 +1,7 @@
 import math
 import typing as t
-from datetime import datetime
+
+import datetime
 
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -9,6 +10,10 @@ from dash import Input, Output, ctx, dcc, html
 
 from dash_models import Page
 from dash_models.utils import comp_id
+
+from params.roadmap import Roadmap, RoadmapParam
+from enums import EnergySource, SimHourField
+from scenario_evaluator.run_scenarios import run_scenario
 
 if t.TYPE_CHECKING:
     from plotly.graph_objs import Figure
@@ -29,7 +34,7 @@ width = [1] * 24
 def polar_bar(df, day, name, color):
     r = df[name][(day * 24) : (day + 1) * 24]
     return go.Barpolar(
-        name=name,
+        name=str(name),
         r=r,
         theta=theta,
         width=width,
@@ -44,7 +49,7 @@ def polar_scatter(df, day, name, color, fill=True, dash=False):
         r = list(r)
         r.append(r[0])
     return go.Scatterpolar(
-        name=name,
+        name=str(name),
         r=r,
         theta=theta if fill else no_fill_theta,
         fillcolor=color,
@@ -62,10 +67,9 @@ def polar_scatter(df, day, name, color, fill=True, dash=False):
 
 
 def date_str(df: pd.DataFrame, day_of_year: int):
-    return datetime.strptime(df["date"][day_of_year * 24], "%m/%d/%Y").strftime(
-        "%d %B, %Y"
-    )
-
+    # TODO: remove hardcoded 2020 so it's less ugly
+    date = datetime.datetime(2020, 1, 1) + datetime.timedelta(day_of_year - 1)
+    return date.strftime("%d %B")
 
 def annotation(df: pd.DataFrame, day_of_year: int):
     df_by_date = df.groupby(["date"]).sum()
@@ -76,7 +80,7 @@ def annotation(df: pd.DataFrame, day_of_year: int):
         + BR
         + BR
         + "<span style='color:red';font-size: 16px>Total Demand: {:.2f} "
-        "KWh".format(df_by_date["demand"][day_of_year] / 1000)
+        "KWh".format(df_by_date[SimHourField.DEMAND][day_of_year] / 1000)
         + SPAN
         + BR
         + "<span style='color:orange;font-size: 16px'>Solar Power: {:.2f} "
@@ -86,16 +90,16 @@ def annotation(df: pd.DataFrame, day_of_year: int):
 
 def barplot(df: pd.DataFrame, day_of_year: int):
     f = go.Figure()
-    f.add_trace(polar_bar(df, day_of_year, "coalGen", "black"))
-    f.add_trace(polar_bar(df, day_of_year, "gasGen", "lightgray"))
-    f.add_trace(polar_bar(df, day_of_year, "windGen", "lightgreen"))
-    f.add_trace(polar_bar(df, day_of_year, "storageGasCharge", "silver"))
-    f.add_trace(polar_bar(df, day_of_year, "solarUsage", "orange"))
-    f.add_trace(polar_bar(df, day_of_year, "storageSolarCharge", "gold"))
-    f.add_trace(polar_bar(df, day_of_year, "curtailedEnergy", "yellow"))
-    f.add_trace(polar_bar(df, day_of_year, "storageDischarge", "lightblue"))
-    f.add_trace(polar_scatter(df, day_of_year, "demand", "red", False))
-    f.add_trace(polar_scatter(df, day_of_year, "netDemand", "purple", False, True))
+    f.add_trace(polar_bar(df, day_of_year, EnergySource.COAL, "black"))
+    f.add_trace(polar_bar(df, day_of_year, EnergySource.GAS, "lightgray"))
+    f.add_trace(polar_bar(df, day_of_year, EnergySource.WIND, "lightgreen"))
+    f.add_trace(polar_bar(df, day_of_year, SimHourField.STORAGE_GAS_CHARGE, "silver"))
+    f.add_trace(polar_bar(df, day_of_year, SimHourField.SOLAR_USAGE, "orange"))
+    f.add_trace(polar_bar(df, day_of_year, SimHourField.STORAGE_SOLAR_CHARGE, "gold"))
+    f.add_trace(polar_bar(df, day_of_year, SimHourField.CURTAILED_ENERGY, "yellow"))
+    f.add_trace(polar_bar(df, day_of_year, EnergySource.STORAGE, "lightblue"))
+    f.add_trace(polar_scatter(df, day_of_year, SimHourField.DEMAND, "red", False))
+    f.add_trace(polar_scatter(df, day_of_year, SimHourField.NET_DEMAND, "purple", False, True))
     f.add_annotation(
         xref="paper",
         yref="paper",
@@ -109,16 +113,16 @@ def barplot(df: pd.DataFrame, day_of_year: int):
 
 
 def plot(df: pd.DataFrame, day_of_year: int):
-    df[ONLY_SOLAR] = df["solarUsage"] + df["curtailedEnergy"] + df["storageDischarge"]
+    df[ONLY_SOLAR] = df[SimHourField.SOLAR_USAGE] + df[SimHourField.CURTAILED_ENERGY] + df[EnergySource.STORAGE]
     df["discharge"] = (
-        df["coalGen"]
-        + df["gasUsage"]
-        + df["storageGasCharge"]
-        + df["windGen"]
-        + df["solarUsage"]
-        + df["storageSolarCharge"]
-        + df["curtailedEnergy"]
-        + df["storageDischarge"]
+        df[EnergySource.COAL]
+        + df[SimHourField.GAS_USAGE]
+        + df[SimHourField.STORAGE_GAS_CHARGE]
+        + df[EnergySource.WIND]
+        + df[SimHourField.SOLAR_USAGE]
+        + df[SimHourField.STORAGE_SOLAR_CHARGE]
+        + df[SimHourField.CURTAILED_ENERGY]
+        + df[EnergySource.STORAGE]
     )
 
     max_tick = math.ceil(df["discharge"].max() / TICK_STEP) * TICK_STEP
@@ -171,9 +175,33 @@ def heatmap(df: pd.DataFrame, name: str, pallette):
     return f
 
 
-def fake_daily(params: "AllParams") -> list[pd.DataFrame]:
-    return [pd.read_csv("hourly.csv") for _ in range(31)]
+def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
+    r = Roadmap(
+        start_year=params.general.start_year,
+        end_year=params.general.end_year,
+        solar_capacity_kw=RoadmapParam(
+            start=4_000, end_min=150_000, end_max=250_000, step=20_000
+        ),
+        wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
+        storage_capacity_kwh=RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
+        storage_efficiency=RoadmapParam(
+            start=0.85,
+            end_min=0.9,
+            end_max=0.95,
+            step=0.05,
+        ),
+        storage_discharge=RoadmapParam(start=0.8, end_min=0.9, end_max=0.95, step=0.05),
+    )
 
+    scenario = next(r.scenarios)
+    res = run_scenario(scenario, params)
+
+    # TODO: fix this ugly shit
+    for i, df in enumerate(res):
+        df["date"] = df.index / 24
+        df["date"] = df["date"].apply(str)
+
+    return res
 
 df_list: list[pd.DataFrame] | None = None
 
@@ -197,14 +225,17 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
         global df_list
 
         if ctx.triggered_id == update_btn:
-            df_list = fake_daily(params)
+            df_list = calculate_daily_usage_data(params)
 
-        df = df_list[year - params.general.start_year]
+        idx = year - params.general.start_year
+        # TODO: remove this ugly shit
+        idx = max(idx - 1, 0)
+        df = df_list[idx]
 
         return plot(df, day_of_year), [
             html.H5("Energy Demand", style={"textAlign": "center"}),
             dcc.Graph(
-                figure=heatmap(df, "demand", "reds"),
+                figure=heatmap(df, SimHourField.DEMAND, "reds"),
                 config={"displayModeBar": False},
             ),
             html.H5("Solar Generation", style={"textAlign": "center"}),
