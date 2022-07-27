@@ -1,8 +1,5 @@
-from enum import Enum
-
 import pandas as pd
 import numpy as np
-from pandas import DataFrame
 
 from .battery import Battery
 from enums import EnergySource, VARIABLE_ENERGY_SOURCES, SimHourField
@@ -17,7 +14,7 @@ def nzo_strategy(demand: pd.Series,
                  storage_capacity_kwh: float,
                  storage_efficiency: float,
                  storage_charge_rate: float,
-                 ) -> tuple[DataFrame, DataFrame]:
+                 ) -> pd.DataFrame:
     """
     :param demand: A series of demand values, in KwH, for every hour in the year.
     :param fixed_production: A pd.DataFrame[EnergySourceType, float]
@@ -64,6 +61,8 @@ def nzo_strategy(demand: pd.Series,
 
     fixed_energy_usage_ratio = np.ones(len(df), dtype="float")
 
+    solar_prod_np = fixed_production[EnergySource.SOLAR].to_numpy()
+
     # TODO: this can probably be replaced with more broadcasting operations
     for hour in df.itertuples():
         hour_index = hour.Index
@@ -99,7 +98,7 @@ def nzo_strategy(demand: pd.Series,
         other_output_np[SimHourField.BATTERY_STATE][hour_index] = battery.get_energy_kwh()
         other_output_np[SimHourField.SOLAR_USAGE][hour_index] = min(
             net_demand,
-            fixed_production[EnergySource.SOLAR][hour_index] * fixed_energy_usage_ratio[hour_index]
+            solar_prod_np[hour_index] * fixed_energy_usage_ratio[hour_index]
         )
 
 
@@ -112,4 +111,7 @@ def nzo_strategy(demand: pd.Series,
     gen_profile = variable_gen_profile.join(fixed_gen_actual)
 
     other_output = pd.DataFrame(other_output_np)
-    return gen_profile, other_output
+
+    out_df = gen_profile.join(other_output)
+
+    return out_df
