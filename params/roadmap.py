@@ -54,7 +54,6 @@ class Scenario:
     def __iter__(self) -> t.Iterator[YearlyScenario]:
         zipped = np.dstack((self.solar_capacity_kw, self.wind_capacity_kw, self.storage_capacity_kwh, self.storage_efficiency, self.storage_discharge))
         zipped = zipped[0]
-        print(zipped)
         return map(lambda x: YearlyScenario(*x), zipped)
 
     @property
@@ -224,5 +223,3 @@ if __name__ == "__main__":
         ),
         storage_discharge=RoadmapParam(start=80, end_min=90, end_max=95, step=5),
     )
-
-    pprint(list(r.scenarios))
