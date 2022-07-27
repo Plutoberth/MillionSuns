@@ -31,7 +31,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy_financial as npf
-from pydantic import Field, StrictFloat
+from pydantic import Field
 
 from dash_models import DashSelect, DashSelectable
 
@@ -58,7 +58,7 @@ class Constant(BaseInterpo):
 
     type: t.Literal["constant"] = "constant"
 
-    value: StrictFloat = 0.0
+    value: float = 0.0
 
     def at(self, start_year: int, end_year: int, target_year: int) -> float:
         return self.value
@@ -71,8 +71,8 @@ class Linear(BaseInterpo):
 
     type: t.Literal["linear"] = "linear"
 
-    start_value: StrictFloat = 0.0
-    end_value: StrictFloat = 0.0
+    start_value: float = 0.0
+    end_value: float = 0.0
 
     def at(self, start_year: int, end_year: int, target_year: int) -> float:
         return np.interp(
@@ -89,8 +89,8 @@ class Compound(BaseInterpo):
 
     type: t.Literal["compound"] = "compound"
 
-    start_value: StrictFloat = 0.0
-    rate: StrictFloat = Field(0.0, title="Rate (%)")
+    start_value: float = 0.0
+    rate: float = Field(0.0, title="Rate (%)")
 
     def at(self, start_year: int, end_year: int, target_year: int) -> float:
         # pv=-start_value because fv is for debt.
@@ -103,7 +103,7 @@ class Compound(BaseInterpo):
         )
 
 
-class InterpoSelect(DashSelect[t.Union[Constant, Linear, Compound]]):
+class InterpoSelect(DashSelect[Constant, Linear, Compound]):
     _constant: Constant
     _linear: Linear
     _compound: Compound
