@@ -73,7 +73,7 @@ def scenarios_page(app: "Dash", params: "AllParams") -> Page:
             x=0.5,
             y=1.05 * bau,
             showarrow=False,
-            text="Bussiness As Usual Cost: {} Billion NIS".format(bau),
+            text="Business As Usual Cost: {} Billion NIS".format(bau),
             font=dict(size=16, color="black"),
         )
 
