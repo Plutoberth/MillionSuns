@@ -15,6 +15,7 @@ from dash_models.model import DashModel
 from .interpolated_param import InterpolatedParam
 from enums import EmissionType, EnergySource
 
+# TODO: validate that all InterpolatedParams start at the correct start year, and end at the correct end year.
 
 class EmissionsPricing(DashModel):
     """
@@ -151,18 +152,11 @@ class GeneralParams(DashModel):
         "discharged every hour",
     )
 
-    def __init__(self, **data):
-        super().__init__(**data)
-
-        for name, attr in data.items():
-            if isinstance(attr, InterpolatedParam):
-                attr._start_year = self.start_year
-
 
 class AllParams(DashEditorPage):
     general: GeneralParams = Field(GeneralParams(), title="General Parameters")
-    # costs: AllSourceCosts = Field(AllSourceCosts(), title="Energy Source Costs")
-    # emissions_costs: EmissionsPricing = Field(
-    #     EmissionsPricing(), title="EmissionsCosts (Carbon Tax)"
-    # )
+    costs: AllSourceCosts = Field(AllSourceCosts(), title="Energy Source Costs")
+    emissions_costs: EmissionsPricing = Field(
+        EmissionsPricing(), title="EmissionsCosts (Carbon Tax)"
+    )
     emissions: AllEmissions = Field(AllEmissions(), title="Energy Source Emissions")
