@@ -1,17 +1,17 @@
-from enum import Enum
+from enum import IntEnum
 
-class EmissionType(Enum):
-    CO2 = "CO2"
-    SOx = "SOx"
-    NOx = "NOx"
-    PMx = "PMx"
+class EmissionType(IntEnum):
+    CO2 = 0
+    SOx = 1
+    NOx = 2
+    PMx = 3
 
-class EnergySource(Enum):
-    SOLAR = "SOLAR"
-    WIND = "WIND"
-    GAS = "GAS"
-    COAL = "COAL"
-    STORAGE = "STORAGE"
+class EnergySource(IntEnum):
+    SOLAR = 0
+    WIND = 1
+    GAS = 2
+    COAL = 3
+    STORAGE = 4
 
 
 # the energy sources that pollute
