@@ -17,6 +17,7 @@ from enums import ScenariosCostHeader
 
 BAU = 55.365095440
 
+
 def fake_costs_calc(params: "AllParams") -> pd.DataFrame:
     return pd.read_csv("scenario_costs.csv")
 
@@ -30,7 +31,7 @@ def scenarios_page(app: "Dash", params: "AllParams") -> Page:
         Input(update_btn, "n_clicks"),
     )
     def calc(_n_clicks: int) -> "Figure":
-        df = fake_costs_calc()
+        df = fake_costs_calc(params)
         bau = BAU
 
         # Creates figure object and adds bar graph to it
@@ -70,7 +71,7 @@ def scenarios_page(app: "Dash", params: "AllParams") -> Page:
             xref="paper",
             yref="y",
             x=0.5,
-            y= 1.05 * bau,
+            y=1.05 * bau,
             showarrow=False,
             text="Bussiness As Usual Cost: {} Billion NIS".format(bau),
             font=dict(size=16, color="black"),
@@ -78,7 +79,7 @@ def scenarios_page(app: "Dash", params: "AllParams") -> Page:
 
         # Cosmetics
         fig.update_traces(marker_line_width=1.5, opacity=0.7)
-        
+
         return fig
 
     return Page(
