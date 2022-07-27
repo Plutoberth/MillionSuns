@@ -67,6 +67,7 @@ def nzo_strategy(demand: pd.Series,
     for hour in df.itertuples():
         hour_index = hour.Index
         # getting inputs
+        demand = hour.demand
         net_demand = hour.net_demand
         fixed_gen = hour.fixed_gen
 
@@ -97,7 +98,7 @@ def nzo_strategy(demand: pd.Series,
         # setting outputs
         other_output_np[SimHourField.BATTERY_STATE][hour_index] = battery.get_energy_kwh()
         other_output_np[SimHourField.SOLAR_USAGE][hour_index] = min(
-            net_demand,
+            demand,
             solar_prod_np[hour_index] * fixed_energy_usage_ratio[hour_index]
         )
 
