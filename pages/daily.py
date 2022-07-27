@@ -112,7 +112,7 @@ def plot(df: pd.DataFrame, day_of_year: int):
     df[ONLY_SOLAR] = df["solarUsage"] + df["curtailedEnergy"] + df["storageDischarge"]
     df["discharge"] = (
         df["coalGen"]
-        + df["gasGen"]
+        + df["gasUsage"]
         + df["storageGasCharge"]
         + df["windGen"]
         + df["solarUsage"]
