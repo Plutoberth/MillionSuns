@@ -72,7 +72,7 @@ def nzo_strategy(demand: pd.Series,
 
         if net_demand == 0:
             fixed_over_demand = hour.fixed_over_demand
-            assert fixed_over_demand > 0
+            assert fixed_over_demand >= 0
 
             storage_fixed_charge = battery.try_charge(fixed_over_demand)
             assert storage_fixed_charge >= 0
