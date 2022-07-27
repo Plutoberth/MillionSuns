@@ -1,5 +1,3 @@
-from devtools import debug
-
 defaults = {
   "general": {
     "coal_must_run": [  # values change due to decommissioning of plants.
@@ -137,7 +135,3 @@ defaults = {
     ]
   }
 }
-
-from params import AllParams
-
-debug(AllParams(**defaults))
