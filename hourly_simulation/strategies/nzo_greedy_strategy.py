@@ -112,6 +112,9 @@ def nzo_strategy(demand: pd.Series,
 
     other_output = pd.DataFrame(other_output_np)
 
-    out_df = gen_profile.join(other_output)
+    # TODO: handle this better
+    zeroes_added = pd.DataFrame({EnergySource.COAL: zero_ndarray, EnergySource.WIND: zero_ndarray})
+
+    out_df = gen_profile.join(other_output).join(zeroes_added)
 
     return out_df
