@@ -112,7 +112,7 @@ def plot(df: pd.DataFrame, day_of_year: int):
     df[ONLY_SOLAR] = df["solarUsage"] + df["curtailedEnergy"] + df["storageDischarge"]
     df["discharge"] = (
         df["coalGen"]
-        + df["gasGen"]
+        + df["gasUsage"]
         + df["storageGasCharge"]
         + df["windGen"]
         + df["solarUsage"]
@@ -183,21 +183,40 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
     update_btn = comp_id("update_btn")
     year_slider = comp_id("year_slider")
     day_slider = comp_id("dy_slider")
+    heat_maps = comp_id("heat_maps")
 
     @app.callback(
         Output(plot_div_id, "figure"),
+        Output(heat_maps, "children"),
         Input(update_btn, "n_clicks"),
         Input(year_slider, "value"),
         Input(day_slider, "value"),
         prevent_initial_call=True,
     )
-    def calc(_n_clicks: int, year: int, day_of_year: int) -> "Figure":
+    def calc(_n_clicks: int, year: int, day_of_year: int):
         global df_list
 
         if ctx.triggered_id == update_btn:
             df_list = fake_daily(params)
 
-        return plot(df_list[year - params.general.start_year], day_of_year)
+        df = df_list[year - params.general.start_year]
+
+        return plot(df, day_of_year), [
+            html.H5("Energy Demand", style={"textAlign": "center"}),
+            dcc.Graph(
+                figure=heatmap(df, "demand", "reds"),
+                config={"displayModeBar": False},
+            ),
+            html.H5("Solar Generation", style={"textAlign": "center"}),
+            dcc.Graph(
+                figure=heatmap(
+                    df,
+                    ONLY_SOLAR,
+                    [[0, "white"], [0.8, "gold"], [1, "orange"]],
+                ),
+                config={"displayModeBar": False},
+            ),
+        ]
 
     return Page(
         title="Daily Generation",
@@ -207,42 +226,19 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
                 html.H1(
                     "Daily generation and consumption", style={"textAlign": "center"}
                 ),
+                html.Div(id=heat_maps, style={"position": "relative"}),
                 html.Div(
-                    style={"position": "relative"},
+                    style={"width": "100%"},
                     children=[
-                        html.Div(
-                            # children=[
-                            #     dcc.Graph(
-                            #         figure=heatmap("demand", "reds"),
-                            #         config={"displayModeBar": False},
-                            #     ),
-                            #     dcc.Graph(
-                            #         figure=heatmap(
-                            #             ONLY_SOLAR,
-                            #             [[0, "white"], [0.8, "gold"], [1, "orange"]],
-                            #         ),
-                            #         config={"displayModeBar": False},
-                            #     ),
-                            # ]
-                        ),
-                        html.Div(
-                            style={"width": "100%"},
-                            children=[
-                                dcc.Slider(
-                                    min=0,
-                                    max=pd.Timestamp(
-                                        params.general.end_year, 12, 31
-                                    ).dayofyear
-                                    - 1,
-                                    step=1,
-                                    value=pd.Timestamp(
-                                        params.general.end_year, 6, 1
-                                    ).dayofyear
-                                    - 1,
-                                    marks=marks(params.general.end_year),
-                                    id=day_slider,
-                                ),
-                            ],
+                        dcc.Slider(
+                            min=0,
+                            max=pd.Timestamp(params.general.end_year, 12, 31).dayofyear
+                            - 1,
+                            step=1,
+                            value=pd.Timestamp(params.general.end_year, 6, 1).dayofyear
+                            - 1,
+                            marks=marks(params.general.end_year),
+                            id=day_slider,
                         ),
                     ],
                 ),
