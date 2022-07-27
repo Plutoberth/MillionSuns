@@ -93,11 +93,11 @@ def barplot(df: pd.DataFrame, day_of_year: int):
     f.add_trace(polar_bar(df, day_of_year, EnergySource.COAL, "black"))
     f.add_trace(polar_bar(df, day_of_year, EnergySource.GAS, "lightgray"))
     f.add_trace(polar_bar(df, day_of_year, EnergySource.WIND, "lightgreen"))
-    f.add_trace(polar_bar(df, day_of_year, SimHourField.STORAGE_GAS_CHARGE, "silver"))
     f.add_trace(polar_bar(df, day_of_year, SimHourField.SOLAR_USAGE, "orange"))
+    f.add_trace(polar_bar(df, day_of_year, EnergySource.STORAGE, "lightblue"))
+    f.add_trace(polar_bar(df, day_of_year, SimHourField.STORAGE_GAS_CHARGE, "silver"))
     f.add_trace(polar_bar(df, day_of_year, SimHourField.STORAGE_SOLAR_CHARGE, "gold"))
     f.add_trace(polar_bar(df, day_of_year, SimHourField.CURTAILED_ENERGY, "yellow"))
-    f.add_trace(polar_bar(df, day_of_year, EnergySource.STORAGE, "lightblue"))
     f.add_trace(polar_scatter(df, day_of_year, SimHourField.DEMAND, "red", False))
     f.add_trace(polar_scatter(df, day_of_year, SimHourField.NET_DEMAND, "purple", False, True))
     f.add_annotation(
