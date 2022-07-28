@@ -171,6 +171,4 @@ class AllParams(DashEditorPage):
     emissions_costs: EmissionsPricing = Field(
         EmissionsPricing(), title="EmissionsCosts (Carbon Tax)"
     )
-    emissions: AllEmissions = Field(
-        AllEmissions(), title="Energy Source Emissions"
-    )
+    emissions: AllEmissions = Field(AllEmissions(), title="Energy Source Emissions")
