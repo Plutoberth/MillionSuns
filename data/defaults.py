@@ -103,46 +103,46 @@ DEFAULT_PARAMS = {
   "emissions": {
     "gas": {
       # TODO: use the YoY change as parameters instead of the prices
-      "CO2": 397,
+      "CO2": 0.397,
       "SOx": 0,
-      "NOx": 0.16,
-      "PMx": 0.02
+      "NOx": 0.00016,
+      "PMx": 0.00002
 
     },
     "coal": {}
   },
   "emissions_costs": {
     "CO2": [
-      {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 167, "end_value": 185}},
-      {"start_year": 2025, "end_year": 2030, "interpo": {"type": "linear", "start_value": 185, "end_value": 1206}},
-      {"start_year": 2030, "end_year": 2035, "interpo": {"type": "linear", "start_value": 206, "end_value": 226}},
-      {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 226, "end_value": 248}},
-      {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 248, "end_value": 269}},
-      {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 269, "end_value": 291}}
+      {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 0.167, "end_value": 0.185}},
+      {"start_year": 2025, "end_year": 2030, "interpo": {"type": "linear", "start_value": 0.185, "end_value": 1.206}},
+      {"start_year": 2030, "end_year": 2035, "interpo": {"type": "linear", "start_value": 0.206, "end_value": 0.226}},
+      {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 0.226, "end_value": 0.248}},
+      {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 0.248, "end_value": 0.269}},
+      {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 0.269, "end_value": 0.291}}
     ],
     "SOx": [
-      {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 85381, "end_value": 100868}},
-      {"start_year": 2025, "end_year": 2030, "interpo": {"type": "linear", "start_value": 100868, "end_value": 119164}},
-      {"start_year": 2030, "end_year": 2035, "interpo": {"type": "linear", "start_value": 119164, "end_value": 139086}},
-      {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 139086, "end_value": 162337}},
-      {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 162337, "end_value": 189476}},
-      {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 189476, "end_value": 221151}}
+      {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 85.381, "end_value": 100.868}},
+      {"start_year": 2025, "end_year": 2030, "interpo": {"type": "linear", "start_value": 100.868, "end_value": 119.164}},
+      {"start_year": 2030, "end_year": 2035, "interpo": {"type": "linear", "start_value": 119.164, "end_value": 139.086}},
+      {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 139.086, "end_value": 162.337}},
+      {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 162.337, "end_value": 189.476}},
+      {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 189.476, "end_value": 221.151}}
     ],
     "NOx": [
-      {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 118208, "end_value": 139650}},
-      {"start_year": 2025, "end_year": 2030, "interpo": {"type": "linear", "start_value": 139650, "end_value": 164980}},
-      {"start_year": 2030, "end_year": 2035, "interpo": {"type": "linear", "start_value": 164980, "end_value": 192561}},
-      {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 192561, "end_value": 224752}},
-      {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 224752, "end_value": 262325}},
-      {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 262325, "end_value": 306179}}
+      {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 118.208, "end_value": 139.650}},
+      {"start_year": 2025, "end_year": 2030, "interpo": {"type": "linear", "start_value": 139.650, "end_value": 164.980}},
+      {"start_year": 2030, "end_year": 2035, "interpo": {"type": "linear", "start_value": 164.980, "end_value": 192.561}},
+      {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 192.561, "end_value": 224.752}},
+      {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 224.752, "end_value": 262.325}},
+      {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 262.325, "end_value": 306.179}}
     ],
     "PMx": [
-      {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 270760, "end_value": 319873}},
-      {"start_year": 2025, "end_year": 2030, "interpo": {"type": "linear", "start_value": 319873, "end_value": 377894}},
-      {"start_year": 2030, "end_year": 2035, "interpo": {"type": "linear", "start_value": 377894, "end_value": 441068}},
-      {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 441068, "end_value": 514803}},
-      {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 514803, "end_value": 600865}},
-      {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 600865, "end_value": 701314}}
+      {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 270.760, "end_value": 319.873}},
+      {"start_year": 2025, "end_year": 2030, "interpo": {"type": "linear", "start_value": 319.873, "end_value": 377.894}},
+      {"start_year": 2030, "end_year": 2035, "interpo": {"type": "linear", "start_value": 377.894, "end_value": 441.068}},
+      {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 441.068, "end_value": 514.803}},
+      {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 514.803, "end_value": 600.865}},
+      {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 600.865, "end_value": 701.314}}
     ]
   }
 }
