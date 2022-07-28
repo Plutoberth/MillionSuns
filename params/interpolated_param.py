@@ -21,18 +21,23 @@ from .interpo_range import ABCInterpoRange, InterpoRange
 
 class InterpolatedParam(DashList[InterpoRange], ABCInterpoRange):
     _start_year: int = 0
+    _end_year: int = 0
 
     def __init__(self, **data):
         super().__init__(**data)
 
         # get the lowest start year out of all InterpoRanges
         if self.__root__:
-            list_years = [r.start_year for r in self.__root__]
-            lowest = min(list_years)
-            self._start_year = lowest
+            list_start_years = [r.start_year for r in self.__root__]
+            list_end_years = [r.end_year for r in self.__root__]
+            # TODO: will those be changed if the interpolatedparam is modified on runtime?
+            self._start_year = min(list_start_years)
+            self._end_year = max(list_end_years)
 
 
     def at(self, year: int) -> float:
+        if not self._start_year <= year < self._end_year:
+            raise Exception(f"requested year not in range [{self._start_year}, {self._end_year})")
         assert year >= self._start_year
         return sum(
             (

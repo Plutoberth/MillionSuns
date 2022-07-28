@@ -22,9 +22,13 @@ class EmissionsPricing(DashModel):
     Pricing for an emissions tax, aka a carbon tax
     """
 
-    CO2: InterpolatedParam = Field(InterpolatedParam(), title="CO2 Pricing (ILS/ton)")
+    CO2: InterpolatedParam = Field(
+        InterpolatedParam(), title="CO2 Pricing (ILS/ton)"
+    )
     SOx: InterpolatedParam = Field(
-        InterpolatedParam(), title="SOx Pricing (ILS/ton)", description="Sulfur Oxides"
+        InterpolatedParam(),
+        title="SOx Pricing (ILS/ton)",
+        description="Sulfur Oxides",
     )
     NOx: InterpolatedParam = Field(
         InterpolatedParam(),
@@ -36,6 +40,14 @@ class EmissionsPricing(DashModel):
         title="PMx Pricing (ILS/ton)",
         description="Particulate Matter",
     )
+
+    def get(self, emission_type: EmissionType):
+        return {
+            EmissionType.CO2: self.CO2,
+            EmissionType.SOx: self.SOx,
+            EmissionType.NOx: self.SOx,
+            EmissionType.PMx: self.PMx,
+        }[emission_type]
 
 
 class EnergySourceEmissions(DashModel):
@@ -59,8 +71,9 @@ class EnergySourceEmissions(DashModel):
             EmissionType.CO2: self.CO2,
             EmissionType.SOx: self.SOx,
             EmissionType.NOx: self.NOx,
-            EmissionType.PMx: self.PMx
+            EmissionType.PMx: self.PMx,
         }[emission]
+
 
 class EnergySourceCosts(DashModel):
     """
@@ -105,8 +118,8 @@ class AllSourceCosts(DashModel):
             EnergySource.SOLAR: self.solar,
             EnergySource.WIND: self.wind,
             EnergySource.GAS: self.gas,
-            EnergySource.COAL: self.coal,
-            EnergySource.STORAGE: self.storage
+            # EnergySource.COAL: self.coal,
+            EnergySource.STORAGE: self.storage,
         }[source_type]
 
 
@@ -115,10 +128,8 @@ class AllEmissions(DashModel):
     coal: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Coal")
 
     def get(self, source_type: EnergySource) -> EnergySourceEmissions:
-        return {
-            EnergySource.COAL: self.coal,
-            EnergySource.GAS: self.gas
-        }[source_type]
+        return {# EnergySource.COAL: self.coal,
+                EnergySource.GAS: self.gas}[source_type]
 
 
 class GeneralParams(DashModel):
@@ -133,7 +144,9 @@ class GeneralParams(DashModel):
         3014, title="Average Yearly Wind Production Hours"
     )
 
-    interest_pct: PositiveInt = Field(3, title="Interest (%)")
+    # TODO: add a better explanation here and better defaults
+    wacc_rate: PositiveFloat = Field(1.03, title="Weighted Average Cost of Capital (Rate)")
+    interest_rate: PositiveFloat = Field(1.03, title="Interest (Rate)", description="The yearly interest rate (like 1.03).")
 
     demand_growth_rate: float = Field(
         1.028,

@@ -10,7 +10,8 @@ class EnergySource(Enum):
     SOLAR = "Solar"
     WIND = "Wind"
     GAS = "Gas"
-    COAL = "Coal"
+    # TODO: re-add coal
+    # COAL = "Coal"
     STORAGE = "Storage"
 
 class SimHourField(Enum):
@@ -34,6 +35,7 @@ class ScenariosCostHeader(IntEnum):
 
 
 # the energy sources that pollute
-POLLUTING_ENERGY_SOURCES = [EnergySource.GAS, EnergySource.COAL]
+# TODO: re-add coal
+POLLUTING_ENERGY_SOURCES = [EnergySource.GAS]
 # the energy sources that can scale according to demand
 VARIABLE_ENERGY_SOURCES = [EnergySource.GAS, EnergySource.STORAGE]

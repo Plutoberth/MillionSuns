@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import Dash, html
 
 from dash_models import Brand, Page, navbar_page
-from data.defaults import defaults
+from data.defaults import DEFAULT_PARAMS
 from pages import make_pages
 from params import AllParams
 
@@ -15,7 +15,7 @@ app = Dash(
     ],
 )
 
-params = AllParams(**defaults)
+params = AllParams(**DEFAULT_PARAMS)
 
 p_home = Page(
     title="Home",
