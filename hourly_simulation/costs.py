@@ -3,7 +3,7 @@ from numpy_financial import pmt, npv
 from dataclasses import dataclass
 from functools import cached_property
 from params.params import AllParams
-from enums import EnergySource, EmissionType
+from enums import EnergySource, EmissionType, POLLUTING_ENERGY_SOURCES
 
 @dataclass
 class YearlySimulationProductionResults:
@@ -55,20 +55,23 @@ def calculate_costs(yearly_capacities, params: AllParams):
 
     year_npvs = [{energy_source: 0 for energy_source in EnergySource}]
 
-    # Intentionally starting from 1 rather than 0
+    start_year = params.general.start_year
+    end_year = params.general.end_year
+
+    # Intentionally starting from 1 rather than 0 to calculate diffs between years
     # TODO: yes interpolation is nice but where is the year range? 20 as placeholder
-    for year in range(1, 20):
+    for year in range(start_year + 1, end_year):
+        year_idx = year - start_year
 
         current_year_costs = {}
         current_year_npvs = {}
 
         for energy_source in EnergySource:
-
             source_params = params.costs.get(energy_source)
 
-            new_capacity = yearly_capacities[year].get(
+            new_capacity = yearly_capacities[year_idx].get(
                 energy_source
-            ) - yearly_capacities[year - 1].get(energy_source)
+            ) - yearly_capacities[year_idx - 1].get(energy_source)
 
             new_capex = -1 * pmt(
                 params.general.wacc_rate,
@@ -78,7 +81,7 @@ def calculate_costs(yearly_capacities, params: AllParams):
 
             # Original model adds comulative capex to current non-comulative opex...
             new_opex = source_params.opex.at(year) * yearly_capacities[
-                year
+                year_idx
             ].get(energy_source)
 
             # TODO: double check
@@ -90,27 +93,26 @@ def calculate_costs(yearly_capacities, params: AllParams):
 
             current_year_npvs[energy_source] = running_npv(
                 params.general.interest_rate,
-                year_npvs[year - 1][energy_source],
+                year_npvs[year_idx - 1][energy_source],
                 current_year_costs[
                     energy_source
                 ].total,  # original passes running total
-                year,
+                year_idx,
             )
 
         externalities = 0
 
-        # TODO: un-code-duplicate the list of emitting energy sources
-        for emitting_energy_source in [EnergySource.COAL, EnergySource.GAS]:
-
+        # TODO: use the emissions module instead of calculating emissions here
+        for source in POLLUTING_ENERGY_SOURCES:
             for emission_type in EmissionType:
 
                 # TODO: triple check this formula
                 externalities += (
-                    params.emissions.get(emitting_energy_source).get(
+                    params.emissions.get(source).get(
                         emission_type
                     )
                     * params.emissions_costs.get(emission_type).at(year)
-                    * yearly_capacities[year].emitting_used
+                    * yearly_capacities[year_idx].emitting_used
                 )
                 # TODO: check it again i'm really not sure it's right
 
