@@ -45,7 +45,25 @@ def running_npv(rate, last_npv, new_cash_flow, num_years):
     return last_npv + new_cash_flow / ((rate + 1) ** num_years)
 
 
-def calculate_costs(yearly_capacities, params: AllParams):
+def calculate_emissions_cost(year_data: YearlySimulationProductionResults, year: int, params: AllParams) -> float:
+    # TODO: use the emissions module instead of calculating emissions here
+    emissions_cost = 0
+    for source in POLLUTING_ENERGY_SOURCES:
+        source_emissions_params = params.emissions.get(source)
+
+        for emission_type in EmissionType:
+            # TODO: quadruple check all of the units here
+            # TODO: cool pydantic units that autoconvert?
+            emission_kwh_coeff = source_emissions_params.get(emission_type)
+            # TODO: what is emitting_used? could we be calculating twice because it's duped for gas and coal?
+            emissions_amount = year_data.emitting_used
+            emission_costs = params.emissions_costs.get(emission_type).at(year)
+            # TODO: triple check this formula
+            emissions_cost += emission_kwh_coeff * emissions_amount * emission_costs
+    return emissions_cost
+
+
+def calculate_costs(yearly_capacities: list[YearlySimulationProductionResults], params: AllParams):
     year_costs = []
     year_npvs = []
 
@@ -100,28 +118,11 @@ def calculate_costs(yearly_capacities, params: AllParams):
                 year_idx,
             )
 
-        externalities = 0
-
-        # TODO: use the emissions module instead of calculating emissions here
-        for source in POLLUTING_ENERGY_SOURCES:
-            for emission_type in EmissionType:
-
-                # TODO: triple check this formula
-                externalities += (
-                    params.emissions.get(source).get(
-                        emission_type
-                    )
-                    * params.emissions_costs.get(emission_type).at(year)
-                    * yearly_capacities[year_idx].emitting_used
-                )
-                # TODO: check it again i'm really not sure it's right
-
         # This is a number while other entries in current_year_costs are YearlyCosts's.
         # TODO: this does not spark joy. make this spark joy.
-        current_year_costs["externalities"] = externalities
+        current_year_costs["externalities"] = calculate_emissions_cost(yearly_capacities[year_idx], year, params)
 
         year_costs.append(current_year_costs)
-
         year_npvs.append(current_year_npvs)
 
     return year_costs, year_npvs
