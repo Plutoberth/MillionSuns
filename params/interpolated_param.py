@@ -17,9 +17,11 @@ Provides a `.at(year) method which will call the matching method on the appropri
 
 from dash_models import DashList
 from .interpo_range import ABCInterpoRange, InterpoRange
+from typing import Generic, TypeVar, cast
 
+T = TypeVar('T')
 
-class InterpolatedParam(DashList[InterpoRange], ABCInterpoRange):
+class InterpolatedParam(DashList[InterpoRange], ABCInterpoRange, Generic[T]):
     _start_year: int = 0
     _end_year: int = 0
 
@@ -35,14 +37,18 @@ class InterpolatedParam(DashList[InterpoRange], ABCInterpoRange):
             self._end_year = max(list_end_years)
 
 
-    def at(self, year: int) -> float:
+    def at(self, year: int) -> T:
         if not self._start_year <= year < self._end_year:
             raise Exception(f"requested year not in range [{self._start_year}, {self._end_year})")
         assert year >= self._start_year
-        return sum(
+
+        list_of_interpos = sum(
             (
                 [r for _ in range(r.end_year - r.start_year)]
                 for r in sorted(self.__root__, key=lambda r: r.start_year)
             ),
             start=[],
-        )[year - self._start_year].at(year)
+        )
+        interpo = list_of_interpos[year - self._start_year]
+        # TODO: make this less ugly :)
+        return cast(T, interpo.at(year))
