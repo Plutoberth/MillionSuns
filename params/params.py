@@ -143,7 +143,9 @@ class GeneralParams(DashModel):
         3014, title="Average Yearly Wind Production Hours"
     )
 
-    interest_pct: PositiveInt = Field(3, title="Interest (%)")
+    # TODO: add a better explanation here and better defaults
+    wacc_rate: PositiveFloat = Field(1.03, title="Weighted Average Cost of Capital (Rate)")
+    interest_rate: PositiveFloat = Field(1.03, title="Interest (Rate)", description="The yearly interest rate (like 1.03).")
 
     demand_growth_rate: float = Field(
         1.028,

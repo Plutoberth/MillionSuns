@@ -5,11 +5,6 @@ from functools import cached_property
 from params.params import AllParams
 from enums import EnergySource, EmissionType
 
-
-WACC_RATE = 1.1  # idk
-INTEREST_RATE = 1.1  # idk
-
-
 @dataclass
 class YearlySimulationProductionResults:
     installed_gas_kw: float
@@ -50,7 +45,7 @@ def running_npv(rate, last_npv, new_cash_flow, num_years):
     return last_npv + new_cash_flow / ((rate + 1) ** num_years)
 
 
-def calculate_costs(yearly_capacities, params):
+def calculate_costs(yearly_capacities, params: AllParams):
     year_costs = []
     year_npvs = []
 
@@ -76,7 +71,7 @@ def calculate_costs(yearly_capacities, params):
             ) - yearly_capacities[year - 1].get(energy_source)
 
             new_capex = -1 * pmt(
-                WACC_RATE,
+                params.general.wacc_rate,
                 source_params.lifetime.at(year),
                 new_capacity,
             )
@@ -94,7 +89,7 @@ def calculate_costs(yearly_capacities, params):
             )
 
             current_year_npvs[energy_source] = running_npv(
-                INTEREST_RATE,
+                params.general.interest_rate,
                 year_npvs[year - 1][energy_source],
                 current_year_costs[
                     energy_source
