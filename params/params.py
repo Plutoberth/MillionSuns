@@ -118,7 +118,7 @@ class AllSourceCosts(DashModel):
             EnergySource.SOLAR: self.solar,
             EnergySource.WIND: self.wind,
             EnergySource.GAS: self.gas,
-            EnergySource.COAL: self.coal,
+            # EnergySource.COAL: self.coal,
             EnergySource.STORAGE: self.storage,
         }[source_type]
 
@@ -128,7 +128,8 @@ class AllEmissions(DashModel):
     coal: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Coal")
 
     def get(self, source_type: EnergySource) -> EnergySourceEmissions:
-        return {EnergySource.COAL: self.coal, EnergySource.GAS: self.gas}[source_type]
+        return {# EnergySource.COAL: self.coal,
+                EnergySource.GAS: self.gas}[source_type]
 
 
 class GeneralParams(DashModel):

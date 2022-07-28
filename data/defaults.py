@@ -1,3 +1,5 @@
+# TODO: add coal
+
 DEFAULT_PARAMS = {
   "general": {
     "coal_must_run": [  # values change due to decommissioning of plants.

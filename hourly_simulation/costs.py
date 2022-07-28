@@ -23,7 +23,7 @@ class YearlySimulationProductionResults:
     def get(self, source_type: EnergySource):
         return {
             EnergySource.GAS: self.installed_gas_kw,
-            EnergySource.COAL: self.installed_coal_kw,
+            # EnergySource.COAL: self.installed_coal_kw,
             EnergySource.SOLAR: self.installed_solar_kw,
             EnergySource.STORAGE: self.installed_storage_kwh,
             EnergySource.WIND: self.installed_wind_kw,

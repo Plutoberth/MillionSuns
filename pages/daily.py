@@ -94,7 +94,8 @@ def annotation(df: pd.DataFrame, day_of_year: int):
 
 def barplot(df: pd.DataFrame, day_of_year: int):
     f = go.Figure()
-    f.add_trace(polar_bar(df, day_of_year, EnergySource.COAL, "black"))
+    # TODO: re-add when coal is added
+    # f.add_trace(polar_bar(df, day_of_year, EnergySource.COAL, "black"))
     f.add_trace(polar_bar(df, day_of_year, EnergySource.GAS, "lightgray"))
     f.add_trace(polar_bar(df, day_of_year, EnergySource.WIND, "lightgreen"))
     f.add_trace(polar_bar(df, day_of_year, SimHourField.SOLAR_USAGE, "orange"))
@@ -125,8 +126,8 @@ def plot(df: pd.DataFrame, day_of_year: int):
         + df[EnergySource.STORAGE]
     )
     df["discharge"] = (
-        df[EnergySource.COAL]
-        + df[SimHourField.GAS_USAGE]
+        # df[EnergySource.COAL] TODO: re-add when coal is added
+        df[SimHourField.GAS_USAGE]
         + df[SimHourField.STORAGE_GAS_CHARGE]
         + df[EnergySource.WIND]
         + df[SimHourField.SOLAR_USAGE]
