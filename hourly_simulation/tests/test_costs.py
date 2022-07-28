@@ -13,6 +13,8 @@ def test_get_costs():
     ]
 
     params = AllParams(**DEFAULT_PARAMS)
+    # Adjust end_year due to size of list
+    params.general.end_year = params.general.start_year + len(yearly_capacities)
 
     year_costs, year_npvs = calculate_costs(yearly_capacities, params)
     years = range(len(yearly_capacities))
