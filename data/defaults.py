@@ -1,4 +1,4 @@
-defaults = {
+DEFAULT_PARAMS = {
   "general": {
     "coal_must_run": [  # values change due to decommissioning of plants.
       # TODO: add comment which plant decommissioning accounts for each line
