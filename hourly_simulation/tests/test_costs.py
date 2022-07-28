@@ -3,6 +3,7 @@ from enums import EnergySource
 from params import AllParams
 from data.defaults import DEFAULT_PARAMS
 
+EPSILON = 0.1
 
 def test_get_costs():
     yearly_capacities = [
@@ -19,12 +20,11 @@ def test_get_costs():
     year_costs, year_npvs = calculate_costs(yearly_capacities, params)
     years = range(len(yearly_capacities))
     for source in EnergySource:
-        print(
-            "{} should be roughly equivalent to {}".format(
-                year_npvs[years[-1]][source],
-                npv(
+        result_npv = year_npvs[years[-1]][source]
+        calculated_npv = npv(
                     params.general.interest_rate,
                     [year_costs[year][source].total for year in years],
-                ),
-            )
-        )
+                )
+
+        diff = abs(calculated_npv - result_npv)
+        assert diff < EPSILON
