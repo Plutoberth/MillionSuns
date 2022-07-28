@@ -30,6 +30,9 @@ DEFAULT_PARAMS = {
         {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 40, "end_value": 37}},
         {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 37, "end_value": 34}}
       ],
+      "variable_opex": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 0}}
+      ],
       "lifetime": [
         {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 25}}
       ]
@@ -47,6 +50,9 @@ DEFAULT_PARAMS = {
         {"start_year": 2020, "end_year": 2025, "interpo": {"type": "linear", "start_value": 92, "end_value": 84}},
         {"start_year": 2025, "end_year": 2040, "interpo": {"type": "linear", "start_value": 84, "end_value": 72}},
         {"start_year": 2040, "end_year": 2050, "interpo": {"type": "constant", "value": 72}}
+      ],
+      "variable_opex": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 0}}
       ],
       "lifetime": [
         {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 25}}
@@ -68,6 +74,9 @@ DEFAULT_PARAMS = {
         {"start_year": 2035, "end_year": 2040, "interpo": {"type": "linear", "start_value": 9.6, "end_value": 8.8}},
         {"start_year": 2040, "end_year": 2045, "interpo": {"type": "linear", "start_value": 8.8, "end_value": 8.4}},
         {"start_year": 2045, "end_year": 2050, "interpo": {"type": "linear", "start_value": 8.4, "end_value": 8}}
+      ],
+      "variable_opex": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 0}}
       ],
       "lifetime": [
         {"start_year": 2020, "end_year": 2029, "interpo": {"type": "constant", "value": 15}},
