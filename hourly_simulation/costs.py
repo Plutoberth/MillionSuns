@@ -128,30 +128,3 @@ def calculate_costs(yearly_capacities, params):
         year_npvs.append(current_year_npvs)
 
     return year_costs, year_npvs
-
-
-def test_get_costs():
-
-    yearly_capacities = [
-        YearlySimulationProductionResults(100, 100, 100, 100, 100, 100, 100),
-        YearlySimulationProductionResults(100, 100, 100, 100, 100, 100, 100),
-        YearlySimulationProductionResults(100, 100, 100, 100, 100, 100, 100),
-        YearlySimulationProductionResults(100, 100, 100, 100, 100, 100, 100),
-    ]
-
-    year_costs, year_npvs = calculate_costs(yearly_capacities, AllParams())
-    years = range(len(yearly_capacities))
-    for source in EnergySource:
-        print(
-            "{} should be roughly equivalent to {}".format(
-                year_npvs[years[-1]][source],
-                npv(
-                    INTEREST_RATE,
-                    [year_costs[year][source].total for year in years],
-                ),
-            )
-        )
-
-
-if __name__ == "__main__":
-    test_get_costs()
