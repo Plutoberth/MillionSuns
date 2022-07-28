@@ -1,17 +1,18 @@
 from ..costs import calculate_costs, YearlySimulationProductionResults, npv
 from enums import EnergySource
 from params import AllParams
+from data.defaults import DEFAULT_PARAMS
 
 
 def test_get_costs():
     yearly_capacities = [
-        YearlySimulationProductionResults(100, 100, 100, 100, 100, 100, 100),
-        YearlySimulationProductionResults(100, 100, 100, 100, 100, 100, 100),
-        YearlySimulationProductionResults(100, 100, 100, 100, 100, 100, 100),
-        YearlySimulationProductionResults(100, 100, 100, 100, 100, 100, 100),
+        YearlySimulationProductionResults(100, 100, 10, 100, 100, 95, 100),
+        YearlySimulationProductionResults(90, 120, 25, 100, 100, 65, 100),
+        YearlySimulationProductionResults(80, 140, 45, 100, 100, 55, 100),
+        YearlySimulationProductionResults(70, 160, 60, 100, 100, 45, 100),
     ]
 
-    params = AllParams()
+    params = AllParams(**DEFAULT_PARAMS)
 
     year_costs, year_npvs = calculate_costs(yearly_capacities, params)
     years = range(len(yearly_capacities))
