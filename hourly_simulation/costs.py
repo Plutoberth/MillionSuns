@@ -3,7 +3,7 @@ from numpy_financial import pmt, npv
 from dataclasses import dataclass
 from functools import cached_property
 from params.params import AllParams
-from enums import EnergySource, EmissionType, POLLUTING_ENERGY_SOURCES
+from common import EnergySource, EmissionType, POLLUTING_ENERGY_SOURCES
 from units import kWh, ILS
 from units.units import ILS_per_kW, ILS_per_kWh
 

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from enums import EnergySource, EmissionType, POLLUTING_ENERGY_SOURCES
+from common import EnergySource, EmissionType, POLLUTING_ENERGY_SOURCES
 from params.params import AllEmissions, EnergySourceEmissions
 from units.units import kg, kWh
 

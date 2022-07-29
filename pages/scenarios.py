@@ -15,7 +15,7 @@ if t.TYPE_CHECKING:
     from params import AllParams
     from dash import Dash
 
-from enums import ScenariosCostHeader
+from common import ScenariosCostHeader
 
 BAU = 55.365095440
 
