@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from functools import cached_property
 from params.params import AllParams
 from enums import EnergySource, EmissionType, POLLUTING_ENERGY_SOURCES
+from units import kWh, ILS
+from units.units import ILS_per_kW, ILS_per_kWh
 
 @dataclass
 class YearlySimulationProductionResults:
@@ -13,11 +15,11 @@ class YearlySimulationProductionResults:
     installed_coal_kw: float
     installed_storage_kwh: float
 
-    used_gas_kwh: float
-    used_coal_kwh: float
+    used_gas_kwh: kWh
+    used_coal_kwh: kWh
 
     @property
-    def emitting_used(self):
+    def emitting_used(self) -> kWh:
         return self.used_gas_kwh + self.used_coal_kwh
 
     def get(self, source_type: EnergySource):
@@ -32,9 +34,9 @@ class YearlySimulationProductionResults:
 
 @dataclass(frozen=True)
 class YearlyCost:
-    capex: int = 0
-    opex: int = 0
-    variable_opex: int = 0
+    capex: float = 0
+    opex: float = 0
+    variable_opex: ILS_per_kWh = 0
 
     @cached_property
     def total(self):
@@ -45,21 +47,20 @@ def running_npv(rate, last_npv, new_cash_flow, num_years):
     return last_npv + new_cash_flow / ((rate + 1) ** num_years)
 
 
-def calculate_emissions_cost(year_data: YearlySimulationProductionResults, year: int, params: AllParams) -> float:
+def calculate_emissions_cost(year_data: YearlySimulationProductionResults, year: int, params: AllParams) -> ILS:
     # TODO: use the emissions module instead of calculating emissions here
-    emissions_cost = 0
+    emissions_cost = ILS()
     for source in POLLUTING_ENERGY_SOURCES:
         source_emissions_params = params.emissions.get(source)
 
         for emission_type in EmissionType:
             # TODO: quadruple check all of the units here
-            # TODO: cool pydantic units that autoconvert?
             emission_kwh_coeff = source_emissions_params.get(emission_type)
             # TODO: what is emitting_used? could we be calculating twice because it's duped for gas and coal?
-            emissions_amount = year_data.emitting_used
+            kwh_used = year_data.emitting_used
             emission_costs = params.emissions_costs.get(emission_type).at(year)
             # TODO: triple check this formula
-            emissions_cost += emission_kwh_coeff * emissions_amount * emission_costs
+            emissions_cost += emission_kwh_coeff * kwh_used * emission_costs
     return emissions_cost
 
 
@@ -86,10 +87,9 @@ def calculate_costs(yearly_capacities: list[YearlySimulationProductionResults], 
 
         for energy_source in EnergySource:
             source_params = params.costs.get(energy_source)
+            source_capacity = yearly_capacities[year_idx].get(energy_source)
 
-            new_capacity = yearly_capacities[year_idx].get(
-                energy_source
-            ) - yearly_capacities[year_idx - 1].get(energy_source)
+            new_capacity = source_capacity - yearly_capacities[year_idx - 1].get(energy_source)
 
             new_capex = -1 * pmt(
                 params.general.wacc_rate,
@@ -98,12 +98,12 @@ def calculate_costs(yearly_capacities: list[YearlySimulationProductionResults], 
             )
 
             # Original model adds comulative capex to current non-comulative opex...
-            new_opex = source_params.opex.at(year) * yearly_capacities[
-                year_idx
-            ].get(energy_source)
+            new_opex = source_params.opex.at(year) * source_capacity
 
             # TODO: double check
-            new_variable_opex = source_params.variable_opex.at(year)
+            # new_variable_opex = source_params.variable_opex.at(year)
+            # TODO: get used capacity and multiply here
+            new_variable_opex = 0
 
             current_year_costs[energy_source] = YearlyCost(
                 capex=new_capex, opex=new_opex, variable_opex=new_variable_opex
