@@ -2,12 +2,13 @@ import pandas as pd
 
 from enums import EnergySource, EmissionType, POLLUTING_ENERGY_SOURCES
 from params.params import AllEmissions, EnergySourceEmissions
+from units.units import kg, kWh
 
 
 def calculate_source_emissions(
-    usage_kwh: float, emissions_coefficients: EnergySourceEmissions
+    usage_kwh: kWh, emissions_coefficients: EnergySourceEmissions
 ) -> pd.Series:
-    dct = {}
+    dct: dict[EmissionType, kg] = {}
 
     for emission in EmissionType:
         dct[emission] = usage_kwh * emissions_coefficients.get(emission)
