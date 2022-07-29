@@ -1,5 +1,5 @@
-Renewable Energy Usage Percentage,Cost Source,Cost
-0                                ,Fossil     ,50
+RENEWABLE_PERCENT,COST_SOURCE,COST
+0                                ,Fossil     ,123
 0                                ,Pollution  ,50
 0                                ,Wind       ,0
 0                                ,Solar      ,0
