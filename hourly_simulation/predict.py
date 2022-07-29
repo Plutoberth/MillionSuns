@@ -1,7 +1,7 @@
 import copy
 import pandas as pd
 
-from objects.df import DemandSeries
+from objects import DemandSeries
 
 
 def predict_solar_production(

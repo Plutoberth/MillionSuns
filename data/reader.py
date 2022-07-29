@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import functools
 
-from objects.df import DemandSeries
+from objects import DemandSeries
 
 DATA_DIR = "./data/raw/"
 SOLAR_CSV = os.path.join(DATA_DIR, "national_solar_production.csv")

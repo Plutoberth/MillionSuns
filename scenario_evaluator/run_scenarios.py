@@ -5,7 +5,7 @@ from enums import EnergySource
 
 from params.roadmap import Scenario
 from params.params import AllParams
-from objects.df import DemandSeries
+from objects import DemandSeries
 from hourly_simulation.predict import predict_demand, predict_solar_production
 from hourly_simulation.strategies import nzo_greedy_strategy
 import data
