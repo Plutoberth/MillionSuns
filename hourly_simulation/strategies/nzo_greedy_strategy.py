@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from .battery import Battery
-from enums import EnergySource, VARIABLE_ENERGY_SOURCES, SimHourField
+from common import EnergySource, VARIABLE_ENERGY_SOURCES, SimHourField
 
 __all__ = [
     "nzo_strategy"

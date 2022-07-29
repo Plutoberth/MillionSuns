@@ -1,6 +1,6 @@
 from ..nzo_greedy_strategy import nzo_strategy
 import pandas as pd
-from enums import EnergySource
+from common import EnergySource
 
 
 STORAGE_EFFICIENCY = 0.87

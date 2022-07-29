@@ -1,5 +1,5 @@
 from ..costs import calculate_costs, YearlySimulationProductionResults, npv
-from enums import EnergySource
+from common import EnergySource
 from params import AllParams
 from data.defaults import DEFAULT_PARAMS
 

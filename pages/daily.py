@@ -12,7 +12,7 @@ from dash_models import Page
 from dash_models.utils import comp_id
 
 from params.roadmap import Roadmap, RoadmapParam
-from enums import EnergySource, SimHourField
+from common import EnergySource, SimHourField
 from scenario_evaluator.run_scenarios import run_scenario
 
 import numpy as np

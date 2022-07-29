@@ -1,6 +1,6 @@
 import pandas as pd
-from ..predict import predict_demand, predict_solar_production
-from objects.df import DemandSeries
+from ..predict import predict_demand
+from common import DemandSeries
 
 growth_per_year = 1.03
 

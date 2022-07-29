@@ -7,19 +7,29 @@ from dash import Input, Output, dcc, html
 
 from dash_models import Page
 from dash_models.utils import comp_id
+from data.reader import get_filename
 
 if t.TYPE_CHECKING:
     from plotly.graph_objs import Figure
     from params import AllParams
     from dash import Dash
 
-from enums import ScenariosCostHeader
+from common import ScenarioCostFields
 
+# Business-as-usual pricing
 BAU = 55.365095440
 
+COLOR_MAP = {
+    "Fossil": "Grey",
+    "Pollution": "LightGrey",
+    "Wind": "Green",
+    "Solar": "Yellow",
+    "Storage": "DeepSkyBlue",
+}
 
-def fake_costs_calc(params: "AllParams") -> pd.DataFrame:
-    return pd.read_csv("scenario_costs.csv")
+
+def calc_costs(params: "AllParams") -> pd.DataFrame:
+    return pd.read_csv(get_filename("fake_costs.csv"))
 
 
 def scenarios_page(app: "Dash", params: "AllParams") -> Page:
@@ -30,25 +40,23 @@ def scenarios_page(app: "Dash", params: "AllParams") -> Page:
         Output(plot_div_id, "figure"),
         Input(update_btn, "n_clicks"),
     )
-    def calc(_n_clicks: int) -> "Figure":
-        df = fake_costs_calc(params)
+    def calc(_) -> "Figure":
+        df = calc_costs(params)
         bau = BAU
+
+        usage_pct = ScenarioCostFields.RENEWABLE_ENERGY_USAGE_PERCENTAGE.value
+        cost = ScenarioCostFields.COST.value
+        cost_source = ScenarioCostFields.COST_SOURCE.value
 
         # Creates figure object and adds bar graph to it
         fig = px.bar(
             data_frame=df,
-            x=df.columns[ScenariosCostHeader.RENEWABLE_ENERGY_USAGE_PERCENTAGE],
-            y=df.columns[ScenariosCostHeader.COST],
-            color=df.columns[ScenariosCostHeader.COST_SOURCE],
+            x=usage_pct,
+            y=cost,
+            color=cost_source,
             barmode="stack",
-            title="Scenarios Cost Graph",
-            color_discrete_map={
-                "Fossil": "Grey",
-                "Pollution": "LightGrey",
-                "Wind": "Green",
-                "Solar": "Yellow",
-                "Storage": "DeepSkyBlue",
-            },
+            title="Scenario Costs",
+            color_discrete_map=COLOR_MAP,
         )
 
         # add a horizontal "target" line
@@ -73,7 +81,7 @@ def scenarios_page(app: "Dash", params: "AllParams") -> Page:
             x=0.5,
             y=1.05 * bau,
             showarrow=False,
-            text="Bussiness As Usual Cost: {} Billion NIS".format(bau),
+            text="Business As Usual: {} Billion ILS".format(bau),
             font=dict(size=16, color="black"),
         )
 

@@ -28,10 +28,10 @@ class SimHourField(Enum):
     GAS_USAGE = "GAS_USAGE"
 
 
-class ScenariosCostHeader(IntEnum):
-    RENEWABLE_ENERGY_USAGE_PERCENTAGE = 0
-    COST_SOURCE = 1
-    COST = 2
+class ScenarioCostFields(Enum):
+    RENEWABLE_ENERGY_USAGE_PERCENTAGE = "RENEWABLE_PERCENT"
+    COST_SOURCE = "COST_SOURCE"
+    COST = "COST"
 
 
 # the energy sources that pollute

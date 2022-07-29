@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
 import pandas as pd
-from enums import EnergySource
+from common import EnergySource
 
 from params.roadmap import Scenario
 from params.params import AllParams
-from objects.df import DemandSeries
+from common import DemandSeries
 from hourly_simulation.predict import predict_demand, predict_solar_production
 from hourly_simulation.strategies import nzo_greedy_strategy
 import data

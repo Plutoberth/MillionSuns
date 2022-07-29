@@ -13,7 +13,7 @@ from pydantic import Field, NonNegativeInt, PositiveFloat, PositiveInt
 from dash_models import DashEditorPage
 from dash_models.model import DashModel
 from .interpolated_param import InterpolatedParam
-from enums import EmissionType, EnergySource
+from common import EmissionType, EnergySource
 from units import kg_per_kWh, ILS_per_kg, ILS_per_kW, ILS_per_kWh, kW
 
 # TODO: validate that all InterpolatedParams start at the correct start year, and end at the correct end year.
