@@ -7,6 +7,8 @@ from dash import Input, Output, dcc, html
 
 from dash_models import Page
 from dash_models.utils import comp_id
+from data.reader import get_filename
+
 
 if t.TYPE_CHECKING:
     from plotly.graph_objs import Figure
@@ -19,7 +21,7 @@ BAU = 55.365095440
 
 
 def fake_costs_calc(params: "AllParams") -> pd.DataFrame:
-    return pd.read_csv("scenario_costs.csv")
+    return pd.read_csv(get_filename("fake_costs.csv"))
 
 
 def scenarios_page(app: "Dash", params: "AllParams") -> Page:

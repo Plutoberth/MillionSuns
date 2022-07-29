@@ -8,6 +8,9 @@ DATA_DIR = "./data/raw/"
 SOLAR_CSV = os.path.join(DATA_DIR, "national_solar_production.csv")
 DEMAND_JSON = os.path.join(DATA_DIR, "demand_2018.json")
 
+def get_filename(name):
+    return os.path.join(DATA_DIR, name)
+
 def normalize(series):
     max_value = series.max()
     min_value = series.min()
