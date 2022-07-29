@@ -64,6 +64,8 @@ def calculate_emissions_cost(year_data: YearlySimulationProductionResults, year:
     return emissions_cost
 
 
+# TODO: factor in battery degradation
+# TODO: double-check pmt formulas
 def calculate_costs(yearly_capacities: list[YearlySimulationProductionResults], params: AllParams):
     year_costs = []
     year_npvs = []
