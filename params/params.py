@@ -14,6 +14,7 @@ from dash_models import DashEditorPage
 from dash_models.model import DashModel
 from .interpolated_param import InterpolatedParam
 from enums import EmissionType, EnergySource
+from units import kg_per_kWh, ILS_per_kg, ILS_per_kW, ILS_per_kWh, kW
 
 # TODO: validate that all InterpolatedParams start at the correct start year, and end at the correct end year.
 
@@ -22,26 +23,26 @@ class EmissionsPricing(DashModel):
     Pricing for an emissions tax, aka a carbon tax
     """
 
-    CO2: InterpolatedParam = Field(
-        InterpolatedParam(), title="CO2 Pricing (ILS/ton)"
+    CO2: InterpolatedParam[ILS_per_kg] = Field(
+        InterpolatedParam[ILS_per_kg](), title="CO2 Pricing (ILS/kg)"
     )
-    SOx: InterpolatedParam = Field(
-        InterpolatedParam(),
-        title="SOx Pricing (ILS/ton)",
+    SOx: InterpolatedParam[ILS_per_kg] = Field(
+        InterpolatedParam[ILS_per_kg](),
+        title="SOx Pricing (ILS/kg)",
         description="Sulfur Oxides",
     )
-    NOx: InterpolatedParam = Field(
-        InterpolatedParam(),
-        title="NOx Pricing (ILS/ton)",
+    NOx: InterpolatedParam[ILS_per_kg] = Field(
+        InterpolatedParam[ILS_per_kg](),
+        title="NOx Pricing (ILS/kg)",
         description="Nitrogen Oxides",
     )
-    PMx: InterpolatedParam = Field(
-        InterpolatedParam(),
-        title="PMx Pricing (ILS/ton)",
+    PMx: InterpolatedParam[ILS_per_kg] = Field(
+        InterpolatedParam[ILS_per_kg](),
+        title="PMx Pricing (ILS/kg)",
         description="Particulate Matter",
     )
 
-    def get(self, emission_type: EmissionType):
+    def get(self, emission_type: EmissionType) -> InterpolatedParam[ILS_per_kg]:
         return {
             EmissionType.CO2: self.CO2,
             EmissionType.SOx: self.SOx,
@@ -55,18 +56,18 @@ class EnergySourceEmissions(DashModel):
     The emissions created by an energy sources. Relevant to coal and gas.
     """
 
-    CO2: NonNegativeInt = Field(0, title="CO2 emissions (g/KW)")
-    SOx: NonNegativeInt = Field(
-        0, title="SOx emissions (g/KW)", description="Sulfur Oxides"
+    CO2: kg_per_kWh = Field(0, title="CO2 emissions (kg/kWh)")
+    SOx: kg_per_kWh = Field(
+        0, title="SOx emissions (kg/kWh)", description="Sulfur Oxides"
     )
-    NOx: NonNegativeInt = Field(
-        0, title="NOx emissions (g/KW)", description="Nitrogen Oxides"
+    NOx: kg_per_kWh = Field(
+        0, title="NOx emissions (kg/kWh)", description="Nitrogen Oxides"
     )
-    PMx: NonNegativeInt = Field(
-        0, title="PMx emissions (g/KW)", description="Particulate Matter"
+    PMx: kg_per_kWh = Field(
+        0, title="PMx emissions (kg/kWh)", description="Particulate Matter"
     )
 
-    def get(self, emission: EmissionType) -> NonNegativeInt:
+    def get(self, emission: EmissionType) -> kg_per_kWh:
         return {
             EmissionType.CO2: self.CO2,
             EmissionType.SOx: self.SOx,
@@ -80,26 +81,26 @@ class EnergySourceCosts(DashModel):
     The costs associated with an energy source
     """
 
-    capex: InterpolatedParam = Field(
-        InterpolatedParam(),
+    capex: InterpolatedParam[ILS_per_kW] = Field(
+        InterpolatedParam[ILS_per_kW] (),
         title="Capex (ILS/kw)",
         description="Initial construction expense",
     )
 
-    opex: InterpolatedParam = Field(
-        InterpolatedParam(),
+    opex: InterpolatedParam[ILS_per_kW] = Field(
+        InterpolatedParam[ILS_per_kW](),
         title="Constant Opex (ILS/kw/year)",
         description="Maintenance expenses",
     )
 
-    variable_opex: InterpolatedParam = Field(
-        InterpolatedParam(),
+    variable_opex: InterpolatedParam[ILS_per_kWh] = Field(
+        InterpolatedParam[ILS_per_kWh](),
         title="Variable Opex (ILS/kwh)",
         descripton="Variable generation expenses",
     )
 
-    lifetime: InterpolatedParam = Field(
-        InterpolatedParam(),
+    lifetime: InterpolatedParam[NonNegativeInt] = Field(
+        InterpolatedParam[NonNegativeInt](),
         title="Lifetime (years)",
         description="The lifetime of the facility",
     )
@@ -136,14 +137,6 @@ class GeneralParams(DashModel):
     start_year: PositiveInt = 2020
     end_year: PositiveInt = 2050
 
-    solar_prod_hours: PositiveInt = Field(
-        1700, title="Average Yearly Solar Production Hours"
-    )
-
-    wind_prod_hours: PositiveInt = Field(
-        3014, title="Average Yearly Wind Production Hours"
-    )
-
     # TODO: add a better explanation here and better defaults
     wacc_rate: PositiveFloat = Field(1.03, title="Weighted Average Cost of Capital (Rate)")
     interest_rate: PositiveFloat = Field(1.03, title="Interest (Rate)", description="The yearly interest rate (like 1.03).")
@@ -154,8 +147,8 @@ class GeneralParams(DashModel):
         description="The rate of electricity demand growth from the previous year",
     )
 
-    coal_must_run: InterpolatedParam = Field(
-        InterpolatedParam(), title="Coal Must-Run (KW)"
+    coal_must_run: InterpolatedParam[kW] = Field(
+        InterpolatedParam[kW](), title="Coal Must-Run (KW)"
     )
 
     charge_rate: PositiveFloat = Field(

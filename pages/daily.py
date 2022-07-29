@@ -211,7 +211,7 @@ def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
 
     # TODO: fix this ugly shit
     for i, df in enumerate(res):
-        df["date"] = df.index / 24
+        df["date"] = df.index.to_series() / 24
         df["date"] = df["date"].apply(str)
         # TODO: this hack causes off by one in display
         df["year"] = np.full(len(df), r.start_year + i)

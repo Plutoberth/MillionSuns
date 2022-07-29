@@ -148,8 +148,10 @@ class Roadmap(DashModel):
 
     @validator("end_year")
     def v_end_year(cls, end_year: float, values: dict[str, int | RoadmapParam]):
+        start_year = values["start_year"]
+        assert isinstance(start_year, int), "wrong start_year type"
         assert (
-            end_year >= values["start_year"]
+            end_year >= start_year
         ), "end_year must be greater or equal to start_year"
         return end_year
 
@@ -205,7 +207,6 @@ class Roadmap(DashModel):
 
 
 if __name__ == "__main__":
-
     # mostly copied from google-sheets
     r = Roadmap(
         start_year=2020,
