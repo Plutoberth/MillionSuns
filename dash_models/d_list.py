@@ -101,7 +101,9 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
         )[0]
 
         self.__disabled__ = [
-            listable_type() for _ in range(self._max_items - len(self.__root__))
+            # Causes an exception when self._max_items - len(self.__root__) > 0, i.e. when
+            # listable_type() needs to be invoked. Otherwise, self.__disabled__ is [].
+            # listable_type() for _ in range(self._max_items - len(self.__root__))
         ]
         self.__disabled_fields__ = [
             item.dash_fields(app, update_btn_id) for item in self.__disabled__
