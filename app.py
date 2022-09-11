@@ -13,6 +13,7 @@ app = Dash(
         dbc.themes.BOOTSTRAP,
         dbc.icons.FONT_AWESOME,
     ],
+    suppress_callback_exceptions=True,
 )
 
 params = AllParams(**DEFAULT_PARAMS)
