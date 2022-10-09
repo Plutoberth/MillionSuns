@@ -67,7 +67,7 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
     __disabled__: list[TListable]
     __disabled_fields__: list["Component"]
 
-    _max_items: int = 5
+    _max_items: int = 10
     """Intended to be overridden if needed"""
 
     def update(self, data: list[t.Any]):
@@ -99,6 +99,9 @@ class DashList(DashModel, GenericModel, t.Generic[TListable]):
         listable_type: t.Type[TListable] = t.get_args(
             t.get_type_hints(type(self))["__root__"]
         )[0]
+
+        if len(self.__root__) > self._max_items:
+            raise Exception("len(__root__) > max_items, __root__: {}, max_items: {}".format(self.__root__, self._max_items))
 
         self.__disabled__ = [
             listable_type() for _ in range(self._max_items - len(self.__root__))
