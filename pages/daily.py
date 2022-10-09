@@ -225,7 +225,6 @@ def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
     scenario = next(r.scenarios)
     res = run_scenario(scenario, params)
 
-    # TODO: fix this ugly shit
     for i, df in enumerate(res):
         date_nums = (df.index.to_series() // 24)
         df["date"] = date_nums.apply(str)
