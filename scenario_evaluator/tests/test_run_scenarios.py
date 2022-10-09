@@ -1,4 +1,6 @@
 from cProfile import run
+
+from data.defaults import DEFAULT_PARAMS
 from scenario_evaluator import run_scenarios
 from params.roadmap import Scenario, Roadmap, RoadmapParam
 from params.params import AllParams
@@ -23,5 +25,5 @@ def test_run_scenarios():
     )
 
     scenario = next(r.scenarios)
-    params = AllParams()
+    params = AllParams(**DEFAULT_PARAMS)
     res = run_scenarios.run_scenario(scenario, params)

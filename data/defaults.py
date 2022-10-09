@@ -98,7 +98,22 @@ DEFAULT_PARAMS = {
       "lifetime": [
         {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 35}}
       ]
-    }
+    },
+    # TODO: those parameters are copied over from gas. Add the correct parameters.
+    "coal": {  # CCGT
+      "capex": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 3785}}
+      ],
+      "opex": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 164}}
+      ],
+      "variable_opex": [  # var opex + fuel
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 0.0139 + 0.1176}}
+      ],
+      "lifetime": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 35}}
+      ]
+    },
   },
   "emissions": {
     "gas": {
