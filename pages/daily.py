@@ -26,6 +26,7 @@ SPAN = "</span>"
 BR = "<br>"
 ONLY_SOLAR = "onlysolar"
 TICK_STEP = 20000
+DAYS_IN_YEAR = 365
 
 theta = [f"{n}:00" for n in range(24)]
 no_fill_theta = list(theta)
@@ -34,7 +35,7 @@ width = [1] * 24
 
 
 def polar_bar(df, day, name, color):
-    r = df[name][(day * 24) : (day + 1) * 24]
+    r = df[name][(day * 24): (day + 1) * 24]
     return go.Barpolar(
         name=str(name),
         r=r,
@@ -46,7 +47,7 @@ def polar_bar(df, day, name, color):
 
 
 def polar_scatter(df, day, name, color, fill=True, dash=False):
-    r = df[name][(day * 24) : (day + 1) * 24]
+    r = df[name][(day * 24): (day + 1) * 24]
     if not fill:  # if fill is false then add another point to close the loop
         r = list(r)
         r.append(r[0])
@@ -68,31 +69,29 @@ def polar_scatter(df, day, name, color, fill=True, dash=False):
     )
 
 
-def date_str(df: pd.DataFrame, day_of_year: int):
-    # TODO: fix hack that fixes off by one
-    year = df["year"][0] + 1
-    date = datetime.datetime(year, 1, 1) + datetime.timedelta(day_of_year - 1)
+def date_str(year: int, day_of_year: int):
+    date = datetime.datetime(year, 1, 1) + datetime.timedelta(days=day_of_year)
     return date.strftime("%d %B, %Y")
 
 
-def annotation(df: pd.DataFrame, day_of_year: int):
+def annotation(df: pd.DataFrame, year: int, day_of_year: int):
     df_by_date = df.groupby(["date"]).sum()
     return (
-        "<span style='font-weight:bolder;color:black;font-size: 20px'>"
-        + date_str(df, day_of_year)
-        + SPAN
-        + BR
-        + BR
-        + "<span style='color:red';font-size: 16px>Total Demand: {:.2f} "
-        "KWh".format(df_by_date[SimHourField.DEMAND][day_of_year] / 1000)
-        + SPAN
-        + BR
-        + "<span style='color:orange;font-size: 16px'>Solar Power: {:.2f} "
-        "KWh".format(df_by_date[ONLY_SOLAR][day_of_year] / 1000) + SPAN + BR
+            "<span style='font-weight:bolder;color:black;font-size: 20px'>"
+            + date_str(year, day_of_year)
+            + SPAN
+            + BR
+            + BR
+            + "<span style='color:red';font-size: 16px>Total Demand: {:.2f} "
+              "KWh".format(df_by_date[SimHourField.DEMAND][day_of_year] / 1000)
+            + SPAN
+            + BR
+            + "<span style='color:orange;font-size: 16px'>Solar Power: {:.2f} "
+              "KWh".format(df_by_date[ONLY_SOLAR][day_of_year] / 1000) + SPAN + BR
     )
 
 
-def barplot(df: pd.DataFrame, day_of_year: int):
+def barplot(df: pd.DataFrame, year: int, day_of_year: int):
     f = go.Figure()
     # TODO: re-add when coal is added
     # f.add_trace(polar_bar(df, day_of_year, EnergySource.COAL, "black"))
@@ -113,34 +112,34 @@ def barplot(df: pd.DataFrame, day_of_year: int):
         x=0.5,
         y=0.5,
         showarrow=False,
-        text=annotation(df, day_of_year),
+        text=annotation(df, year, day_of_year),
         font=dict(family="Arial", size=16, color="black"),
     )
     return f
 
 
-def plot(df: pd.DataFrame, day_of_year: int):
+def plot(df: pd.DataFrame, year: int, day_of_year: int):
     df[ONLY_SOLAR] = (
-        df[SimHourField.SOLAR_USAGE]
-        + df[SimHourField.CURTAILED_ENERGY]
-        + df[EnergySource.STORAGE]
+            df[SimHourField.SOLAR_USAGE]
+            + df[SimHourField.CURTAILED_ENERGY]
+            + df[EnergySource.STORAGE]
     )
     df["discharge"] = (
         # df[EnergySource.COAL] TODO: re-add when coal is added
-        df[SimHourField.GAS_USAGE]
-        + df[SimHourField.STORAGE_GAS_CHARGE]
-        + df[EnergySource.WIND]
-        + df[SimHourField.SOLAR_USAGE]
-        + df[SimHourField.STORAGE_SOLAR_CHARGE]
-        + df[SimHourField.CURTAILED_ENERGY]
-        + df[EnergySource.STORAGE]
+            df[SimHourField.GAS_USAGE]
+            + df[SimHourField.STORAGE_GAS_CHARGE]
+            + df[EnergySource.WIND]
+            + df[SimHourField.SOLAR_USAGE]
+            + df[SimHourField.STORAGE_SOLAR_CHARGE]
+            + df[SimHourField.CURTAILED_ENERGY]
+            + df[EnergySource.STORAGE]
     )
 
     max_tick = math.ceil(df["discharge"].max() / TICK_STEP) * TICK_STEP
 
     tickvals = [i * TICK_STEP for i in range(1, int(max_tick / TICK_STEP))]
 
-    f = barplot(df, day_of_year)
+    f = barplot(df, year, day_of_year)
     f.update_layout(
         height=800,
         polar=dict(
@@ -159,15 +158,32 @@ def plot(df: pd.DataFrame, day_of_year: int):
     return f
 
 
-def marks(year: int):
+def month_marks():
+    # year hardly matters, except leap years
+    _year = 2020
+
     result = {}
-    for month in range(1, 13):
-        timestamp = pd.Timestamp(year, month, 1)
+    for month in range(12):
+        timestamp = pd.Timestamp(_year, month + 1, 1)
         day = timestamp.dayofyear
         result[day] = "|"
         result[day + 15] = timestamp.month_name()
-    result[pd.Timestamp(year, 12, 31).dayofyear - 1] = "|"
+    result[pd.Timestamp(_year, 12, 31).dayofyear - 1] = "|"
     return result
+
+
+def year_marks(minimum, maximum):
+    marked_years = filter(lambda x: x % 10 == 0, range(minimum, maximum + 1))
+    marked_years = list(marked_years)
+
+    # ensure end and start year are present
+    if maximum != marked_years[-1]:
+        marked_years.append(maximum)
+
+    if minimum != marked_years[0]:
+        marked_years.append(minimum)
+
+    return {y: str(y) for y in marked_years}
 
 
 def heatmap(df: pd.DataFrame, name: str, pallette):
@@ -211,10 +227,8 @@ def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
 
     # TODO: fix this ugly shit
     for i, df in enumerate(res):
-        df["date"] = df.index.to_series() / 24
-        df["date"] = df["date"].apply(str)
-        # TODO: this hack causes off by one in display
-        df["year"] = np.full(len(df), r.start_year + i)
+        date_nums = (df.index.to_series() // 24)
+        df["date"] = date_nums.apply(str)
 
     return res
 
@@ -243,12 +257,10 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
         if ctx.triggered_id == update_btn:
             df_list = calculate_daily_usage_data(params)
 
-        idx = year - params.general.start_year
-        # TODO: remove this ugly shit
-        idx = max(idx - 1, 0)
-        df = df_list[idx]
+        year_idx = year - params.general.start_year
+        df = df_list[year_idx]
 
-        return plot(df, day_of_year), [
+        return plot(df, year, day_of_year), [
             html.H5("Energy Demand", style={"textAlign": "center"}),
             dcc.Graph(
                 figure=heatmap(df, SimHourField.DEMAND, "reds"),
@@ -279,12 +291,10 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
                     children=[
                         dcc.Slider(
                             min=0,
-                            max=pd.Timestamp(params.general.end_year, 12, 31).dayofyear
-                            - 1,
+                            max=DAYS_IN_YEAR - 1,
                             step=1,
-                            value=pd.Timestamp(params.general.end_year, 6, 1).dayofyear
-                            - 1,
-                            marks=marks(params.general.end_year),
+                            value=0,
+                            marks=month_marks(),
                             id=day_slider,
                         ),
                     ],
@@ -296,17 +306,11 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
                             [
                                 dcc.Slider(
                                     min=params.general.start_year,
-                                    max=params.general.end_year,
+                                    # the year range is exclusive
+                                    max=params.general.end_year - 1,
                                     step=1,
-                                    value=params.general.end_year,
-                                    marks={
-                                        y: str(y)
-                                        for y in range(
-                                            params.general.start_year,
-                                            params.general.end_year + 1,
-                                            10,
-                                        )
-                                    },
+                                    value=params.general.end_year - 1,
+                                    marks=year_marks(params.general.start_year, params.general.end_year - 1),
                                     id=year_slider,
                                     vertical=True,
                                     verticalHeight=600,
