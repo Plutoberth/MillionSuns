@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from pydantic import PositiveInt
 
 from dash_models import DashListable
-from .interpo import InterpoSelect
+from .interpo import InterpoSelect, Constant
 
 
 class ABCInterpoRange(ABC):
@@ -31,9 +31,10 @@ class ABCInterpoRange(ABC):
 
 
 class InterpoRange(DashListable, ABCInterpoRange):
-    start_year: PositiveInt
-    end_year: PositiveInt
-    interpo: InterpoSelect
+    # arbitrary defaults
+    start_year: PositiveInt = 1
+    end_year: PositiveInt = 2
+    interpo: InterpoSelect = Constant()
 
     @property
     def title(self) -> str:
