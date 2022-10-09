@@ -109,7 +109,16 @@ DEFAULT_PARAMS = {
       "PMx": 0.00002
 
     },
-    "coal": {}
+    # TODO: those aren't good sources
+    # * Air Pollutant Emission Abatement of the Fossil-Fuel Power
+    #   Plants by Multiple Control Strategies in Taiwan
+    # * https://www.eia.gov/tools/faqs/faq.php?id=74&t=11
+    "coal": {
+      "CO2": 1.011,
+      "SOx": 0.0003322,
+      "NOx": 0.0002587,
+      "PMx": 0.0000358
+    }
   },
   "emissions_costs": {
     "CO2": [

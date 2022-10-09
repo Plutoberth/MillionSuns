@@ -16,6 +16,7 @@ from .interpolated_param import InterpolatedParam
 from common import EmissionType, EnergySource
 from units import kg_per_kWh, ILS_per_kg, ILS_per_kW, ILS_per_kWh, kW
 
+
 # TODO: validate that all InterpolatedParams start at the correct start year, and end at the correct end year.
 
 class EmissionsPricing(DashModel):
@@ -82,7 +83,7 @@ class EnergySourceCosts(DashModel):
     """
 
     capex: InterpolatedParam[ILS_per_kW] = Field(
-        InterpolatedParam[ILS_per_kW] (),
+        InterpolatedParam[ILS_per_kW](),
         title="Capex (ILS/kw)",
         description="Initial construction expense",
     )
@@ -119,7 +120,7 @@ class AllSourceCosts(DashModel):
             EnergySource.SOLAR: self.solar,
             EnergySource.WIND: self.wind,
             EnergySource.GAS: self.gas,
-            # EnergySource.COAL: self.coal,
+            EnergySource.COAL: self.coal,
             EnergySource.STORAGE: self.storage,
         }[source_type]
 
@@ -129,7 +130,7 @@ class AllEmissions(DashModel):
     coal: EnergySourceEmissions = Field(EnergySourceEmissions(), title="Coal")
 
     def get(self, source_type: EnergySource) -> EnergySourceEmissions:
-        return {# EnergySource.COAL: self.coal,
+        return {EnergySource.COAL: self.coal,
                 EnergySource.GAS: self.gas}[source_type]
 
 
@@ -139,7 +140,8 @@ class GeneralParams(DashModel):
 
     # TODO: add a better explanation here and better defaults
     wacc_rate: PositiveFloat = Field(1.03, title="Weighted Average Cost of Capital (Rate)")
-    interest_rate: PositiveFloat = Field(1.03, title="Interest (Rate)", description="The yearly interest rate (like 1.03).")
+    interest_rate: PositiveFloat = Field(1.03, title="Interest (Rate)",
+                                         description="The yearly interest rate (like 1.03).")
 
     demand_growth_rate: float = Field(
         1.028,
@@ -155,7 +157,7 @@ class GeneralParams(DashModel):
         0.25,
         title="Battery Charge Rate (Proportion)",
         description="The maximum proportion of the battery that can be charged or "
-        "discharged every hour",
+                    "discharged every hour",
     )
 
 
