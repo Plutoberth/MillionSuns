@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from .battery import Battery
-from common import EnergySource, VARIABLE_ENERGY_SOURCES, SimHourField
+from common import EnergySource, VARIABLE_ENERGY_SOURCES, SimMiscFields
 
 __all__ = [
     "nzo_strategy"
@@ -55,9 +55,9 @@ def nzo_strategy(demand: pd.Series,
     zero_ndarray = np.zeros(len(df), dtype="float")
     variable_gen_profile_np = {k: zero_ndarray.copy() for k in VARIABLE_ENERGY_SOURCES}
 
-    other_output_np = {k: zero_ndarray.copy() for k in SimHourField}
-    other_output_np[SimHourField.DEMAND] = demand.to_numpy()
-    other_output_np[SimHourField.NET_DEMAND] = df["net_demand"].to_numpy()
+    other_output_np = {k: zero_ndarray.copy() for k in SimMiscFields}
+    other_output_np[SimMiscFields.DEMAND] = demand.to_numpy()
+    other_output_np[SimMiscFields.NET_DEMAND] = df["net_demand"].to_numpy()
 
     fixed_energy_usage_ratio = np.ones(len(df), dtype="float")
 
@@ -82,12 +82,12 @@ def nzo_strategy(demand: pd.Series,
             fixed_used = fixed_gen - fixed_energy_curtailed
 
             # TODO: this needs to be split among fixed energy sources, for when we integrate wind
-            other_output_np[SimHourField.STORAGE_SOLAR_CHARGE][hour_index] = storage_fixed_charge
+            other_output_np[SimMiscFields.STORAGE_SOLAR_CHARGE][hour_index] = storage_fixed_charge
 
             # to avoid div by zero
             if fixed_gen and fixed_used != fixed_gen:
                 fixed_energy_usage_ratio[hour_index] = fixed_used / fixed_gen
-                other_output_np[SimHourField.CURTAILED_ENERGY][hour_index] = fixed_energy_curtailed
+                other_output_np[SimMiscFields.CURTAILED_ENERGY][hour_index] = fixed_energy_curtailed
         else:
             storage_discharge = battery.try_discharge(net_demand)
             variable_gen_profile_np[EnergySource.STORAGE][hour_index] = storage_discharge
@@ -96,15 +96,15 @@ def nzo_strategy(demand: pd.Series,
                 variable_gen_profile_np[EnergySource.GAS][hour_index] = net_demand - storage_discharge
 
         # setting outputs
-        other_output_np[SimHourField.BATTERY_STATE][hour_index] = battery.get_energy_kwh()
-        other_output_np[SimHourField.SOLAR_USAGE][hour_index] = min(
+        other_output_np[SimMiscFields.BATTERY_STATE][hour_index] = battery.get_energy_kwh()
+        other_output_np[SimMiscFields.SOLAR_USAGE][hour_index] = min(
             demand,
             solar_prod_np[hour_index] * fixed_energy_usage_ratio[hour_index]
         )
 
 
     # TODO: this needs to be changed to reflect actual gas usage when we use gas for storage
-    other_output_np[SimHourField.GAS_USAGE] = variable_gen_profile_np[EnergySource.GAS].copy()
+    other_output_np[SimMiscFields.GAS_USAGE] = variable_gen_profile_np[EnergySource.GAS].copy()
 
     fixed_gen_actual = fixed_production.multiply(fixed_energy_usage_ratio, axis=0)
     variable_gen_profile = pd.DataFrame(variable_gen_profile_np)

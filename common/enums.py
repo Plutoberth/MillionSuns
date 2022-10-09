@@ -1,14 +1,14 @@
 from enum import Enum, IntEnum
 
 
-class EmissionType(Enum):
+class EmissionType(str, Enum):
     CO2 = "CO2"
     SOx = "SOx"
     NOx = "NOx"
     PMx = "PMx"
 
 
-class EnergySource(Enum):
+class EnergySource(str, Enum):
     SOLAR = "Solar"
     WIND = "Wind"
     GAS = "Gas"
@@ -16,7 +16,7 @@ class EnergySource(Enum):
     STORAGE = "Storage"
 
 
-class SimHourField(Enum):
+class SimMiscFields(str, Enum):
     BATTERY_STATE = "BATTERY_STATE"
     CURTAILED_ENERGY = "CURTAILED_ENERGY"
     STORAGE_SOLAR_CHARGE = "STORAGE_SOLAR_CHARGE"
@@ -30,7 +30,7 @@ class SimHourField(Enum):
     GAS_USAGE = "GAS_USAGE"
 
 
-class ScenarioCostFields(Enum):
+class ScenarioCostFields(str, Enum):
     RENEWABLE_ENERGY_USAGE_PERCENTAGE = "RENEWABLE_PERCENT"
     COST_SOURCE = "COST_SOURCE"
     COST = "COST"
