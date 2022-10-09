@@ -4,13 +4,13 @@ DEFAULT_PARAMS = {
   "general": {
     "coal_must_run": [  # values change due to decommissioning of plants.
       # TODO: add comment which plant decommissioning accounts for each line
-      {"start_year": 2020, "end_year": 2020, "interpo":  {"type": "constant", "value": 2440.0}},
-      {"start_year": 2021, "end_year": 2021, "interpo":  {"type": "constant", "value": 2380.0}},
-      {"start_year": 2022, "end_year": 2022, "interpo":  {"type": "constant", "value": 1620.0}},
-      {"start_year": 2023, "end_year": 2023, "interpo":  {"type": "constant", "value": 1500.0}},
-      {"start_year": 2024, "end_year": 2039, "interpo":  {"type": "constant", "value": 1440.0}},
-      {"start_year": 2040, "end_year": 2044, "interpo":  {"type": "constant", "value": 960.0}},
-      {"start_year": 2045, "end_year": 2048, "interpo":  {"type": "constant", "value": 480.0}},
+      {"start_year": 2020, "end_year": 2021, "interpo":  {"type": "constant", "value": 2440.0}},
+      {"start_year": 2021, "end_year": 2022, "interpo":  {"type": "constant", "value": 2380.0}},
+      {"start_year": 2022, "end_year": 2023, "interpo":  {"type": "constant", "value": 1620.0}},
+      {"start_year": 2023, "end_year": 2024, "interpo":  {"type": "constant", "value": 1500.0}},
+      {"start_year": 2024, "end_year": 2040, "interpo":  {"type": "constant", "value": 1440.0}},
+      {"start_year": 2040, "end_year": 2045, "interpo":  {"type": "constant", "value": 960.0}},
+      {"start_year": 2045, "end_year": 2049, "interpo":  {"type": "constant", "value": 480.0}},
       {"start_year": 2049, "end_year": 2050, "interpo":  {"type": "constant", "value": 0.0}}
     ]
   },
@@ -81,7 +81,7 @@ DEFAULT_PARAMS = {
         {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 0}}
       ],
       "lifetime": [
-        {"start_year": 2020, "end_year": 2029, "interpo": {"type": "constant", "value": 15}},
+        {"start_year": 2020, "end_year": 2030, "interpo": {"type": "constant", "value": 15}},
         {"start_year": 2030, "end_year": 2050, "interpo": {"type": "constant", "value": 20}}
       ]
     },
