@@ -100,7 +100,7 @@ def barplot(df: pd.DataFrame, year: int, day_of_year: int):
     f.add_trace(polar_bar(df, day_of_year, SimMiscFields.SOLAR_USAGE, "Solar Usage", "orange"))
     f.add_trace(polar_bar(df, day_of_year, EnergySource.STORAGE, "Storage", "lightblue"))
     f.add_trace(polar_bar(df, day_of_year, SimMiscFields.STORAGE_GAS_CHARGE, "Storage Gas Charge", "silver"))
-    f.add_trace(polar_bar(df, day_of_year, SimMiscFields.STORAGE_SOLAR_CHARGE, "Storage Solar Charge", "gold"))
+    f.add_trace(polar_bar(df, day_of_year, SimMiscFields.STORAGE_CHARGE, "Storage Solar Charge", "gold"))
     f.add_trace(polar_bar(df, day_of_year, SimMiscFields.CURTAILED_ENERGY, "Curtailed Energy", "yellow"))
     f.add_trace(polar_scatter(df, day_of_year, SimMiscFields.DEMAND, "Demand", "red", False))
     f.add_trace(
@@ -131,7 +131,7 @@ def plot(df: pd.DataFrame, year: int, day_of_year: int):
             + df[SimMiscFields.STORAGE_GAS_CHARGE]
             + df[EnergySource.WIND]
             + df[SimMiscFields.SOLAR_USAGE]
-            + df[SimMiscFields.STORAGE_SOLAR_CHARGE]
+            + df[SimMiscFields.STORAGE_CHARGE]
             + df[SimMiscFields.CURTAILED_ENERGY]
             + df[EnergySource.STORAGE]
     )
