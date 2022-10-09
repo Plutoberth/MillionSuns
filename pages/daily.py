@@ -70,7 +70,6 @@ def polar_scatter(df, day, name, color, fill=True, dash=False):
 
 
 def date_str(year: int, day_of_year: int):
-    # TODO: fix hack that fixes off by one
     date = datetime.datetime(year, 1, 1) + datetime.timedelta(days=day_of_year)
     return date.strftime("%d %B, %Y")
 
