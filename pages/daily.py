@@ -124,6 +124,7 @@ def plot(df: pd.DataFrame, year: int, day_of_year: int):
             + df[SimMiscFields.CURTAILED_ENERGY]
             + df[EnergySource.STORAGE]
     )
+    # TODO: not sure that this calculation is good
     df["discharge"] = (
             df[EnergySource.COAL]
             + df[SimMiscFields.GAS_USAGE]
@@ -292,7 +293,7 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
                             min=0,
                             max=DAYS_IN_YEAR - 1,
                             step=1,
-                            value=0,
+                            value=339,
                             marks=month_marks(),
                             id=day_slider,
                         ),
