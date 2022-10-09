@@ -1,16 +1,14 @@
-# TODO: add coal
-
 DEFAULT_PARAMS = {
   "general": {
     "coal_must_run": [  # values change due to decommissioning of plants.
       # TODO: add comment which plant decommissioning accounts for each line
-      {"start_year": 2020, "end_year": 2020, "interpo":  {"type": "constant", "value": 2440.0}},
-      {"start_year": 2021, "end_year": 2021, "interpo":  {"type": "constant", "value": 2380.0}},
-      {"start_year": 2022, "end_year": 2022, "interpo":  {"type": "constant", "value": 1620.0}},
-      {"start_year": 2023, "end_year": 2023, "interpo":  {"type": "constant", "value": 1500.0}},
-      {"start_year": 2024, "end_year": 2039, "interpo":  {"type": "constant", "value": 1440.0}},
-      {"start_year": 2040, "end_year": 2044, "interpo":  {"type": "constant", "value": 960.0}},
-      {"start_year": 2045, "end_year": 2048, "interpo":  {"type": "constant", "value": 480.0}},
+      {"start_year": 2020, "end_year": 2021, "interpo":  {"type": "constant", "value": 2440.0}},
+      {"start_year": 2021, "end_year": 2022, "interpo":  {"type": "constant", "value": 2380.0}},
+      {"start_year": 2022, "end_year": 2023, "interpo":  {"type": "constant", "value": 1620.0}},
+      {"start_year": 2023, "end_year": 2024, "interpo":  {"type": "constant", "value": 1500.0}},
+      {"start_year": 2024, "end_year": 2040, "interpo":  {"type": "constant", "value": 1440.0}},
+      {"start_year": 2040, "end_year": 2045, "interpo":  {"type": "constant", "value": 960.0}},
+      {"start_year": 2045, "end_year": 2049, "interpo":  {"type": "constant", "value": 480.0}},
       {"start_year": 2049, "end_year": 2050, "interpo":  {"type": "constant", "value": 0.0}}
     ]
   },
@@ -81,7 +79,7 @@ DEFAULT_PARAMS = {
         {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 0}}
       ],
       "lifetime": [
-        {"start_year": 2020, "end_year": 2029, "interpo": {"type": "constant", "value": 15}},
+        {"start_year": 2020, "end_year": 2030, "interpo": {"type": "constant", "value": 15}},
         {"start_year": 2030, "end_year": 2050, "interpo": {"type": "constant", "value": 20}}
       ]
     },
@@ -98,7 +96,22 @@ DEFAULT_PARAMS = {
       "lifetime": [
         {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 35}}
       ]
-    }
+    },
+    # TODO: those parameters are copied over from gas. Add the correct parameters.
+    "coal": {  # CCGT
+      "capex": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 3785}}
+      ],
+      "opex": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 164}}
+      ],
+      "variable_opex": [  # var opex + fuel
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 0.0139 + 0.1176}}
+      ],
+      "lifetime": [
+        {"start_year": 2020, "end_year": 2050, "interpo": {"type": "constant", "value": 35}}
+      ]
+    },
   },
   "emissions": {
     "gas": {
@@ -109,7 +122,16 @@ DEFAULT_PARAMS = {
       "PMx": 0.00002
 
     },
-    "coal": {}
+    # TODO: those aren't good sources
+    # * Air Pollutant Emission Abatement of the Fossil-Fuel Power
+    #   Plants by Multiple Control Strategies in Taiwan
+    # * https://www.eia.gov/tools/faqs/faq.php?id=74&t=11
+    "coal": {
+      "CO2": 1.011,
+      "SOx": 0.0003322,
+      "NOx": 0.0002587,
+      "PMx": 0.0000358
+    }
   },
   "emissions_costs": {
     "CO2": [

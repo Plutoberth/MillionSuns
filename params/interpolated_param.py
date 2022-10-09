@@ -36,11 +36,15 @@ class InterpolatedParam(DashList[InterpoRange], ABCInterpoRange, Generic[T]):
             self._start_year = min(list_start_years)
             self._end_year = max(list_end_years)
 
+            for idx in range(len(self.__root__) - 1):
+                curr, next = self.__root__[idx], self.__root__[idx+1]
+                if curr.end_year != next.start_year:
+                    raise Exception("all years within the range must be within exactly one InterpoRange")
+
 
     def at(self, year: int) -> T:
         if not self._start_year <= year < self._end_year:
             raise Exception(f"requested year not in range [{self._start_year}, {self._end_year})")
-        assert year >= self._start_year
 
         list_of_interpos = sum(
             (

@@ -5,8 +5,10 @@ from functools import cached_property
 from params.params import AllParams
 from common import EnergySource, EmissionType, POLLUTING_ENERGY_SOURCES
 from units import kWh, ILS
-from units.units import ILS_per_kW, ILS_per_kWh
+from units.units import ILS_per_kWh
 
+
+# TODO: change this to be more dynamic, no need to have all of those fields
 @dataclass
 class YearlySimulationProductionResults:
     installed_gas_kw: float
@@ -25,7 +27,7 @@ class YearlySimulationProductionResults:
     def get(self, source_type: EnergySource):
         return {
             EnergySource.GAS: self.installed_gas_kw,
-            # EnergySource.COAL: self.installed_coal_kw,
+            EnergySource.COAL: self.installed_coal_kw,
             EnergySource.SOLAR: self.installed_solar_kw,
             EnergySource.STORAGE: self.installed_storage_kwh,
             EnergySource.WIND: self.installed_wind_kw,

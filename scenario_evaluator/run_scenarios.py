@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
+import numpy as np
 import pandas as pd
 from common import EnergySource
 
-from params.roadmap import Scenario
+from params.roadmap import Scenario, YearlyScenario
 from params.params import AllParams
 from common import DemandSeries
 from hourly_simulation.predict import predict_demand, predict_solar_production
@@ -22,10 +23,10 @@ def run_scenario(scenario: Scenario, params: AllParams) -> list[pd.DataFrame]:
 #       values might be lying beyond.
 # TODO: add a progress bar?
 def run_scenario_ex(
-    original_demand: DemandSeries,
-    solar_prod_ratio: pd.Series,
-    scenario: Scenario,
-    params: AllParams,
+        original_demand: DemandSeries,
+        solar_prod_ratio: pd.Series,
+        scenario: Scenario,
+        params: AllParams,
 ) -> list[pd.DataFrame]:
     scenario_iter = iter(scenario)
     year_and_scenario = zip(
@@ -35,28 +36,43 @@ def run_scenario_ex(
     results: list[pd.DataFrame] = []
 
     for year, yearly_scenario in year_and_scenario:
-        demand_scaled = predict_demand(
-            original_demand, params.general.demand_growth_rate, year
-        )
-        solar_production = predict_solar_production(
-            solar_prod_ratio, yearly_scenario.solar_capacity_kw
-        )
-        fixed_production = pd.DataFrame({EnergySource.SOLAR: solar_production})
-        storage_efficiency = yearly_scenario.storage_efficiency
-        # TODO: this is unused, we should probably integrate it later
-        # stroage_discharge = yearly_scenario.storage_discharge
-
-        result = nzo_greedy_strategy.nzo_strategy(
-            demand_scaled.series,
-            fixed_production,
-            yearly_scenario.storage_capacity_kwh,
-            storage_efficiency,
-            params.general.charge_rate,
-        )
-
-        results.append(result)
+        results.append(run_scenario_year(year, yearly_scenario, original_demand, solar_prod_ratio, params))
 
     return results
 
 
+def run_scenario_year(
+        year: int,
+        yearly_scenario: YearlyScenario,
+        original_demand: DemandSeries,
+        solar_prod_ratio: pd.Series,
+        params: AllParams
+):
+    demand_scaled = predict_demand(
+        original_demand, params.general.demand_growth_rate, year
+    )
 
+    solar_production = predict_solar_production(
+        solar_prod_ratio, yearly_scenario.solar_capacity_kw
+    )
+
+    coal_prod = np.full(len(solar_production), params.general.coal_must_run.at(year))
+
+    fixed_production = pd.DataFrame({
+        EnergySource.SOLAR: solar_production,
+        EnergySource.COAL: coal_prod
+    })
+
+    storage_efficiency = yearly_scenario.storage_efficiency
+    # TODO: this is unused, we should probably integrate it later
+    # stroage_discharge = yearly_scenario.storage_discharge
+
+    result = nzo_greedy_strategy.nzo_strategy(
+        demand_scaled.series,
+        fixed_production,
+        yearly_scenario.storage_capacity_kwh,
+        storage_efficiency,
+        params.general.charge_rate,
+    )
+
+    return result

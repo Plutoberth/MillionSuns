@@ -93,8 +93,8 @@ def annotation(df: pd.DataFrame, year: int, day_of_year: int):
 
 def barplot(df: pd.DataFrame, year: int, day_of_year: int):
     f = go.Figure()
-    # TODO: re-add when coal is added
-    # f.add_trace(polar_bar(df, day_of_year, EnergySource.COAL, "black"))
+
+    f.add_trace(polar_bar(df, day_of_year, EnergySource.COAL, "black"))
     f.add_trace(polar_bar(df, day_of_year, EnergySource.GAS, "lightgray"))
     f.add_trace(polar_bar(df, day_of_year, EnergySource.WIND, "lightgreen"))
     f.add_trace(polar_bar(df, day_of_year, SimHourField.SOLAR_USAGE, "orange"))
@@ -125,8 +125,8 @@ def plot(df: pd.DataFrame, year: int, day_of_year: int):
             + df[EnergySource.STORAGE]
     )
     df["discharge"] = (
-        # df[EnergySource.COAL] TODO: re-add when coal is added
-            df[SimHourField.GAS_USAGE]
+            df[EnergySource.COAL]
+            + df[SimHourField.GAS_USAGE]
             + df[SimHourField.STORAGE_GAS_CHARGE]
             + df[EnergySource.WIND]
             + df[SimHourField.SOLAR_USAGE]
@@ -225,7 +225,6 @@ def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
     scenario = next(r.scenarios)
     res = run_scenario(scenario, params)
 
-    # TODO: fix this ugly shit
     for i, df in enumerate(res):
         date_nums = (df.index.to_series() // 24)
         df["date"] = date_nums.apply(str)

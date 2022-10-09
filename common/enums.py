@@ -1,18 +1,20 @@
 from enum import Enum, IntEnum
 
+
 class EmissionType(Enum):
     CO2 = "CO2"
     SOx = "SOx"
     NOx = "NOx"
     PMx = "PMx"
 
+
 class EnergySource(Enum):
     SOLAR = "Solar"
     WIND = "Wind"
     GAS = "Gas"
-    # TODO: re-add coal
-    # COAL = "Coal"
+    COAL = "Coal"
     STORAGE = "Storage"
+
 
 class SimHourField(Enum):
     BATTERY_STATE = "BATTERY_STATE"
@@ -35,7 +37,6 @@ class ScenarioCostFields(Enum):
 
 
 # the energy sources that pollute
-# TODO: re-add coal
-POLLUTING_ENERGY_SOURCES = [EnergySource.GAS]
+POLLUTING_ENERGY_SOURCES = [EnergySource.GAS, EnergySource.COAL]
 # the energy sources that can scale according to demand
 VARIABLE_ENERGY_SOURCES = [EnergySource.GAS, EnergySource.STORAGE]
