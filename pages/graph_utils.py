@@ -15,8 +15,8 @@ def month_marks():
     return result
 
 
-def year_marks(minimum, maximum):
-    marked_years = filter(lambda x: x % 10 == 0, range(minimum, maximum + 1))
+def year_marks(minimum, maximum, step=10):
+    marked_years = filter(lambda x: x % step == 0, range(minimum, maximum + 1))
     marked_years = list(marked_years)
 
     # ensure end and start year are present
