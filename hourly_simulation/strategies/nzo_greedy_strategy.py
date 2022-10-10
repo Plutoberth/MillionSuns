@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from .battery import Battery
-from common import EnergySource, VARIABLE_ENERGY_SOURCES, SimMiscFields, FIXED_ENERGY_SOURCES
+from common import EnergySource, VARIABLE_ENERGY_SOURCES, SimMiscFields, FIXED_ENERGY_SOURCES, SimUsageFields
 
 __all__ = [
     "nzo_strategy"
@@ -28,13 +28,15 @@ def nzo_strategy(demand: pd.Series,
 
     Strategy Goals:
     1. Use the least gas energy possible.
+    TODO: 2. Minimize the peak gas energy used, to minimize installed capacity.
 
-    Charging:
-    1. Charge using remaining energy from fixed sources
-    TODO: 2. If the battery is not full, and we're below the average net demand, charge using gas
+    Strategy:
+    If fixed sources fulfill demand:
+        Charge storage using the remaining energy from fixed sources.
+    Otherwise:
+        Discharge as much as possible, and if that isn't enough, fulfill demand using gas.
 
-    Discharging:
-    Discharge as much as possible to meet demand.
+    TODO: If the battery is not full, and we're below the average net demand, charge using gas.
 
     TODO: If we're above the average net demand, discharge according to a ratio that minimizes peak gas usage.
           For example, choose to discharge only 10MwH for two hours and then use 10MwH of gas on each hour,
@@ -45,26 +47,21 @@ def nzo_strategy(demand: pd.Series,
     df["demand"] = demand
     df["fixed_gen"] = fixed_production.sum(axis=1)
     df["net_demand"] = (df["demand"] - df["fixed_gen"]).clip(lower=0)
-    df["fixed_over_demand"] = (df["demand"] - df["fixed_gen"]).clip(upper=0) * -1
+    df["fixed_over_demand"] = (df["fixed_gen"] - df["demand"]).clip(lower=0)
 
-    # TODO: assuming charging starts at 50%, probably OK
-
-    battery = Battery(storage_capacity_kwh, storage_capacity_kwh * 0.5, storage_charge_rate,
+    battery = Battery(storage_capacity_kwh, 0, storage_charge_rate,
                       storage_efficiency)
 
     zero_ndarray = np.zeros(len(df), dtype="float")
-    variable_gen_profile_np = {k: zero_ndarray.copy() for k in VARIABLE_ENERGY_SOURCES}
+    variable_gen_np = {k: zero_ndarray.copy() for k in VARIABLE_ENERGY_SOURCES}
 
-    other_output_np = {k: zero_ndarray.copy() for k in SimMiscFields}
-    other_output_np[SimMiscFields.DEMAND] = demand.to_numpy()
-    other_output_np[SimMiscFields.NET_DEMAND] = df["net_demand"].to_numpy()
+    out_misc_np = {k: zero_ndarray.copy() for k in SimMiscFields}
+    out_misc_np[SimMiscFields.DEMAND] = demand.to_numpy()
+    out_misc_np[SimMiscFields.NET_DEMAND] = df["net_demand"].to_numpy()
 
-    # TODO: this can probably be replaced with more broadcasting operations
     for hour in df.itertuples():
         hour_index = hour.Index
-        demand = hour.demand
         net_demand = hour.net_demand
-        fixed_gen = hour.fixed_gen
 
         if net_demand == 0:
             fixed_over_demand = hour.fixed_over_demand
@@ -74,27 +71,31 @@ def nzo_strategy(demand: pd.Series,
             assert storage_fixed_charge >= 0
 
             # TODO: this needs to be split among fixed energy sources, for when we integrate wind
-            other_output_np[SimMiscFields.STORAGE_CHARGE][hour_index] = storage_fixed_charge
+            out_misc_np[SimMiscFields.FIXED_STORAGE_CHARGE][hour_index] = storage_fixed_charge
         else:
             storage_discharge = battery.try_discharge(net_demand)
-            variable_gen_profile_np[EnergySource.STORAGE][hour_index] = storage_discharge
+            variable_gen_np[SimUsageFields.STORAGE][hour_index] = storage_discharge
 
-            if storage_discharge != net_demand:
-                variable_gen_profile_np[EnergySource.GAS][hour_index] = net_demand - storage_discharge
+            net_after_storage = net_demand - storage_discharge
 
-        other_output_np[SimMiscFields.BATTERY_STATE][hour_index] = battery.get_energy_kwh()
+            if net_after_storage != 0:
+                variable_gen_np[SimUsageFields.GAS][hour_index] = net_after_storage
 
-    # TODO: this needs to be changed to reflect actual gas usage when we use gas for storage
-    other_output_np[SimMiscFields.GAS_USAGE] = variable_gen_profile_np[EnergySource.GAS].copy()
+        out_misc_np[SimMiscFields.BATTERY_STATE][hour_index] = battery.get_energy_kwh()
 
-    # TODO: add SimMiscFields.SOLAR_USAGE
+    out_misc = pd.DataFrame(out_misc_np)
 
-    other_output = pd.DataFrame(other_output_np)
+    out_misc[SimMiscFields.CURTAILED_ENERGY] = df["fixed_over_demand"] \
+                                               - out_misc[SimMiscFields.FIXED_STORAGE_CHARGE]
 
-    other_output[SimMiscFields.CURTAILED_ENERGY] = df["fixed_over_demand"] - other_output[SimMiscFields.STORAGE_CHARGE]
-    fixed_energy_usage_ratio = 1 - (other_output[SimMiscFields.CURTAILED_ENERGY] / df["fixed_gen"])
-    other_output[SimMiscFields.SOLAR_USAGE] = fixed_production[EnergySource.SOLAR] * fixed_energy_usage_ratio - \
-                                              other_output[SimMiscFields.STORAGE_CHARGE]
+    fixed_waste_rate = out_misc[SimMiscFields.CURTAILED_ENERGY] / df["fixed_gen"]
+    fixed_waste_rate.replace([np.inf, -np.inf], 0, inplace=True)
+
+    fixed_storage_rate = out_misc[SimMiscFields.FIXED_STORAGE_CHARGE] / \
+                                df["fixed_gen"]
+    fixed_storage_rate.replace([np.inf, -np.inf], 0, inplace=True)
+
+    fixed_demand_rate = 1 - fixed_waste_rate - fixed_storage_rate
 
     # TODO: fix this when wind is added
     zeroes_added = pd.DataFrame({
@@ -102,9 +103,11 @@ def nzo_strategy(demand: pd.Series,
     }
     )
 
-    fixed_gen_actual = fixed_production.multiply(fixed_energy_usage_ratio, axis=0)
-    variable_gen_profile = pd.DataFrame(variable_gen_profile_np)
-    gen_profile = variable_gen_profile.join(fixed_gen_actual)
-    out_df = gen_profile.join(other_output).join(zeroes_added)
+    # TODO: don't scale coal here; it'll reduce varopex which is inaccurate
+    fixed_gen_actual = fixed_production.multiply(fixed_demand_rate, axis=0)
+
+    variable_gen_profile = pd.DataFrame(variable_gen_np)
+    all_gen_profile = variable_gen_profile.join(fixed_gen_actual)
+    out_df = all_gen_profile.join(out_misc).join(zeroes_added)
 
     return out_df

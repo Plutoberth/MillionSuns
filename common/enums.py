@@ -19,15 +19,18 @@ class EnergySource(str, Enum):
 class SimMiscFields(str, Enum):
     BATTERY_STATE = "BATTERY_STATE"
     CURTAILED_ENERGY = "CURTAILED_ENERGY"
-    STORAGE_CHARGE = "STORAGE_SOLAR_CHARGE"
+    FIXED_STORAGE_CHARGE = "STORAGE_SOLAR_CHARGE"
     STORAGE_GAS_CHARGE = "STORAGE_GAS_CHARGE"
     DEMAND = "DEMAND"
     NET_DEMAND = "NET_DEMAND"
 
-    # the actual energy that was used to fulfill demand.
-    # all generation, including solar and demand supply, but not including curtailed energy
+    # the energy that was used to fulfill demand.
     SOLAR_USAGE = "SOLAR_USAGE"
     GAS_USAGE = "GAS_USAGE"
+
+
+# the energy that was used to fulfill demand; all the fields should sum up to the demand.
+SimUsageFields = EnergySource
 
 
 class ScenarioCostFields(str, Enum):
