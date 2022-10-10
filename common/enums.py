@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import Enum
 
 
 class EmissionType(str, Enum):
@@ -23,10 +23,6 @@ class SimOutFields(str, Enum):
     STORAGE_GAS_CHARGE = "STORAGE_GAS_CHARGE"
     DEMAND = "DEMAND"
     NET_DEMAND = "NET_DEMAND"
-
-    # TODO: remove those
-    SOLAR_USAGE = "SOLAR_USAGE"
-    GAS_USAGE = "GAS_USAGE"
 
 
 # the energy that was used to fulfill demand; all the fields should sum up to the demand.
