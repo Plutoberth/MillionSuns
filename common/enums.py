@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import Enum
 
 
 class EmissionType(str, Enum):
@@ -31,7 +31,6 @@ class SimOutFields(str, Enum):
 
 # the energy that was used to fulfill demand; all the fields should sum up to the demand.
 SimUsageFields = EnergySource
-
 
 class ScenarioCostFields(str, Enum):
     RENEWABLE_ENERGY_USAGE_PERCENTAGE = "RENEWABLE_PERCENT"
