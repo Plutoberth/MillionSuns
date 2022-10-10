@@ -105,7 +105,7 @@ class RoadmapParam(DashModel):
 
     @validator("step")
     def v_step(cls, step: float, values: dict[str, float]):
-        assert step <= (
+        assert step <= abs(
                 values["end_min"] - values["start"]
         ), "step must be smaller or equal to end_min - start"
         return step
