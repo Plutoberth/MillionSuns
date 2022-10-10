@@ -96,11 +96,6 @@ class RoadmapParam(DashModel):
     end_max: NonNegativeFloat = Field(..., title="End Year Maximum Value")
     step: NonNegativeFloat = Field(..., title="Step")
 
-    @validator("end_min")
-    def v_end_min(cls, end_min: float, values: dict[str, float]):
-        assert end_min >= values["start"], "end_min must be greater or equal to start"
-        return end_min
-
     @validator("end_max")
     def v_end_max(cls, end_max: float, values: dict[str, float]):
         assert (
