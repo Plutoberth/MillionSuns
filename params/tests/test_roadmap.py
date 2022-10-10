@@ -1,12 +1,8 @@
-from cProfile import run
+from ..roadmap import Roadmap, RoadmapParam
 
-from data.defaults import DEFAULT_PARAMS
-from scenario_evaluator import run_scenarios
-from params.roadmap import Scenario, Roadmap, RoadmapParam
-from params.params import AllParams
-import logging
 
-def test_run_scenarios():
+def test_roadmap_simple():
+    # Just check that everything runs
     r = Roadmap(
         start_year=2020,
         end_year=2050,
@@ -16,14 +12,10 @@ def test_run_scenarios():
         wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
         storage_capacity_kwh=RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
         storage_efficiency=RoadmapParam(
-            start=0.85,
-            end_min=0.9,
-            end_max=0.95,
-            step=0.05,
+            start=85,
+            end_min=90,
+            end_max=95,
+            step=5,
         ),
         storage_min_energy_rate=RoadmapParam(start=0.2, end_min=0.05, end_max=0.1, step=0.05),
     )
-
-    scenario = next(r.scenarios)
-    params = AllParams(**DEFAULT_PARAMS)
-    res = run_scenarios.run_scenario(scenario, params)

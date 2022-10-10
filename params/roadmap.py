@@ -18,7 +18,7 @@ def remove_duplicates(it: t.Iterable[T]) -> t.Iterator[T]:
     Remove duplicates from an iterator while preserving order.
     """
     assert (
-        sys.version_info[MINOR] >= 6
+            sys.version_info[MINOR] >= 6
     ), "This function only works in python 3.6+, where dicts are insertion order."
     yield from dict.fromkeys(it)
 
@@ -29,7 +29,8 @@ class YearlyScenario:
     wind_capacity_kw: float
     storage_capacity_kwh: float
     storage_efficiency: float
-    storage_discharge: float
+    storage_min_energy_rate: float
+
 
 @dataclass
 class Scenario:
@@ -49,10 +50,11 @@ class Scenario:
     # energy storage
     storage_capacity_kwh: np.ndarray
     storage_efficiency: np.ndarray
-    storage_discharge: np.ndarray
+    storage_min_energy_rate: np.ndarray
 
     def __iter__(self) -> t.Iterator[YearlyScenario]:
-        zipped = np.dstack((self.solar_capacity_kw, self.wind_capacity_kw, self.storage_capacity_kwh, self.storage_efficiency, self.storage_discharge))
+        zipped = np.dstack((self.solar_capacity_kw, self.wind_capacity_kw, self.storage_capacity_kwh,
+                            self.storage_efficiency, self.storage_min_energy_rate))
         zipped = zipped[0]
         return map(lambda x: YearlyScenario(*x), zipped)
 
@@ -69,7 +71,7 @@ class Scenario:
                 self.wind_capacity_kw,
                 self.storage_capacity_kwh,
                 self.storage_efficiency,
-                self.storage_discharge,
+                self.storage_min_energy_rate,
             )
         )
 
@@ -81,6 +83,7 @@ class Scenario:
 
     def __eq__(self, other: "Scenario"):
         return self.title == other.title
+
 
 class RoadmapParam(DashModel):
     """
@@ -101,14 +104,14 @@ class RoadmapParam(DashModel):
     @validator("end_max")
     def v_end_max(cls, end_max: float, values: dict[str, float]):
         assert (
-            end_max >= values["end_min"]
+                end_max >= values["end_min"]
         ), "end_max must be greater or equal to end_min"
         return end_max
 
     @validator("step")
     def v_step(cls, step: float, values: dict[str, float]):
         assert step <= (
-            values["end_min"] - values["start"]
+                values["end_min"] - values["start"]
         ), "step must be smaller or equal to end_min - start"
         return step
 
@@ -136,11 +139,12 @@ class Roadmap(DashModel):
         ...,
         title="Storage Efficiency (Rate)",
         description="The rate of energy that can be drawn out, from the "
-        "input energy",
+                    "input energy",
     )
-    storage_discharge: RoadmapParam = Field(
+
+    storage_min_energy_rate: RoadmapParam = Field(
         ...,
-        title="Battery Discharge Depth (Rate)",
+        title="Battery Minimum Energy (Rate)",
         description="The minimum rate of energy in the battery",
     )
 
@@ -151,7 +155,7 @@ class Roadmap(DashModel):
         start_year = values["start_year"]
         assert isinstance(start_year, int), "wrong start_year type"
         assert (
-            end_year >= start_year
+                end_year >= start_year
         ), "end_year must be greater or equal to start_year"
         return end_year
 
@@ -163,7 +167,7 @@ class Roadmap(DashModel):
             self.wind_capacity_kw,
             self.storage_capacity_kwh,
             self.storage_efficiency,
-            self.storage_discharge,
+            self.storage_min_energy_rate,
         )
 
     def _scenario_from_ends(self, end_values: t.Sequence[int]) -> Scenario:
@@ -195,7 +199,7 @@ class Roadmap(DashModel):
             np.arange(param.end_min, param.end_max, param.step) for param in self._params
         )
 
-        # all combinations of end values
+        # end value combinations
         ends = product(*end_value_ranges)
 
         return remove_duplicates(
@@ -204,23 +208,3 @@ class Roadmap(DashModel):
                 ends,
             )
         )
-
-
-if __name__ == "__main__":
-    # mostly copied from google-sheets
-    r = Roadmap(
-        start_year=2020,
-        end_year=2050,
-        solar_capacity_kw=RoadmapParam(
-            start=4_000, end_min=50_000, end_max=150_000, step=20_000
-        ),
-        wind_capacity_kw=RoadmapParam(start=80, end_min=250, end_max=3_000, step=100),
-        storage_capacity_kwh=RoadmapParam(start=0, end_min=50_000, end_max=400_000, step=50_000),
-        storage_efficiency=RoadmapParam(
-            start=85,
-            end_min=90,
-            end_max=95,
-            step=5,
-        ),
-        storage_discharge=RoadmapParam(start=80, end_min=90, end_max=95, step=5),
-    )

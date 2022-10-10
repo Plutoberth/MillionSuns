@@ -220,7 +220,7 @@ def calculate_daily_usage_data(params: "AllParams") -> list[pd.DataFrame]:
             end_max=0.95,
             step=0.05,
         ),
-        storage_discharge=RoadmapParam(start=0.8, end_min=0.9, end_max=0.95, step=0.05),
+        storage_min_energy_rate=RoadmapParam(start=0.2, end_min=0.05, end_max=0.1, step=0.05),
     )
 
     scenario = next(r.scenarios)

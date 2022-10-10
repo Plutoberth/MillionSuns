@@ -64,13 +64,13 @@ def run_scenario_year(
     })
 
     storage_efficiency = yearly_scenario.storage_efficiency
-    # TODO: this is unused, we should probably integrate it later
-    # stroage_discharge = yearly_scenario.storage_discharge
+    storage_capacity = yearly_scenario.storage_capacity_kwh
+    scaled_capacity = storage_capacity * (1 - yearly_scenario.storage_min_energy_rate)
 
     result = nzo_greedy_strategy.nzo_strategy(
         demand_scaled.series,
         fixed_production,
-        yearly_scenario.storage_capacity_kwh,
+        scaled_capacity,
         storage_efficiency,
         params.general.charge_rate,
     )
