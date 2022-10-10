@@ -16,7 +16,7 @@ class EnergySource(str, Enum):
     STORAGE = "Storage"
 
 
-class SimMiscFields(str, Enum):
+class SimOutFields(str, Enum):
     BATTERY_STATE = "BATTERY_STATE"
     CURTAILED_ENERGY = "CURTAILED_ENERGY"
     FIXED_STORAGE_CHARGE = "STORAGE_SOLAR_CHARGE"
@@ -24,7 +24,7 @@ class SimMiscFields(str, Enum):
     DEMAND = "DEMAND"
     NET_DEMAND = "NET_DEMAND"
 
-    # the energy that was used to fulfill demand.
+    # TODO: remove those
     SOLAR_USAGE = "SOLAR_USAGE"
     GAS_USAGE = "GAS_USAGE"
 

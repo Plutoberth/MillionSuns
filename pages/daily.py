@@ -12,7 +12,7 @@ from dash_models import Page
 from dash_models.utils import comp_id
 
 from params.roadmap import Roadmap, RoadmapParam
-from common import EnergySource, SimMiscFields, SimUsageFields
+from common import EnergySource, SimOutFields, SimUsageFields
 from scenario_evaluator.run_scenarios import run_scenario
 
 import numpy as np
@@ -83,7 +83,7 @@ def annotation(df: pd.DataFrame, year: int, day_of_year: int):
             + BR
             + BR
             + "<span style='color:red';font-size: 16px>Total Demand: {:.2f} "
-              "KWh".format(df_by_date[SimMiscFields.DEMAND][day_of_year] / 1000)
+              "KWh".format(df_by_date[SimOutFields.DEMAND][day_of_year] / 1000)
             + SPAN
             + BR
             + "<span style='color:orange;font-size: 16px'>Solar Power: {:.2f} "
@@ -99,12 +99,12 @@ def barplot(df: pd.DataFrame, year: int, day_of_year: int):
     f.add_trace(polar_bar(df, day_of_year, SimUsageFields.WIND, "Wind", "lightgreen"))
     f.add_trace(polar_bar(df, day_of_year, SimUsageFields.SOLAR, "Solar", "orange"))
     f.add_trace(polar_bar(df, day_of_year, SimUsageFields.STORAGE, "Storage", "lightblue"))
-    f.add_trace(polar_bar(df, day_of_year, SimMiscFields.STORAGE_GAS_CHARGE, "Storage Gas Charge", "silver"))
-    f.add_trace(polar_bar(df, day_of_year, SimMiscFields.FIXED_STORAGE_CHARGE, "Storage Solar Charge", "gold"))
-    f.add_trace(polar_bar(df, day_of_year, SimMiscFields.CURTAILED_ENERGY, "Curtailed Energy", "yellow"))
-    f.add_trace(polar_scatter(df, day_of_year, SimMiscFields.DEMAND, "Demand", "red", False))
+    f.add_trace(polar_bar(df, day_of_year, SimOutFields.STORAGE_GAS_CHARGE, "Storage Gas Charge", "silver"))
+    f.add_trace(polar_bar(df, day_of_year, SimOutFields.FIXED_STORAGE_CHARGE, "Storage Solar Charge", "gold"))
+    f.add_trace(polar_bar(df, day_of_year, SimOutFields.CURTAILED_ENERGY, "Curtailed Energy", "yellow"))
+    f.add_trace(polar_scatter(df, day_of_year, SimOutFields.DEMAND, "Demand", "red", False))
     f.add_trace(
-        polar_scatter(df, day_of_year, SimMiscFields.NET_DEMAND, "Net Demand", "purple", False, True)
+        polar_scatter(df, day_of_year, SimOutFields.NET_DEMAND, "Net Demand", "purple", False, True)
     )
     f.add_annotation(
         xref="paper",
@@ -120,19 +120,19 @@ def barplot(df: pd.DataFrame, year: int, day_of_year: int):
 
 def plot(df: pd.DataFrame, year: int, day_of_year: int):
     df[ONLY_SOLAR] = (
-            df[SimMiscFields.SOLAR_USAGE]
-            + df[SimMiscFields.CURTAILED_ENERGY]
+            df[SimOutFields.SOLAR_USAGE]
+            + df[SimOutFields.CURTAILED_ENERGY]
             + df[EnergySource.STORAGE]
     )
     # TODO: not sure that this calculation is good
     df["discharge"] = (
             df[EnergySource.COAL]
-            + df[SimMiscFields.GAS_USAGE]
-            + df[SimMiscFields.STORAGE_GAS_CHARGE]
+            + df[SimOutFields.GAS_USAGE]
+            + df[SimOutFields.STORAGE_GAS_CHARGE]
             + df[EnergySource.WIND]
-            + df[SimMiscFields.SOLAR_USAGE]
-            + df[SimMiscFields.FIXED_STORAGE_CHARGE]
-            + df[SimMiscFields.CURTAILED_ENERGY]
+            + df[SimOutFields.SOLAR_USAGE]
+            + df[SimOutFields.FIXED_STORAGE_CHARGE]
+            + df[SimOutFields.CURTAILED_ENERGY]
             + df[EnergySource.STORAGE]
     )
 
@@ -263,7 +263,7 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
         return plot(df, year, day_of_year), [
             html.H5("Energy Demand", style={"textAlign": "center"}),
             dcc.Graph(
-                figure=heatmap(df, SimMiscFields.DEMAND, "reds"),
+                figure=heatmap(df, SimOutFields.DEMAND, "reds"),
                 config={"displayModeBar": False},
             ),
             html.H5("Solar Generation", style={"textAlign": "center"}),
