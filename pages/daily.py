@@ -236,9 +236,9 @@ def daily_page(app: "Dash", params: "AllParams") -> Page:
         year_idx = year - params.general.start_year
         df = sim_results[year_idx]
 
+        # TODO: add solar usage from appropriate df when available
         df[ONLY_SOLAR] = (
-                df[SimOutFields.SOLAR_USAGE]
-                + df[SimOutFields.CURTAILED_ENERGY]
+                df[SimOutFields.CURTAILED_ENERGY]
                 + df[EnergySource.STORAGE]
         )
 

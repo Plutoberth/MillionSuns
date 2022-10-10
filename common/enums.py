@@ -24,13 +24,10 @@ class SimOutFields(str, Enum):
     DEMAND = "DEMAND"
     NET_DEMAND = "NET_DEMAND"
 
-    # TODO: remove those
-    SOLAR_USAGE = "SOLAR_USAGE"
-    GAS_USAGE = "GAS_USAGE"
-
 
 # the energy that was used to fulfill demand; all the fields should sum up to the demand.
 SimUsageFields = EnergySource
+
 
 class ScenarioCostFields(str, Enum):
     RENEWABLE_ENERGY_USAGE_PERCENTAGE = "RENEWABLE_PERCENT"
