@@ -1,3 +1,5 @@
+import logging
+
 import dash_bootstrap_components as dbc
 from dash import Dash, html
 
@@ -5,6 +7,10 @@ from dash_models import Brand, Page, navbar_page
 from data.defaults import DEFAULT_PARAMS
 from pages import make_pages
 from params import AllParams
+
+LOG_FORMAT = '%(asctime)s : %(message)s'
+logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG)
+logging.info("Starting application")
 
 app = Dash(
     __name__,
@@ -45,6 +51,7 @@ app.layout = navbar_page(
     make_pages(app, params),
     (b_nzo, b_aman),
     color="dark",
+    style={"color":"white"},
     dark=True,
 )
 

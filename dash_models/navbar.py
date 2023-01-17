@@ -36,6 +36,7 @@ from .utils import comp_id
 if t.TYPE_CHECKING:
     from dash import Dash
 
+NAVBAR_LINK_STYLE = {"padding": "0rem 0.5rem 0rem"}
 
 @dataclass
 class Page:
@@ -122,9 +123,9 @@ def navbar_page(
                         )
                         for brand in brands
                     ],
-                    dbc.NavLink(href="/", children="Home"),
+                    dbc.NavLink(href="/", children="Home", style=NAVBAR_LINK_STYLE),
                     *[
-                        dbc.NavLink(href=title_to_path(page.title), children=page.title)
+                        dbc.NavLink(href=title_to_path(page.title), children=page.title, style=NAVBAR_LINK_STYLE)
                         for page in pages
                     ],
                 ]
