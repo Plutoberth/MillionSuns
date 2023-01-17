@@ -95,11 +95,11 @@ class DashEditorPage(DashModel):
 
         return dbc.Tabs(
             children=[
-                dbc.Tab(
-                    id=ui_tab,
-                    label="UI Editor",
-                    children=self.dash_fields(app, json_sub),
-                ),
+                # dbc.Tab(
+                #     id=ui_tab,
+                #     label="UI Editor",
+                #     children=self.dash_fields(app, json_sub),
+                # ),
                 dbc.Tab(
                     label="JSON Editor",
                     children=[
